@@ -1,6 +1,6 @@
 "use client";
 
-import ContadoresTarefas from "./components/ContadoresTarefas";
+import ContadoresTarefas from "../components/ui/ContadoresTarefas";
 
 export default function Home() {
   return (
