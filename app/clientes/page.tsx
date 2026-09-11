@@ -2,7 +2,7 @@
 
 import { InputGroupDemo } from "@/components/ui/InputGroupDemo";
 import ModalCliente from "@/components/ui/ModalCliente";
-import { Building } from "lucide-react";
+import { Building, Trash } from "lucide-react";
 
 import { useEffect, useState } from "react";
 
@@ -93,15 +93,16 @@ export default function Clientes() {
         </div>
       ) : (
         <div className="mx-10 my-10">
-          <div className="grid grid-cols-3 px-6 py-3 border-b border-gray-300 text-sm font-semibold text-gray-500">
+          <div className="grid grid-cols-[2fr_1fr_2fr_auto] px-6 py-3 border-b border-gray-300 text-sm font-semibold text-gray-500">
             <div>Cliente</div>
             <div>Telefone</div>
             <div>Email</div>
+            <div></div>
           </div>
 
           {clientes.map((cliente) => (
             <div
-              className="grid grid-cols-3 items-center px-6 py-4 border-b border-gray-200 hover:bg-gray-50"
+              className="grid grid-cols-[2fr_1fr_2fr_auto] items-center px-6 py-4 border-b border-gray-200 hover:bg-gray-50"
               key={cliente.id}
             >
               <div className="self-center">
@@ -118,6 +119,12 @@ export default function Clientes() {
               <div className="text-sm text-gray-700">{cliente.telefone}</div>
 
               <div className="text-sm text-gray-700">{cliente.email}</div>
+              <div className="flex justify-end">
+                <Trash
+                  size={20}
+                  className="text-gray-500 hover:text-red-600 cursor-pointer transition-colors"
+                />
+              </div>
             </div>
           ))}
         </div>
