@@ -1,21 +1,18 @@
 "use client";
-
+import type { Cliente } from "@/types/Cliente";
+import InfoCliente from "@/components/ui/InfoCliente";
 import { InputGroupDemo } from "@/components/ui/InputGroupDemo";
 import ModalCliente from "@/components/ui/ModalCliente";
 import { Building, Trash } from "lucide-react";
 
 import { useEffect, useState } from "react";
 
-type Cliente = {
-  id: number;
-  nome: string;
-  empresa: string;
-  email: string;
-  telefone: string;
-};
-
 export default function Clientes() {
   const [modalAberto, setModalAberto] = useState(false);
+
+  const [clienteSelecionado, setClienteSelecionado] = useState<Cliente | null>(
+    null,
+  );
 
   const [clientes, setClientes] = useState<Cliente[]>([]);
 
@@ -47,12 +44,42 @@ export default function Clientes() {
     setClientes([...clientes, cliente]);
   };
 
+  async function deletarClientes(id: number) {
+    console.log("CLIQUE NA LIXEIRA", id);
+
+    try {
+      const resposta = await fetch(`/api/clientes/${id}`, {
+        method: "DELETE",
+      });
+
+      if (!resposta.ok) {
+        throw new Error("Erro ao deletar cliente");
+      }
+
+      const resultado = await resposta.json();
+
+      console.log("Resposta:", resultado);
+
+      setClientes((clientes) =>
+        clientes.filter((cliente) => cliente.id !== id),
+      );
+    } catch (erro) {
+      console.error("Erro ao deletar cliente:", erro);
+    }
+  }
+
   return (
     <main className="">
       {modalAberto && (
         <ModalCliente
           fecharModal={fechar}
           adicionarCliente={adicionarCliente}
+        />
+      )}
+      {clienteSelecionado && (
+        <InfoCliente
+          fecharModal={() => setClienteSelecionado(null)}
+          cliente={clienteSelecionado}
         />
       )}
 
@@ -101,11 +128,14 @@ export default function Clientes() {
           </div>
 
           {clientes.map((cliente) => (
-            <div
-              className="grid grid-cols-[2fr_1fr_2fr_auto] items-center px-6 py-4 border-b border-gray-200 hover:bg-gray-50"
+            <button
+              className="w-full grid grid-cols-[2fr_1fr_2fr_auto] items-center px-6 py-4 border-b border-gray-200 hover:bg-gray-50"
               key={cliente.id}
+              onClick={() => {
+                setClienteSelecionado(cliente);
+              }}
             >
-              <div className="self-center">
+              <div className="self-center text-left">
                 <div className="text-lg font-bold text-black">
                   {cliente.nome}
                 </div>
@@ -116,16 +146,29 @@ export default function Clientes() {
                 </div>
               </div>
 
-              <div className="text-sm text-gray-700">{cliente.telefone}</div>
-
-              <div className="text-sm text-gray-700">{cliente.email}</div>
-              <div className="flex justify-end">
-                <Trash
-                  size={20}
-                  className="text-gray-500 hover:text-red-600 cursor-pointer transition-colors"
-                />
+              <div className="text-sm text-gray-700 text-left">
+                {cliente.telefone}
               </div>
-            </div>
+
+              <div className="text-sm text-gray-700 text-left">
+                {cliente.email}
+              </div>
+
+              <div className="flex justify-end">
+                <div
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    deletarClientes(cliente.id);
+                  }}
+                  className="cursor-pointer"
+                >
+                  <Trash
+                    size={20}
+                    className="text-gray-500 hover:text-red-600 transition-colors"
+                  />
+                </div>
+              </div>
+            </button>
           ))}
         </div>
       )}
