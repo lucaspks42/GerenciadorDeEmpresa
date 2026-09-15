@@ -8,13 +8,13 @@ import {
 
 export function InputGroupDemo() {
   return (
-    <InputGroup className="w-full bg-background border-border">
+    <InputGroup className="w-full bg-background border-white/30 ">
       <InputGroupInput
         placeholder="Pesquisar..."
-        className="bg-background text-foreground placeholder:text-muted-foreground"
+        className="bg-background text-foreground placeholder:text-muted-foreground "
       />
 
-      <InputGroupAddon className="text-muted-foreground">
+      <InputGroupAddon className="text-muted-foreground ">
         <Search />
       </InputGroupAddon>
 

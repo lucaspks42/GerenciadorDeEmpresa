@@ -78,7 +78,7 @@ export default function Clientes() {
         />
       )}
 
-      <header className="w-full border-b border-border h-16 px-10 flex items-center">
+      <header className="w-full border-b border-white/30 h-16 px-10 flex items-center">
         <h1 className="text-lg font-semibold">Clientes</h1>
       </header>
 
@@ -106,13 +106,16 @@ export default function Clientes() {
               transition-all
               shadow-lg
               shadow-primary/10
+              border-white/40
+              border
+
             "
           >
             + Novo Cliente
           </button>
         </div>
 
-        <div className="mb-5">
+        <div className="mb-5  ">
           <InputGroupDemo />
         </div>
 
@@ -126,7 +129,7 @@ export default function Clientes() {
               h-100
               border
               border-dashed
-              border-border
+              border-white/30
               rounded-2xl
               bg-card/50
             "
@@ -135,13 +138,13 @@ export default function Clientes() {
               Nenhum cliente cadastrado
             </div>
 
-            <div className="text-sm text-center text-muted-foreground mt-2">
+            <div className="text-sm text-center mt-2 text-white">
               Cadastre seu primeiro cliente para começar a acompanhar pagamentos
               e tarefas.
             </div>
           </div>
         ) : (
-          <div className="border border-border rounded-2xl overflow-hidden bg-card">
+          <div className="border border-white/30 rounded-2xl overflow-hidden bg-card">
             <div
               className="
                 grid
@@ -149,19 +152,14 @@ export default function Clientes() {
                 px-6
                 py-4
                 border-b
-                border-border
+                border-white/30
                 text-xs
                 font-semibold
                 uppercase
                 tracking-wide
                 text-muted-foreground
               "
-            >
-              <div>Cliente</div>
-              <div>Telefone</div>
-              <div>Email</div>
-              <div />
-            </div>
+            ></div>
 
             {clientes.map((cliente) => (
               <button
@@ -177,7 +175,7 @@ export default function Clientes() {
                   px-6
                   py-5
                   border-b
-                  border-border
+                  border-white/30
                   last:border-b-0
                   hover:bg-accent
                   transition-colors
@@ -186,7 +184,7 @@ export default function Clientes() {
                 "
               >
                 <div>
-                  <div className="text-sm font-semibold text-foreground">
+                  <div className="text-sm font-semibold text-foreground border-white/30">
                     {cliente.nome}
                   </div>
 
@@ -197,15 +195,11 @@ export default function Clientes() {
                   </div>
                 </div>
 
-                <div className="text-sm text-muted-foreground">
-                  {cliente.telefone}
-                </div>
+                <div className="text-sm  text-white">{cliente.telefone}</div>
 
-                <div className="text-sm text-muted-foreground">
-                  {cliente.email}
-                </div>
+                <div className="text-sm  text-white">{cliente.email}</div>
 
-                <div className="flex justify-end">
+                <div className="flex justify-end text-white">
                   <div
                     onClick={(e) => {
                       e.stopPropagation();
@@ -213,11 +207,11 @@ export default function Clientes() {
                     }}
                     className="
                       p-2
-                      rounded-lg
-                      text-muted-foreground
+                      rounded-lg                       
                       hover:text-red-400
                       hover:bg-red-500/10
                       transition-colors
+                      text-white
                     "
                   >
                     <Trash size={18} />

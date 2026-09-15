@@ -2,7 +2,7 @@
 
 import { X, Pen } from "lucide-react";
 import type { Cliente } from "@/types/Cliente";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 
 type InfoClienteProps = {
   fecharModal: () => void;
@@ -43,12 +43,40 @@ export default function InfoCliente({
     buscarPagamentos();
   }, [cliente.id]);
 
+  function salvarAlterações() {
+    const dados = {
+      nome: nome,
+      empresa: empresa,
+      telefone: telefone,
+      email: email,
+      valorProduto: valorProduto,
+      valorMensalidade: valorMensalidade,
+      diaVencimento: diaVencimento,
+    };
+
+    console.log(dados);
+  }
+
+  const fecharAlteracao = () => {
+    setEditando(false);
+  };
+
+  const [nome, setNome] = useState(cliente.nome);
+  const [empresa, setEmpresa] = useState(cliente.empresa);
+  const [telefone, setTelefone] = useState(cliente.telefone);
+  const [email, setEmail] = useState(cliente.email);
+  const [valorProduto, setValorProduto] = useState(cliente.valorProduto);
+  const [valorMensalidade, setValorMensalidade] = useState(
+    cliente.valorMensalidade,
+  );
+  const [diaVencimento, setDiaVencimento] = useState(cliente.diaVencimento);
+
   const [editando, setEditando] = useState(false);
 
   return (
     <main className="fixed inset-0 flex items-center justify-center z-50 bg-black/80 backdrop-blur-sm p-6">
-      <div className="w-full max-w-6xl max-h-[90vh] bg-card text-card-foreground border border-border rounded-2xl flex flex-col shadow-2xl">
-        <header className="border-b border-border px-6 py-5 flex items-center justify-between">
+      <div className="w-full max-w-6xl max-h-[90vh] bg-card text-card-foreground border border-white/40 rounded-2xl flex flex-col shadow-2xl">
+        <header className="border-b border-white/40 px-6 py-5 flex items-center justify-between">
           <div>
             <h2 className="text-xl font-semibold">{cliente.nome}</h2>
 
@@ -57,8 +85,10 @@ export default function InfoCliente({
             </p>
           </div>
           <div>
-            <button
-              className="
+            <div className="flex flex-row">
+              <button
+                onClick={() => setEditando(true)}
+                className="
               p-2
               rounded-lg
               text-muted-foreground
@@ -66,23 +96,24 @@ export default function InfoCliente({
               hover:bg-accent
               transition-colors
             "
-            >
-              <Pen size={20} />
-            </button>
+              >
+                <Pen size={20} />
+              </button>
 
-            <button
-              onClick={fecharModal}
-              className="
-              p-2
-              rounded-lg
-              text-muted-foreground
-              hover:text-red-600
-              hover:bg-accent
-              transition-colors
-            "
-            >
-              <X size={20} />
-            </button>
+              <button
+                onClick={fecharModal}
+                className="
+                p-2
+                rounded-lg
+                text-muted-foreground
+                hover:text-red-600
+                hover:bg-accent
+                transition-colors
+                "
+              >
+                <X size={20} />
+              </button>
+            </div>
           </div>
         </header>
 
@@ -91,8 +122,10 @@ export default function InfoCliente({
             <label className="text-xs text-muted-foreground">Nome</label>
 
             <input
-              value={cliente.nome}
-              className="border border-input bg-background text-foreground rounded-xl p-3 outline-none"
+              value={nome}
+              disabled={!editando}
+              onChange={(e) => setNome(e.target.value)}
+              className="border border-white/40 bg-background text-foreground rounded-xl p-3 outline-none"
             />
           </div>
 
@@ -100,9 +133,10 @@ export default function InfoCliente({
             <label className="text-xs text-muted-foreground">Empresa</label>
 
             <input
-              value={cliente.empresa}
-              readOnly
-              className="border border-input bg-background text-foreground rounded-xl p-3 outline-none"
+              value={empresa}
+              disabled={!editando}
+              onChange={(e) => setEmpresa(e.target.value)}
+              className="border border-white/40 bg-background text-foreground rounded-xl p-3 outline-none"
             />
           </div>
 
@@ -110,9 +144,10 @@ export default function InfoCliente({
             <label className="text-xs text-muted-foreground">Email</label>
 
             <input
-              value={cliente.email}
-              readOnly
-              className="border border-input bg-background text-foreground rounded-xl p-3 outline-none"
+              value={email}
+              disabled={!editando}
+              onChange={(e) => setEmail(e.target.value)}
+              className="border border-white/40 bg-background text-foreground rounded-xl p-3 outline-none"
             />
           </div>
 
@@ -120,9 +155,10 @@ export default function InfoCliente({
             <label className="text-xs text-muted-foreground">Telefone</label>
 
             <input
-              value={cliente.telefone}
-              readOnly
-              className="border border-input bg-background text-foreground rounded-xl p-3 outline-none"
+              value={telefone}
+              disabled={!editando}
+              onChange={(e) => setTelefone(e.target.value)}
+              className="border border-white/40 bg-background text-foreground rounded-xl p-3 outline-none"
             />
           </div>
 
@@ -130,9 +166,11 @@ export default function InfoCliente({
             <label className="text-xs text-muted-foreground">Pagamento</label>
 
             <input
-              value={cliente.valorProduto}
-              readOnly
-              className="border border-input bg-background text-foreground rounded-xl p-3 outline-none"
+              type="number"
+              value={valorProduto}
+              disabled={!editando}
+              onChange={(e) => setValorProduto(Number(e.target.value))}
+              className="border border-white/40 bg-background text-foreground rounded-xl p-3 outline-none"
             />
           </div>
 
@@ -140,9 +178,11 @@ export default function InfoCliente({
             <label className="text-xs text-muted-foreground">Mensalidade</label>
 
             <input
-              value={cliente.valorMensalidade}
-              readOnly
-              className="border border-input bg-background text-foreground rounded-xl p-3 outline-none"
+              type="number"
+              value={valorMensalidade}
+              disabled={!editando}
+              onChange={(e) => setValorMensalidade(Number(e.target.value))}
+              className="border border-white/40 bg-background text-foreground rounded-xl p-3 outline-none"
             />
           </div>
 
@@ -152,13 +192,32 @@ export default function InfoCliente({
             </label>
 
             <input
-              value={cliente.diaVencimento}
-              readOnly
-              className="border border-input bg-background text-foreground rounded-xl p-3 outline-none"
+              type="number"
+              value={diaVencimento}
+              disabled={!editando}
+              onChange={(e) => setDiaVencimento(Number(e.target.value))}
+              className="border border-white/40 bg-background text-foreground rounded-xl p-3 outline-none"
             />
           </div>
 
-          <div className="col-span-3 border border-border bg-background/50 rounded-2xl p-6 mt-2">
+          {editando && (
+            <div className="col-start-3 flex justify-end mt-6 gap-2">
+              <button
+                className=" bg-primary text-primary-foreground hover:bg-primary/85 rounded-xl px-5 h-12.5  "
+                onClick={salvarAlterações}
+              >
+                Salvar
+              </button>
+              <button
+                className="border border-white/40 rounded-xl px-3 h-12.5  "
+                onClick={fecharAlteracao}
+              >
+                Cancelar
+              </button>
+            </div>
+          )}
+
+          <div className="col-span-3 border border-white/40 bg-background/50 rounded-2xl p-6 mt-2">
             <div className="flex items-center justify-between mb-5">
               <div>
                 <h2 className="text-lg font-semibold">Próximos pagamentos</h2>
@@ -178,7 +237,7 @@ export default function InfoCliente({
                     key={pagamento.id}
                     className="
                       border
-                      border-border
+                      border-white/40
                       bg-card
                       rounded-xl
                       p-4

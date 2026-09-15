@@ -1,3 +1,6 @@
+"use client";
+
+import { usePathname } from "next/navigation";
 import {
   ClipboardList,
   LayoutDashboard,
@@ -6,6 +9,8 @@ import {
 } from "lucide-react";
 
 export default function Sidebar() {
+  const pathname = usePathname();
+
   return (
     <aside className="w-68 h-screen bg-sidebar text-sidebar-foreground border-r border-sidebar-border flex flex-col">
       {/* LOGO / NOME */}
@@ -31,9 +36,10 @@ export default function Sidebar() {
       {/* MENU */}
 
       <nav className="px-3 mt-6 flex flex-col gap-1">
+        {/* DASHBOARD */}
         <a
-          href="/"
-          className="
+          href="http://localhost:3000/"
+          className={`
             p-3
             rounded-xl
             flex
@@ -42,73 +48,95 @@ export default function Sidebar() {
             text-sm
             transition-all
             duration-200
-            bg-sidebar-accent
-            text-white
-            border
-            border-primary/20
-          "
+            ${
+              pathname === "/"
+                ? "bg-sidebar-accent text-white border border-primary/20"
+                : "text-muted-foreground hover:bg-sidebar-accent hover:text-white"
+            }
+          `}
         >
-          <LayoutDashboard size={19} className="text-primary" />
+          <LayoutDashboard
+            size={19}
+            className={pathname === "/" ? "text-primary" : ""}
+          />
           Dashboard
         </a>
 
+        {/* TAREFAS */}
         <a
           href="/tarefas"
-          className="
+          className={`
             p-3
             rounded-xl
             flex
             items-center
             gap-3
             text-sm
-            text-muted-foreground
             transition-all
             duration-200
-            hover:bg-sidebar-accent
-            hover:text-white
-          "
+            ${
+              pathname === "/tarefas"
+                ? "bg-sidebar-accent text-white border border-primary/20"
+                : "text-muted-foreground hover:bg-sidebar-accent hover:text-white"
+            }
+          `}
         >
-          <ClipboardList size={19} />
+          <ClipboardList
+            size={19}
+            className={pathname === "/tarefas" ? "text-primary" : ""}
+          />
           Tarefas
         </a>
 
+        {/* CLIENTES */}
         <a
           href="/clientes"
-          className="
+          className={`
             p-3
             rounded-xl
             flex
             items-center
             gap-3
             text-sm
-            text-muted-foreground
             transition-all
             duration-200
-            hover:bg-sidebar-accent
-            hover:text-white
-          "
+            ${
+              pathname === "/clientes"
+                ? "bg-sidebar-accent text-white border border-primary/20"
+                : "text-muted-foreground hover:bg-sidebar-accent hover:text-white"
+            }
+          `}
         >
-          <UsersRound size={19} />
+          <UsersRound
+            size={19}
+            className={pathname === "/clientes" ? "text-primary" : ""}
+          />
           Clientes
         </a>
 
+        {/* PAGAMENTOS */}
         <a
           href="/pagamentos"
-          className="
+          className={`
             p-3
             rounded-xl
             flex
             items-center
             gap-3
             text-sm
-            text-muted-foreground
             transition-all
             duration-200
-            hover:bg-sidebar-accent
-            hover:text-white
-          "
+            ${
+              pathname === "/pagamentos"
+                ? "bg-sidebar-accent text-white border border-primary/20"
+                : "text-muted-foreground hover:bg-sidebar-accent hover:text-white"
+            }
+          `}
         >
-          <Wallet size={19} />
+          <Wallet
+            size={19}
+            className={pathname === "/pagamentos" ? "text-primary" : ""}
+          />
           Pagamentos
         </a>
       </nav>

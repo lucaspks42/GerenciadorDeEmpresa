@@ -62,7 +62,7 @@ export default function ModalCliente({
 
   const classeInput = `
     border
-    border-input
+    border-white/30
     bg-background
     text-foreground
     placeholder:text-muted-foreground
@@ -77,8 +77,8 @@ export default function ModalCliente({
 
   return (
     <main className="fixed inset-0 flex items-center justify-center z-50 bg-black/80 backdrop-blur-sm p-6">
-      <div className="w-full max-w-2xl max-h-[90vh] bg-card text-card-foreground border border-border rounded-2xl flex flex-col shadow-2xl">
-        <header className="border-b border-border px-6 py-5">
+      <div className="w-full max-w-2xl max-h-[90vh] bg-card text-card-foreground border border-white/30 rounded-2xl flex flex-col shadow-2xl">
+        <header className="border-b border-white/30 px-6 py-5">
           <h2 className="text-xl font-semibold">Novo Cliente</h2>
 
           <p className="text-sm text-muted-foreground mt-1">
@@ -150,7 +150,7 @@ export default function ModalCliente({
                 items-center
                 gap-3
                 border
-                border-border
+                border-white/30
                 rounded-xl
                 p-4
                 cursor-pointer
@@ -162,7 +162,7 @@ export default function ModalCliente({
                 checked={checkbox}
                 onChange={(e) => setCheckBox(e.target.checked)}
                 type="checkbox"
-                className="accent-[var(--primary)]"
+                className="accent-primary"
               />
 
               <div>
@@ -175,7 +175,7 @@ export default function ModalCliente({
             </label>
 
             {checkbox && (
-              <div className="border border-primary/20 bg-primary/5 rounded-xl p-5 flex flex-col gap-4">
+              <div className="border border-white/30 bg-primary/5 rounded-xl p-5 flex flex-col gap-4">
                 <div className="flex flex-col gap-2">
                   <label className="text-sm">Valor da mensalidade</label>
 
@@ -205,12 +205,12 @@ export default function ModalCliente({
           </div>
         </div>
 
-        <div className="flex gap-3 justify-end py-5 px-6 border-t border-border">
+        <div className="flex gap-3 justify-end py-5 px-6 border-t border-white/30">
           <button
             onClick={fecharModal}
             className="
               border
-              border-border
+              border-white/30
               bg-background
               hover:bg-accent
               text-muted-foreground
