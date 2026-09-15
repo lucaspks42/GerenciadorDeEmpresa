@@ -21,28 +21,24 @@ export default function ModalCliente({
 
   const salvarCliente = async () => {
     const cliente = {
-      nome: nome,
-      empresa: empresa,
-      telefone: telefone,
-      email: email,
-      valorProduto: valorProduto,
-      valorMensalidade: valorMensalidade,
-      diaVencimento: diaVencimento,
+      nome,
+      empresa,
+      telefone,
+      email,
+      valorProduto,
+      valorMensalidade,
+      diaVencimento,
     };
 
     const resposta = await fetch("/api/clientes", {
       method: "POST",
-
       headers: {
         "Content-Type": "application/json",
       },
-
       body: JSON.stringify(cliente),
     });
 
     if (resposta.ok) {
-      console.log("cliente cadastrado!");
-
       const dados = await resposta.json();
 
       adicionarCliente(dados);
@@ -64,121 +60,188 @@ export default function ModalCliente({
     return `(${numeros.slice(0, 2)}) ${numeros.slice(2, 7)}-${numeros.slice(7)}`;
   }
 
+  const classeInput = `
+    border
+    border-input
+    bg-background
+    text-foreground
+    placeholder:text-muted-foreground
+    rounded-xl
+    p-3
+    outline-none
+    transition-all
+    focus:border-primary
+    focus:ring-2
+    focus:ring-primary/20
+  `;
+
   return (
-    <main className="fixed inset-0 flex items-center justify-center z-50 bg-black/50 font-bold">
-      <div className="w-200 h-200 bg-white rounded-lg flex flex-col">
-        <header className="border-b border-gray-300 px-5 py-5 items-center justify-between text-2xl">
-          Novo Cliente
+    <main className="fixed inset-0 flex items-center justify-center z-50 bg-black/80 backdrop-blur-sm p-6">
+      <div className="w-full max-w-2xl max-h-[90vh] bg-card text-card-foreground border border-border rounded-2xl flex flex-col shadow-2xl">
+        <header className="border-b border-border px-6 py-5">
+          <h2 className="text-xl font-semibold">Novo Cliente</h2>
+
+          <p className="text-sm text-muted-foreground mt-1">
+            Cadastre as informações do cliente.
+          </p>
         </header>
 
-        <div className="py-10 px-5 flex flex-col flex-1 overflow-y-auto">
-          <div className="flex-col flex gap-4">
-            <div className="flex-col flex">
-              <label>Nome do cliente</label>
+        <div className="py-6 px-6 flex-1 overflow-y-auto">
+          <div className="flex flex-col gap-5">
+            <div className="flex flex-col gap-2">
+              <label className="text-sm">Nome do cliente</label>
 
               <input
                 value={nome}
                 onChange={(e) => setNome(e.target.value)}
                 placeholder="João da Silva"
-                className="border border-gray-300 rounded-lg text-black p-2"
+                className={classeInput}
               />
             </div>
 
-            <div className="flex-col flex">
-              <label>Empresa</label>
+            <div className="flex flex-col gap-2">
+              <label className="text-sm">Empresa</label>
 
               <input
                 value={empresa}
                 onChange={(e) => setEmpresa(e.target.value)}
                 placeholder="Empresa Exemplo"
-                className="border border-gray-300 rounded-lg text-black p-2"
+                className={classeInput}
               />
             </div>
 
-            <div className="flex-col flex">
-              <label>Telefone</label>
+            <div className="flex flex-col gap-2">
+              <label className="text-sm">Telefone</label>
 
               <input
                 value={telefone}
                 onChange={(e) => setTelefone(formatarTelefone(e.target.value))}
                 placeholder="(00) 00000-0000"
-                className="border border-gray-300 rounded-lg text-black p-2"
+                className={classeInput}
               />
             </div>
 
-            <div className="flex-col flex">
-              <label>Email</label>
+            <div className="flex flex-col gap-2">
+              <label className="text-sm">Email</label>
 
               <input
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="algumacoisa@gmail.com"
-                className="border border-gray-300 rounded-lg text-black p-2"
+                className={classeInput}
               />
             </div>
 
-            <div className="flex-col flex">
-              <label>Valor cobrado</label>
+            <div className="flex flex-col gap-2">
+              <label className="text-sm">Valor cobrado</label>
 
               <input
                 value={valorProduto}
                 type="number"
                 placeholder="100,00"
                 onChange={(e) => setValorProduto(e.target.value)}
-                className="border border-gray-300 rounded-lg text-black p-2"
+                className={classeInput}
               />
             </div>
 
-            <div className="flex gap-4">
-              <label>Manutenção</label>
-
+            <label
+              className="
+                flex
+                items-center
+                gap-3
+                border
+                border-border
+                rounded-xl
+                p-4
+                cursor-pointer
+                hover:bg-accent
+                transition-colors
+              "
+            >
               <input
                 checked={checkbox}
                 onChange={(e) => setCheckBox(e.target.checked)}
                 type="checkbox"
+                className="accent-[var(--primary)]"
               />
-            </div>
+
+              <div>
+                <div className="text-sm font-medium">Manutenção mensal</div>
+
+                <div className="text-xs text-muted-foreground">
+                  Ative para configurar uma mensalidade.
+                </div>
+              </div>
+            </label>
 
             {checkbox && (
-              <div className="flex flex-col gap-1">
-                <label>Valor</label>
+              <div className="border border-primary/20 bg-primary/5 rounded-xl p-5 flex flex-col gap-4">
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm">Valor da mensalidade</label>
 
-                <input
-                  value={valorMensalidade}
-                  onChange={(e) => setValorMensalidade(e.target.value)}
-                  type="number"
-                  className="border border-gray-300 rounded-lg text-black p-2"
-                />
+                  <input
+                    value={valorMensalidade}
+                    onChange={(e) => setValorMensalidade(e.target.value)}
+                    type="number"
+                    className={classeInput}
+                  />
+                </div>
 
-                <label>Data de vencimento</label>
+                <div className="flex flex-col gap-2">
+                  <label className="text-sm">Dia de vencimento</label>
 
-                <input
-                  value={diaVencimento}
-                  type="number"
-                  onChange={(e) => setDiaVencimento(e.target.value)}
-                  min={1}
-                  max={31}
-                  placeholder="10"
-                  className="border border-gray-300 rounded-lg text-black p-2"
-                />
+                  <input
+                    value={diaVencimento}
+                    type="number"
+                    onChange={(e) => setDiaVencimento(e.target.value)}
+                    min={1}
+                    max={31}
+                    placeholder="10"
+                    className={classeInput}
+                  />
+                </div>
               </div>
             )}
           </div>
         </div>
 
-        <div className="flex gap-4 justify-end py-5 px-5 border-t border-gray-200">
+        <div className="flex gap-3 justify-end py-5 px-6 border-t border-border">
           <button
             onClick={fecharModal}
-            className="border border-gray-300 hover:bg-gray-400 rounded-lg p-2"
+            className="
+              border
+              border-border
+              bg-background
+              hover:bg-accent
+              text-muted-foreground
+              hover:text-foreground
+              transition-colors
+              rounded-xl
+              px-5
+              py-2.5
+              text-sm
+            "
           >
             Cancelar
           </button>
 
           <button
             onClick={salvarCliente}
-            className="border border-gray-300 rounded-lg p-2 bg-indigo-600 text-white px-4 hover:bg-indigo-700"
+            className="
+              bg-primary
+              hover:bg-primary/85
+              text-primary-foreground
+              transition-colors
+              rounded-xl
+              px-5
+              py-2.5
+              text-sm
+              font-semibold
+              shadow-lg
+              shadow-primary/10
+            "
           >
-            Salvar
+            Salvar cliente
           </button>
         </div>
       </div>

@@ -1,4 +1,6 @@
-import { X } from "lucide-react";
+"use client";
+
+import { X, Pen } from "lucide-react";
 import type { Cliente } from "@/types/Cliente";
 import { useEffect, useState } from "react";
 
@@ -41,83 +43,170 @@ export default function InfoCliente({
     buscarPagamentos();
   }, [cliente.id]);
 
+  const [editando, setEditando] = useState(false);
+
   return (
-    <main className="fixed inset-0 flex items-center justify-center z-50 bg-black/50 font-bold">
-      <div className="h-200 w-400 bg-white rounded-lg flex flex-col ">
-        <header className="border-b border-gray-300 px-5 py-5 items-center flex justify-between text-2xl">
-          {cliente.nome}
-          <X
-            onClick={fecharModal}
-            className="text-gray-500 hover:text-red-600 transition-colors"
-          />
+    <main className="fixed inset-0 flex items-center justify-center z-50 bg-black/80 backdrop-blur-sm p-6">
+      <div className="w-full max-w-6xl max-h-[90vh] bg-card text-card-foreground border border-border rounded-2xl flex flex-col shadow-2xl">
+        <header className="border-b border-border px-6 py-5 flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-semibold">{cliente.nome}</h2>
+
+            <p className="text-sm text-muted-foreground mt-1">
+              Informações do cliente
+            </p>
+          </div>
+          <div>
+            <button
+              className="
+              p-2
+              rounded-lg
+              text-muted-foreground
+              hover:text-green-600
+              hover:bg-accent
+              transition-colors
+            "
+            >
+              <Pen size={20} />
+            </button>
+
+            <button
+              onClick={fecharModal}
+              className="
+              p-2
+              rounded-lg
+              text-muted-foreground
+              hover:text-red-600
+              hover:bg-accent
+              transition-colors
+            "
+            >
+              <X size={20} />
+            </button>
+          </div>
         </header>
 
-        <div className="py-8 px-8 gap-16 grid grid-cols-3 ">
-          <div className="flex-col flex">
-            <label>Nome</label>
+        <div className="p-8 gap-5 grid grid-cols-3 overflow-y-auto">
+          <div className="flex flex-col gap-2">
+            <label className="text-xs text-muted-foreground">Nome</label>
+
             <input
-              type="text"
               value={cliente.nome}
-              readOnly
-              className="border border-gray-300 rounded-lg text-black p-2"
+              className="border border-input bg-background text-foreground rounded-xl p-3 outline-none"
             />
           </div>
-          <div className="flex-col flex">
-            <label>Empresa</label>
+
+          <div className="flex flex-col gap-2">
+            <label className="text-xs text-muted-foreground">Empresa</label>
+
             <input
-              type="text"
               value={cliente.empresa}
               readOnly
-              className="border border-gray-300 rounded-lg text-black p-2"
+              className="border border-input bg-background text-foreground rounded-xl p-3 outline-none"
             />
           </div>
-          <div className="flex-col flex">
-            <label>Email</label>
+
+          <div className="flex flex-col gap-2">
+            <label className="text-xs text-muted-foreground">Email</label>
+
             <input
-              type="text"
               value={cliente.email}
               readOnly
-              className="border border-gray-300 rounded-lg text-black p-2"
+              className="border border-input bg-background text-foreground rounded-xl p-3 outline-none"
             />
           </div>
-          <div className="flex-col flex">
-            <label>Telefone</label>
+
+          <div className="flex flex-col gap-2">
+            <label className="text-xs text-muted-foreground">Telefone</label>
+
             <input
-              type="text"
               value={cliente.telefone}
               readOnly
-              className="border border-gray-300 rounded-lg text-black p-2"
+              className="border border-input bg-background text-foreground rounded-xl p-3 outline-none"
             />
           </div>
 
-          <div className="flex-col flex">
-            <label>Pagamento</label>
+          <div className="flex flex-col gap-2">
+            <label className="text-xs text-muted-foreground">Pagamento</label>
 
             <input
-              type="text"
-              readOnly
               value={cliente.valorProduto}
-              className="border border-gray-300 rounded-lg text-black p-2"
+              readOnly
+              className="border border-input bg-background text-foreground rounded-xl p-3 outline-none"
             />
           </div>
-          <div className="flex-col flex">
-            <label>Mensalidade</label>
+
+          <div className="flex flex-col gap-2">
+            <label className="text-xs text-muted-foreground">Mensalidade</label>
 
             <input
-              type="text"
-              readOnly
               value={cliente.valorMensalidade}
-              className="border border-gray-300 rounded-lg text-black p-2"
+              readOnly
+              className="border border-input bg-background text-foreground rounded-xl p-3 outline-none"
             />
           </div>
-          <div className="flex-col flex">
-            <label>Data de vencimento</label>
+
+          <div className="flex flex-col gap-2">
+            <label className="text-xs text-muted-foreground">
+              Dia de vencimento
+            </label>
+
             <input
-              type="text"
-              readOnly
               value={cliente.diaVencimento}
-              className="border border-gray-300 rounded-lg text-black p-2"
+              readOnly
+              className="border border-input bg-background text-foreground rounded-xl p-3 outline-none"
             />
+          </div>
+
+          <div className="col-span-3 border border-border bg-background/50 rounded-2xl p-6 mt-2">
+            <div className="flex items-center justify-between mb-5">
+              <div>
+                <h2 className="text-lg font-semibold">Próximos pagamentos</h2>
+
+                <p className="text-sm text-muted-foreground mt-1">
+                  Histórico e próximos vencimentos
+                </p>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              {pagamentos.map((pagamento) => {
+                const [ano, mes, dia] = pagamento.data_vencimento.split("-");
+
+                return (
+                  <div
+                    key={pagamento.id}
+                    className="
+                      border
+                      border-border
+                      bg-card
+                      rounded-xl
+                      p-4
+                      flex
+                      items-center
+                      justify-between
+                      hover:border-primary/40
+                      transition-colors
+                    "
+                  >
+                    <span className="text-sm text-muted-foreground">
+                      {dia}/{mes}/{ano}
+                    </span>
+
+                    <span className="text-sm font-semibold">
+                      {pagamento.valor.toLocaleString("pt-BR", {
+                        style: "currency",
+                        currency: "BRL",
+                      })}
+                    </span>
+
+                    <span className="text-xs font-medium text-yellow-400 bg-yellow-400/10 px-3 py-1 rounded-full">
+                      {pagamento.status}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>

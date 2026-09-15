@@ -8,12 +8,17 @@ import {
 
 export function InputGroupDemo() {
   return (
-    <InputGroup className="w-full">
-      <InputGroupInput placeholder="Pesquisar..." />
-      <InputGroupAddon>
+    <InputGroup className="w-full bg-background border-border">
+      <InputGroupInput
+        placeholder="Pesquisar..."
+        className="bg-background text-foreground placeholder:text-muted-foreground"
+      />
+
+      <InputGroupAddon className="text-muted-foreground">
         <Search />
       </InputGroupAddon>
-      <InputGroupAddon align="inline-end"></InputGroupAddon>
+
+      <InputGroupAddon align="inline-end" className="text-muted-foreground" />
     </InputGroup>
   );
 }

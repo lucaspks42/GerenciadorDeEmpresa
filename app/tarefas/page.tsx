@@ -13,17 +13,11 @@ type TarefaTipo = {
 type CardTarefaProps = {
   tarefa: TarefaTipo;
   cor: string;
-
   mudarStatus: (id: number, novoStatus: string) => Promise<void>;
-
   deletarTarefa: (id: number) => Promise<void>;
-
   atualizarFeedbackColuna: (x: number, y: number) => void;
-
   obterColuna: (x: number, y: number) => string | null;
-
   iniciarDrag: (id: number, status: string) => void;
-
   finalizarDrag: () => void;
 };
 
@@ -38,7 +32,6 @@ function CardTarefa({
   finalizarDrag,
 }: CardTarefaProps) {
   const dragControls = useDragControls();
-
   const x = useMotionValue(0);
   const y = useMotionValue(0);
 
@@ -70,7 +63,6 @@ function CardTarefa({
         }
 
         iniciarDrag(tarefa.id, tarefa.status);
-
         dragControls.start(e);
       }}
       onDrag={(event, info) => {
@@ -91,19 +83,22 @@ function CardTarefa({
       className="
         relative
         border
-        border-gray-300
+        border-border
         rounded-2xl
         p-4
         pt-3
         mb-2
         shadow-md
         cursor-grab
-        bg-white
+        bg-card
+        text-card-foreground
         select-none
+        transition-colors
+        hover:border-primary/50
       "
     >
-      <div className="flex justify-between border-b border-gray-200 pb-4">
-        <span>{tarefa.texto}</span>
+      <div className="flex justify-between border-b border-border pb-4">
+        <span className="text-foreground">{tarefa.texto}</span>
 
         <div className={`w-4 h-4 ${cor} rounded-full`} />
       </div>
@@ -125,24 +120,23 @@ function CardTarefa({
           }}
           className="
             border
-            border-gray-300
+            border-input
             rounded-lg
             px-4
             py-2
-            text-black
-            bg-white
+            text-foreground
+            bg-background
             cursor-pointer
+            focus:outline-none
+            focus:ring-2
+            focus:ring-primary
           "
           name="select"
         >
           <option value="aFazer">A fazer</option>
-
           <option value="fazendo">Fazendo</option>
-
           <option value="concluido">Concluído</option>
         </select>
-
-        {/* LIXEIRA */}
 
         <button
           type="button"
@@ -151,8 +145,8 @@ function CardTarefa({
             items-center
             justify-center
             cursor-pointer
-            text-gray-600
-            hover:text-red-500
+            text-muted-foreground
+            hover:text-destructive
             transition-colors
           "
           onPointerDown={(e) => {
@@ -175,21 +169,14 @@ function CardTarefa({
 
 export default function Tarefa() {
   const [novaTarefa, setNovaTarefa] = useState("");
-
   const [status, setStatus] = useState("aFazer");
-
   const [tarefas, setTarefas] = useState<TarefaTipo[]>([]);
-
   const [tarefaArrastando, setTarefaArrastando] = useState<number | null>(null);
-
   const [statusArrastando, setStatusArrastando] = useState<string | null>(null);
-
   const [colunaAtiva, setColunaAtiva] = useState<string | null>(null);
 
   const colunaAfazer = useRef<HTMLDivElement>(null);
-
   const colunaFazendo = useRef<HTMLDivElement>(null);
-
   const colunaConcluido = useRef<HTMLDivElement>(null);
 
   type TarefaBanco = {
@@ -364,7 +351,6 @@ export default function Tarefa() {
 
   function atualizarFeedbackColuna(x: number, y: number) {
     const coluna = obterColuna(x, y);
-
     setColunaAtiva(coluna);
   }
 
@@ -409,24 +395,24 @@ export default function Tarefa() {
       duration-200
       relative
       ${estaArrastandoDaqui ? "z-50" : "z-0"}
-      ${estaAtiva ? "border-blue-400 bg-blue-50" : "border-gray-300 bg-white"}
+      ${
+        estaAtiva
+          ? "border-primary bg-primary/10 shadow-lg shadow-primary/10"
+          : "border-border bg-card"
+      }
     `;
   }
 
   return (
     <div className="flex flex-col flex-1">
-      <main className="flex flex-1 w-full flex-col min-h-screen font-bold">
-        {/* 
-            HEADER
-         */}
+      <main className="flex flex-1 w-full flex-col min-h-screen bg-background text-foreground font-bold">
+        {/* HEADER */}
 
-        <header className="w-full border-b text-black border-gray-300 h-16 flex items-center justify-start">
-          <h1 className="text-black px-4">Planejador de Tarefas</h1>
+        <header className="w-full border-b border-border h-16 flex items-center justify-start">
+          <h1 className="text-foreground px-4">Planejador de Tarefas</h1>
         </header>
 
-        {/* 
-            FORMULÁRIO
-         */}
+        {/* FORMULÁRIO */}
 
         <div className="flex w-full gap-2 px-4 py-4 font-bold">
           <input
@@ -436,11 +422,15 @@ export default function Tarefa() {
             className="
               flex-1
               border
-              border-gray-300
+              border-input
               rounded-lg
               p-3
-              text-black
-              bg-white
+              text-foreground
+              bg-background
+              placeholder:text-muted-foreground
+              focus:outline-none
+              focus:ring-2
+              focus:ring-primary
             "
           />
 
@@ -449,18 +439,20 @@ export default function Tarefa() {
             onChange={(e) => setStatus(e.target.value)}
             className="
               border
-              border-gray-300
+              border-input
               rounded-lg
               px-4
-              text-black
-              bg-white
+              text-foreground
+              bg-background
+              cursor-pointer
+              focus:outline-none
+              focus:ring-2
+              focus:ring-primary
             "
             name="select"
           >
             <option value="aFazer">A fazer</option>
-
             <option value="fazendo">Fazendo</option>
-
             <option value="concluido">Concluído</option>
           </select>
 
@@ -468,13 +460,13 @@ export default function Tarefa() {
             onClick={adicionarTarefa}
             className="
               border
-              border-gray-300
-              bg-indigo-600
-              hover:bg-indigo-700
+              border-primary
+              bg-primary
+              hover:bg-primary/80
               transition-colors
               rounded-lg
               px-4
-              text-white
+              text-primary-foreground
               font-bold
               cursor-pointer
             "
@@ -483,21 +475,21 @@ export default function Tarefa() {
           </button>
         </div>
 
-        {/* COLUNAS*/}
+        {/* COLUNAS */}
 
         <div className="flex gap-4 w-full px-4 py-4">
-          {/* A FAZER*/}
+          {/* A FAZER */}
 
           <div ref={colunaAfazer} className={classeColuna("aFazer")}>
-            <div className="border-b border-gray-200 pb-4 text-black px-4 py-4 flex justify-between items-center w-full">
+            <div className="border-b border-border text-foreground px-4 py-4 flex justify-between items-center w-full">
               <span>A fazer</span>
 
-              <span className="bg-red-100 text-red-800 px-2 py-0.5 rounded-3xl">
+              <span className="bg-primary/15 text-primary px-2 py-0.5 rounded-3xl">
                 {aFazer}
               </span>
             </div>
 
-            <div className="flex flex-col p-4 text-black gap-4">
+            <div className="flex flex-col p-4 text-foreground gap-4">
               {tarefas
                 .filter((tarefa) => tarefa.status === "aFazer")
                 .map((tarefa) => (
@@ -519,22 +511,22 @@ export default function Tarefa() {
           {/* FAZENDO */}
 
           <div ref={colunaFazendo} className={classeColuna("fazendo")}>
-            <div className="border-b border-gray-200 pb-4 text-black px-4 py-4 flex justify-between items-center w-full">
+            <div className="border-b border-border text-foreground px-4 py-4 flex justify-between items-center w-full">
               <span>Fazendo</span>
 
-              <span className="bg-orange-100 text-orange-800 px-2 py-0.5 rounded-3xl">
+              <span className="bg-primary/15 text-primary px-2 py-0.5 rounded-3xl">
                 {fazendo}
               </span>
             </div>
 
-            <div className="flex flex-col p-4 text-black gap-4">
+            <div className="flex flex-col p-4 text-foreground gap-4">
               {tarefas
                 .filter((tarefa) => tarefa.status === "fazendo")
                 .map((tarefa) => (
                   <CardTarefa
                     key={tarefa.id}
                     tarefa={tarefa}
-                    cor="bg-yellow-400"
+                    cor="bg-primary"
                     mudarStatus={mudarStatus}
                     deletarTarefa={deletarTarefa}
                     atualizarFeedbackColuna={atualizarFeedbackColuna}
@@ -546,25 +538,25 @@ export default function Tarefa() {
             </div>
           </div>
 
-          {/* CONCLUÍDO*/}
+          {/* CONCLUÍDO */}
 
           <div ref={colunaConcluido} className={classeColuna("concluido")}>
-            <div className="border-b border-gray-200 pb-4 text-black px-4 py-4 flex justify-between items-center w-full">
+            <div className="border-b border-border text-foreground px-4 py-4 flex justify-between items-center w-full">
               <span>Concluído</span>
 
-              <span className="bg-green-100 text-green-800 px-2 py-0.5 rounded-3xl">
+              <span className="bg-primary/15 text-primary px-2 py-0.5 rounded-3xl">
                 {concluidas2}
               </span>
             </div>
 
-            <div className="flex flex-col p-4 text-black gap-4">
+            <div className="flex flex-col p-4 text-foreground gap-4">
               {tarefas
                 .filter((tarefa) => tarefa.status === "concluido")
                 .map((tarefa) => (
                   <CardTarefa
                     key={tarefa.id}
                     tarefa={tarefa}
-                    cor="bg-green-500"
+                    cor="bg-green-400"
                     mudarStatus={mudarStatus}
                     deletarTarefa={deletarTarefa}
                     atualizarFeedbackColuna={atualizarFeedbackColuna}

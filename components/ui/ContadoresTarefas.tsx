@@ -15,7 +15,6 @@ export default function ContadoresTarefas() {
     async function buscarTarefas() {
       const resposta = await fetch("/api/tarefas");
       const dados = await resposta.json();
-
       setTarefas(dados);
     }
 
@@ -26,9 +25,10 @@ export default function ContadoresTarefas() {
 
   return (
     <div className="grid grid-cols-3 gap-4">
-      <div className="bg-white rounded-xl p-5">
-        <p className="text-gray-500">A fazer</p>
-        <p className="text-3xl font-bold text-black">{aFazer}</p>
+      <div className="rounded-xl p-5">
+        <p className="text-muted-foreground">A fazer</p>
+
+        <p className="text-3xl font-bold text-foreground">{aFazer}</p>
       </div>
     </div>
   );

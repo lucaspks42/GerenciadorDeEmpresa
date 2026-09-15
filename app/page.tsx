@@ -4,29 +4,112 @@ import ContadoresTarefas from "../components/ui/ContadoresTarefas";
 
 export default function Home() {
   return (
-    <main>
-      <header className="w-full border-b text-black border-gray-300 h-16 px-10 justify-start content-center">
-        Dashboard
+    <main className="min-h-screen bg-background text-foreground">
+      <header className="w-full border-b border-border h-16 px-10 flex items-center">
+        <h1 className="text-lg font-semibold">Dashboard</h1>
       </header>
-      <div className="">
-        <div className="grid grid-cols-2 py-10 px-4 gap-10">
-          <div className="border border-gray-200 px-4 py-4 text-black rounded-sm shadow-md">
-            Total de clientes
+
+      <div className="px-10 py-8">
+        <div className="mb-8">
+          <h2 className="text-2xl font-semibold">Visão geral</h2>
+
+          <p className="text-sm text-muted-foreground mt-1">
+            Acompanhe seus clientes, pagamentos e tarefas.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-2 gap-5">
+          <div
+            className="
+              border
+              border-border
+              bg-card
+              rounded-2xl
+              p-6
+              transition-all
+              hover:border-primary/40
+            "
+          >
+            <span className="text-sm text-muted-foreground">
+              Total de clientes
+            </span>
+
+            <div className="text-3xl font-semibold mt-3">0</div>
           </div>
-          <div className="border border-gray-200 px-4 py-4 text-black rounded-sm shadow-md">
-            Receita Mensal
+
+          <div
+            className="
+              border
+              border-border
+              bg-card
+              rounded-2xl
+              p-6
+              transition-all
+              hover:border-primary/40
+            "
+          >
+            <span className="text-sm text-muted-foreground">
+              Receita mensal
+            </span>
+
+            <div className="text-3xl font-semibold mt-3">R$ 0,00</div>
           </div>
-          <div className="border border-gray-200 px-4 py-4 text-black rounded-sm shadow-md">
-            Pagamento Proximos
+
+          <div
+            className="
+              border
+              border-border
+              bg-card
+              rounded-2xl
+              p-6
+              transition-all
+              hover:border-primary/40
+            "
+          >
+            <span className="text-sm text-muted-foreground">
+              Pagamentos próximos
+            </span>
+
+            <div className="text-3xl font-semibold mt-3">0</div>
           </div>
-          <div className="border border-gray-200 px-4 py-4 text-black rounded-sm shadow-md">
-            Tarefas Pendentes
-            <ContadoresTarefas />
+
+          <div
+            className="
+              border
+              border-border
+              bg-card
+              rounded-2xl
+              p-6
+              transition-all
+              hover:border-primary/40
+            "
+          >
+            <span className="text-sm text-muted-foreground">
+              Tarefas pendentes
+            </span>
+
+            <div className="mt-3">
+              <ContadoresTarefas />
+            </div>
           </div>
         </div>
-        <div className="grid px-4">
-          <div className="border border-gray-200 px-4 py-4 text-black rounded-sm shadow-md">
-            Proximos Pagamentos
+
+        <div
+          className="
+            mt-5
+            border
+            border-border
+            bg-card
+            rounded-2xl
+            p-6
+          "
+        >
+          <span className="text-sm text-muted-foreground">
+            Próximos pagamentos
+          </span>
+
+          <div className="mt-6 text-sm text-muted-foreground">
+            Nenhum pagamento próximo.
           </div>
         </div>
       </div>

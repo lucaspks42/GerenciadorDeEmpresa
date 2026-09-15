@@ -1,10 +1,10 @@
 "use client";
+
 import type { Cliente } from "@/types/Cliente";
 import InfoCliente from "@/components/ui/InfoCliente";
 import { InputGroupDemo } from "@/components/ui/InputGroupDemo";
 import ModalCliente from "@/components/ui/ModalCliente";
 import { Building, Trash } from "lucide-react";
-
 import { useEffect, useState } from "react";
 
 export default function Clientes() {
@@ -17,7 +17,7 @@ export default function Clientes() {
   const [clientes, setClientes] = useState<Cliente[]>([]);
 
   useEffect(() => {
-    async function burcarCliente() {
+    async function buscarCliente() {
       try {
         const resposta = await fetch("/api/clientes");
 
@@ -33,7 +33,7 @@ export default function Clientes() {
       }
     }
 
-    burcarCliente();
+    buscarCliente();
   }, []);
 
   const fechar = () => {
@@ -45,8 +45,6 @@ export default function Clientes() {
   };
 
   async function deletarClientes(id: number) {
-    console.log("CLIQUE NA LIXEIRA", id);
-
     try {
       const resposta = await fetch(`/api/clientes/${id}`, {
         method: "DELETE",
@@ -55,10 +53,6 @@ export default function Clientes() {
       if (!resposta.ok) {
         throw new Error("Erro ao deletar cliente");
       }
-
-      const resultado = await resposta.json();
-
-      console.log("Resposta:", resultado);
 
       setClientes((clientes) =>
         clientes.filter((cliente) => cliente.id !== id),
@@ -69,13 +63,14 @@ export default function Clientes() {
   }
 
   return (
-    <main className="">
+    <main className="min-h-screen bg-background text-foreground">
       {modalAberto && (
         <ModalCliente
           fecharModal={fechar}
           adicionarCliente={adicionarCliente}
         />
       )}
+
       {clienteSelecionado && (
         <InfoCliente
           fecharModal={() => setClienteSelecionado(null)}
@@ -83,95 +78,156 @@ export default function Clientes() {
         />
       )}
 
-      <header className="w-full border-b text-black border-gray-300 h-16 px-10 justify-start content-center">
-        Clientes
+      <header className="w-full border-b border-border h-16 px-10 flex items-center">
+        <h1 className="text-lg font-semibold">Clientes</h1>
       </header>
 
-      <div className="flex gap-4 px-10 py-10 font-bold justify-between">
-        <InputGroupDemo />
+      <div className="px-10 py-8">
+        <div className="flex items-center justify-between gap-4 mb-8">
+          <div>
+            <h2 className="text-2xl font-semibold">Clientes</h2>
 
-        <button
-          className="border
-              border-gray-300
-              bg-indigo-600
-              hover:bg-indigo-700
-              transition-colors
-              rounded-lg
-              text-white
-              cursor-pointer
-              whitespace-nowrap
-              px-4"
-          onClick={() => {
-            setModalAberto(true);
-          }}
-        >
-          + Novo Cliente
-        </button>
-      </div>
-
-      {clientes.length === 0 ? (
-        <div className="flex flex-col items-center justify-center h-100 mx-10 border-dashed border-2 my-10">
-          <div className="text-lg">Nenhum Cliente Cadastrado</div>
-
-          <div className="text-base text-center text-gray-500">
-            Cadastre seu primeiro cliente para começar a acompanhar pagamentos e
-            tarefas.
+            <p className="text-sm text-muted-foreground mt-1">
+              Gerencie seus clientes e acompanhe seus pagamentos.
+            </p>
           </div>
+
+          <button
+            onClick={() => setModalAberto(true)}
+            className="
+              bg-primary
+              hover:bg-primary/85
+              text-primary-foreground
+              rounded-xl
+              px-5
+              py-2.5
+              text-sm
+              font-semibold
+              transition-all
+              shadow-lg
+              shadow-primary/10
+            "
+          >
+            + Novo Cliente
+          </button>
         </div>
-      ) : (
-        <div className="mx-10 my-10">
-          <div className="grid grid-cols-[2fr_1fr_2fr_auto] px-6 py-3 border-b border-gray-300 text-sm font-semibold text-gray-500">
-            <div>Cliente</div>
-            <div>Telefone</div>
-            <div>Email</div>
-            <div></div>
-          </div>
 
-          {clientes.map((cliente) => (
-            <button
-              className="w-full grid grid-cols-[2fr_1fr_2fr_auto] items-center px-6 py-4 border-b border-gray-200 hover:bg-gray-50"
-              key={cliente.id}
-              onClick={() => {
-                setClienteSelecionado(cliente);
-              }}
+        <div className="mb-5">
+          <InputGroupDemo />
+        </div>
+
+        {clientes.length === 0 ? (
+          <div
+            className="
+              flex
+              flex-col
+              items-center
+              justify-center
+              h-100
+              border
+              border-dashed
+              border-border
+              rounded-2xl
+              bg-card/50
+            "
+          >
+            <div className="text-lg font-semibold">
+              Nenhum cliente cadastrado
+            </div>
+
+            <div className="text-sm text-center text-muted-foreground mt-2">
+              Cadastre seu primeiro cliente para começar a acompanhar pagamentos
+              e tarefas.
+            </div>
+          </div>
+        ) : (
+          <div className="border border-border rounded-2xl overflow-hidden bg-card">
+            <div
+              className="
+                grid
+                grid-cols-[2fr_1fr_2fr_auto]
+                px-6
+                py-4
+                border-b
+                border-border
+                text-xs
+                font-semibold
+                uppercase
+                tracking-wide
+                text-muted-foreground
+              "
             >
-              <div className="self-center text-left">
-                <div className="text-lg font-bold text-black">
-                  {cliente.nome}
+              <div>Cliente</div>
+              <div>Telefone</div>
+              <div>Email</div>
+              <div />
+            </div>
+
+            {clientes.map((cliente) => (
+              <button
+                key={cliente.id}
+                onClick={() => {
+                  setClienteSelecionado(cliente);
+                }}
+                className="
+                  w-full
+                  grid
+                  grid-cols-[2fr_1fr_2fr_auto]
+                  items-center
+                  px-6
+                  py-5
+                  border-b
+                  border-border
+                  last:border-b-0
+                  hover:bg-accent
+                  transition-colors
+                  cursor-pointer
+                  text-left
+                "
+              >
+                <div>
+                  <div className="text-sm font-semibold text-foreground">
+                    {cliente.nome}
+                  </div>
+
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1">
+                    <Building size={14} className="text-primary" />
+
+                    {cliente.empresa}
+                  </div>
                 </div>
 
-                <div className="flex items-center gap-1 text-sm text-gray-500">
-                  <Building size={15} className="text-gray-400" />
-                  {cliente.empresa}
+                <div className="text-sm text-muted-foreground">
+                  {cliente.telefone}
                 </div>
-              </div>
 
-              <div className="text-sm text-gray-700 text-left">
-                {cliente.telefone}
-              </div>
-
-              <div className="text-sm text-gray-700 text-left">
-                {cliente.email}
-              </div>
-
-              <div className="flex justify-end">
-                <div
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    deletarClientes(cliente.id);
-                  }}
-                  className="cursor-pointer"
-                >
-                  <Trash
-                    size={20}
-                    className="text-gray-500 hover:text-red-600 transition-colors"
-                  />
+                <div className="text-sm text-muted-foreground">
+                  {cliente.email}
                 </div>
-              </div>
-            </button>
-          ))}
-        </div>
-      )}
+
+                <div className="flex justify-end">
+                  <div
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      deletarClientes(cliente.id);
+                    }}
+                    className="
+                      p-2
+                      rounded-lg
+                      text-muted-foreground
+                      hover:text-red-400
+                      hover:bg-red-500/10
+                      transition-colors
+                    "
+                  >
+                    <Trash size={18} />
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
     </main>
   );
 }

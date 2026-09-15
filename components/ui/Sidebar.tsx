@@ -7,48 +7,117 @@ import {
 
 export default function Sidebar() {
   return (
-    <aside className="w-68 h-screen bg-white text-gray-700 border-r  flex flex-col border-gray-300">
-      <div className="py-3 px-4 border-b border-gray-300">
-        <span className="block text-sm font-semibold text-gray-900">
-          Assistente Administrativo
-        </span>
+    <aside className="w-68 h-screen bg-sidebar text-sidebar-foreground border-r border-sidebar-border flex flex-col">
+      {/* LOGO / NOME */}
 
-        <span className="block mt-1 text-xs text-gray-400">Painel pessoal</span>
+      <div className="px-5 py-6 border-b border-sidebar-border">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20">
+            <span className="text-white font-bold text-lg">A</span>
+          </div>
+
+          <div>
+            <span className="block text-sm font-semibold text-white">
+              Assistente
+            </span>
+
+            <span className="block text-xs text-muted-foreground">
+              Administrativo
+            </span>
+          </div>
+        </div>
       </div>
 
-      <nav className="px- mt-10">
+      {/* MENU */}
+
+      <nav className="px-3 mt-6 flex flex-col gap-1">
         <a
-          href="http://localhost:3000"
-          className="p-3 hover:bg-gray-300 rounded flex items-center gap-3"
+          href="/"
+          className="
+            p-3
+            rounded-xl
+            flex
+            items-center
+            gap-3
+            text-sm
+            transition-all
+            duration-200
+            bg-sidebar-accent
+            text-white
+            border
+            border-primary/20
+          "
         >
-          <LayoutDashboard />
+          <LayoutDashboard size={19} className="text-primary" />
           Dashboard
         </a>
 
         <a
           href="/tarefas"
-          className="p-3 hover:bg-gray-300 rounded flex items-center gap-3"
+          className="
+            p-3
+            rounded-xl
+            flex
+            items-center
+            gap-3
+            text-sm
+            text-muted-foreground
+            transition-all
+            duration-200
+            hover:bg-sidebar-accent
+            hover:text-white
+          "
         >
-          <ClipboardList />
+          <ClipboardList size={19} />
           Tarefas
         </a>
 
         <a
           href="/clientes"
-          className="p-3 hover:bg-gray-300 rounded flex items-center gap-3"
+          className="
+            p-3
+            rounded-xl
+            flex
+            items-center
+            gap-3
+            text-sm
+            text-muted-foreground
+            transition-all
+            duration-200
+            hover:bg-sidebar-accent
+            hover:text-white
+          "
         >
-          <UsersRound />
+          <UsersRound size={19} />
           Clientes
         </a>
 
         <a
-          href=""
-          className="p-3 hover:bg-gray-300 rounded flex items-center gap-3"
+          href="/pagamentos"
+          className="
+            p-3
+            rounded-xl
+            flex
+            items-center
+            gap-3
+            text-sm
+            text-muted-foreground
+            transition-all
+            duration-200
+            hover:bg-sidebar-accent
+            hover:text-white
+          "
         >
-          <Wallet />
+          <Wallet size={19} />
           Pagamentos
         </a>
       </nav>
+
+      {/* RODAPÉ */}
+
+      <div className="mt-auto px-4 py-5 border-t border-sidebar-border">
+        <div className="text-xs text-muted-foreground">Painel pessoal</div>
+      </div>
     </aside>
   );
 }
