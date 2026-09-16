@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import type { PointerEvent as ReactPointerEvent } from "react";
+import { createPortal } from "react-dom";
 import { motion, useDragControls, useMotionValue } from "motion/react";
 import { Trash } from "lucide-react";
 
@@ -32,10 +34,81 @@ function CardTarefa({
   finalizarDrag,
 }: CardTarefaProps) {
   const dragControls = useDragControls();
+
   const x = useMotionValue(0);
   const y = useMotionValue(0);
 
-  return (
+  const [arrastando, setArrastando] = useState(false);
+
+  const [posicaoInicial, setPosicaoInicial] = useState({
+    left: 0,
+    top: 0,
+    width: 0,
+    height: 0,
+  });
+
+  function iniciarArraste(e: ReactPointerEvent<HTMLDivElement>) {
+    const elemento = e.target as HTMLElement;
+
+    // Não inicia o arraste ao clicar no botão
+    if (elemento.closest("button")) {
+      return;
+    }
+
+    // Não inicia o arraste ao clicar no select
+    if (elemento.closest("select")) {
+      return;
+    }
+
+    const card = e.currentTarget.getBoundingClientRect();
+
+    setPosicaoInicial({
+      left: card.left,
+      top: card.top,
+      width: card.width,
+      height: card.height,
+    });
+
+    setArrastando(true);
+
+    iniciarDrag(tarefa.id, tarefa.status);
+
+    requestAnimationFrame(() => {
+      dragControls.start(e.nativeEvent);
+    });
+  }
+
+  function finalizarArraste(
+    event: MouseEvent | TouchEvent | PointerEvent,
+    info: { point: { x: number; y: number } },
+  ) {
+    const colunaDestino = obterColuna(info.point.x, info.point.y);
+
+    /*
+     * Se soltou dentro de uma coluna diferente,
+     * muda o status imediatamente.
+     */
+    if (colunaDestino !== null && colunaDestino !== tarefa.status) {
+      mudarStatus(tarefa.id, colunaDestino);
+    }
+
+    setArrastando(false);
+
+    finalizarDrag();
+
+    /*
+     * Espera a renderização da nova coluna
+     * antes de zerar o movimento.
+     */
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        x.set(0);
+        y.set(0);
+      });
+    });
+  }
+
+  const card = (
     <motion.div
       layout
       drag
@@ -45,41 +118,48 @@ function CardTarefa({
       style={{
         x,
         y,
+
+        ...(arrastando
+          ? {
+              position: "fixed",
+              left: posicaoInicial.left,
+              top: posicaoInicial.top,
+              width: posicaoInicial.width,
+              zIndex: 999999,
+            }
+          : {}),
+      }}
+      transition={{
+        layout: {
+          type: "spring",
+          stiffness: 500,
+          damping: 35,
+          mass: 0.7,
+        },
+
+        x: {
+          type: "spring",
+          stiffness: 500,
+          damping: 35,
+        },
+
+        y: {
+          type: "spring",
+          stiffness: 500,
+          damping: 35,
+        },
       }}
       whileDrag={{
-        zIndex: 9999,
-        scale: 1.03,
+        scale: 1.04,
+        rotate: 1,
         cursor: "grabbing",
+        boxShadow: "0 20px 40px rgba(0, 0, 0, 0.25)",
       }}
-      onPointerDown={(e) => {
-        const elemento = e.target as HTMLElement;
-
-        if (elemento.closest("button")) {
-          return;
-        }
-
-        if (elemento.closest("select")) {
-          return;
-        }
-
-        iniciarDrag(tarefa.id, tarefa.status);
-        dragControls.start(e);
-      }}
+      onPointerDown={iniciarArraste}
       onDrag={(event, info) => {
         atualizarFeedbackColuna(info.point.x, info.point.y);
       }}
-      onDragEnd={(event, info) => {
-        const colunaDestino = obterColuna(info.point.x, info.point.y);
-
-        x.set(0);
-        y.set(0);
-
-        if (colunaDestino !== null && colunaDestino !== tarefa.status) {
-          mudarStatus(tarefa.id, colunaDestino);
-        }
-
-        finalizarDrag();
-      }}
+      onDragEnd={finalizarArraste}
       className="
         relative
         border
@@ -87,7 +167,6 @@ function CardTarefa({
         rounded-2xl
         p-4
         pt-3
-        mb-2
         shadow-md
         cursor-grab
         bg-card
@@ -134,7 +213,9 @@ function CardTarefa({
           name="select"
         >
           <option value="aFazer">A fazer</option>
+
           <option value="fazendo">Fazendo</option>
+
           <option value="concluido">Concluído</option>
         </select>
 
@@ -165,18 +246,48 @@ function CardTarefa({
       </div>
     </motion.div>
   );
+
+  /*
+   * Enquanto o card estiver sendo arrastado,
+   * ele sai da coluna e vai para o body.
+   *
+   * Isso evita que o overflow-y-auto da coluna
+   * corte o card durante o arraste.
+   */
+  if (arrastando) {
+    return (
+      <>
+        <div
+          style={{
+            height: posicaoInicial.height,
+          }}
+        />
+
+        {createPortal(card, document.body)}
+      </>
+    );
+  }
+
+  return card;
 }
 
 export default function Tarefa() {
   const [novaTarefa, setNovaTarefa] = useState("");
+
   const [status, setStatus] = useState("aFazer");
+
   const [tarefas, setTarefas] = useState<TarefaTipo[]>([]);
+
   const [tarefaArrastando, setTarefaArrastando] = useState<number | null>(null);
+
   const [statusArrastando, setStatusArrastando] = useState<string | null>(null);
+
   const [colunaAtiva, setColunaAtiva] = useState<string | null>(null);
 
   const colunaAfazer = useRef<HTMLDivElement>(null);
+
   const colunaFazendo = useRef<HTMLDivElement>(null);
+
   const colunaConcluido = useRef<HTMLDivElement>(null);
 
   type TarefaBanco = {
@@ -185,6 +296,9 @@ export default function Tarefa() {
     status: string;
   };
 
+  /*
+   * Busca as tarefas do banco.
+   */
   useEffect(() => {
     async function buscarTarefas() {
       try {
@@ -221,17 +335,26 @@ export default function Tarefa() {
     (tarefa) => tarefa.status === "concluido",
   ).length;
 
+  /*
+   * Começa o arraste.
+   */
   function iniciarDrag(id: number, status: string) {
     setTarefaArrastando(id);
     setStatusArrastando(status);
   }
 
+  /*
+   * Finaliza o arraste.
+   */
   function finalizarDrag() {
     setTarefaArrastando(null);
     setStatusArrastando(null);
     setColunaAtiva(null);
   }
 
+  /*
+   * Adiciona uma nova tarefa.
+   */
   async function adicionarTarefa() {
     if (novaTarefa.trim() === "") {
       return;
@@ -256,8 +379,6 @@ export default function Tarefa() {
 
       const tarefaCriada = await resposta.json();
 
-      console.log("Resposta da API:", tarefaCriada);
-
       setTarefas((tarefasAnteriores) => [
         ...tarefasAnteriores,
         {
@@ -273,7 +394,28 @@ export default function Tarefa() {
     }
   }
 
+  /*
+   * Muda o status imediatamente na tela
+   * e depois salva no banco.
+   */
   async function mudarStatus(id: number, novoStatus: string) {
+    /*
+     * Atualização otimista.
+     *
+     * O card muda de coluna imediatamente,
+     * sem esperar o banco responder.
+     */
+    setTarefas((tarefasAtuais) =>
+      tarefasAtuais.map((tarefa) =>
+        tarefa.id === id
+          ? {
+              ...tarefa,
+              status: novoStatus,
+            }
+          : tarefa,
+      ),
+    );
+
     try {
       const resposta = await fetch(`/api/tarefas/${id}`, {
         method: "PATCH",
@@ -288,24 +430,38 @@ export default function Tarefa() {
       if (!resposta.ok) {
         throw new Error("Erro ao atualizar status");
       }
-
-      setTarefas((tarefasAnteriores) =>
-        tarefasAnteriores.map((tarefa) => {
-          if (tarefa.id === id) {
-            return {
-              ...tarefa,
-              status: novoStatus,
-            };
-          }
-
-          return tarefa;
-        }),
-      );
     } catch (erro) {
       console.error("Erro ao mudar status:", erro);
+
+      /*
+       * Se o banco falhar,
+       * busca novamente os dados.
+       */
+      try {
+        const resposta = await fetch("/api/tarefas");
+
+        if (!resposta.ok) {
+          return;
+        }
+
+        const dados: TarefaBanco[] = await resposta.json();
+
+        setTarefas(
+          dados.map((tarefa) => ({
+            id: tarefa.id,
+            texto: tarefa.titulo,
+            status: tarefa.status,
+          })),
+        );
+      } catch (erro) {
+        console.error("Erro ao recarregar tarefas:", erro);
+      }
     }
   }
 
+  /*
+   * Descobre em qual coluna o mouse está.
+   */
   function obterColuna(x: number, y: number): string | null {
     if (colunaAfazer.current) {
       const limites = colunaAfazer.current.getBoundingClientRect();
@@ -349,28 +505,29 @@ export default function Tarefa() {
     return null;
   }
 
+  /*
+   * Destaca a coluna enquanto arrasta.
+   */
   function atualizarFeedbackColuna(x: number, y: number) {
     const coluna = obterColuna(x, y);
+
     setColunaAtiva(coluna);
   }
 
+  /*
+   * Deleta uma tarefa.
+   */
   async function deletarTarefa(id: number) {
-    console.log("CLIQUEI NA LIXEIRA", id);
-
     try {
       const resposta = await fetch(`/api/tarefas/${id}`, {
         method: "DELETE",
       });
 
-      console.log("Status da resposta:", resposta.status);
-
       if (!resposta.ok) {
         throw new Error("Erro ao deletar tarefa");
       }
 
-      const resultado = await resposta.json();
-
-      console.log("Resposta:", resultado);
+      await resposta.json();
 
       setTarefas((tarefasAnteriores) =>
         tarefasAnteriores.filter((tarefa) => tarefa.id !== id),
@@ -380,6 +537,9 @@ export default function Tarefa() {
     }
   }
 
+  /*
+   * Classes das colunas.
+   */
   function classeColuna(statusColuna: string) {
     const estaAtiva = colunaAtiva === statusColuna;
 
@@ -388,13 +548,17 @@ export default function Tarefa() {
 
     return `
       border
-      min-h-150
+      h-[600px]
       rounded-2xl
       flex-1
+      flex
+      flex-col
       transition-all
       duration-200
       relative
+
       ${estaArrastandoDaqui ? "z-50" : "z-0"}
+
       ${
         estaAtiva
           ? "border-primary bg-primary/10 shadow-lg shadow-primary/10"
@@ -405,16 +569,42 @@ export default function Tarefa() {
 
   return (
     <div className="flex flex-col flex-1">
-      <main className="flex flex-1 w-full flex-col min-h-screen bg-background text-foreground font-bold">
-        {/* HEADER */}
-
-        <header className="w-full border-b border-border h-16 flex items-center justify-start">
+      <main
+        className="
+          flex
+          flex-1
+          w-full
+          flex-col
+          min-h-screen
+          bg-background
+          text-foreground
+          font-bold
+        "
+      >
+        <header
+          className="
+            w-full
+            border-b
+            border-border
+            h-16
+            flex
+            items-center
+            justify-start
+          "
+        >
           <h1 className="text-foreground px-4">Planejador de Tarefas</h1>
         </header>
 
-        {/* FORMULÁRIO */}
-
-        <div className="flex w-full gap-2 px-4 py-4 font-bold">
+        <div
+          className="
+            flex
+            w-full
+            gap-2
+            px-4
+            py-4
+            font-bold
+          "
+        >
           <input
             value={novaTarefa}
             onChange={(e) => setNovaTarefa(e.target.value)}
@@ -452,7 +642,9 @@ export default function Tarefa() {
             name="select"
           >
             <option value="aFazer">A fazer</option>
+
             <option value="fazendo">Fazendo</option>
+
             <option value="concluido">Concluído</option>
           </select>
 
@@ -475,96 +667,187 @@ export default function Tarefa() {
           </button>
         </div>
 
-        {/* COLUNAS */}
-
         <div className="flex gap-4 w-full px-4 py-4">
           {/* A FAZER */}
 
           <div ref={colunaAfazer} className={classeColuna("aFazer")}>
-            <div className="border-b border-border text-foreground px-4 py-4 flex justify-between items-center w-full">
+            <div
+              className="
+                shrink-0
+                border-b
+                border-border
+                text-foreground
+                px-4
+                py-4
+                flex
+                justify-between
+                items-center
+                w-full
+              "
+            >
               <span>A fazer</span>
 
-              <span className="bg-primary/15 text-primary px-2 py-0.5 rounded-3xl">
+              <span
+                className="
+                  bg-primary/15
+                  text-primary
+                  px-2
+                  py-0.5
+                  rounded-3xl
+                "
+              >
                 {aFazer}
               </span>
             </div>
 
-            <div className="flex flex-col p-4 text-foreground gap-4">
-              {tarefas
-                .filter((tarefa) => tarefa.status === "aFazer")
-                .map((tarefa) => (
-                  <CardTarefa
-                    key={tarefa.id}
-                    tarefa={tarefa}
-                    cor="bg-red-500"
-                    mudarStatus={mudarStatus}
-                    deletarTarefa={deletarTarefa}
-                    atualizarFeedbackColuna={atualizarFeedbackColuna}
-                    obterColuna={obterColuna}
-                    iniciarDrag={iniciarDrag}
-                    finalizarDrag={finalizarDrag}
-                  />
-                ))}
+            <div
+              className="
+                flex-1
+                min-h-0
+                overflow-y-auto
+                p-4
+                text-foreground
+              "
+            >
+              <div className="flex flex-col gap-4">
+                {tarefas
+                  .filter((tarefa) => tarefa.status === "aFazer")
+                  .map((tarefa) => (
+                    <CardTarefa
+                      key={tarefa.id}
+                      tarefa={tarefa}
+                      cor="bg-red-500"
+                      mudarStatus={mudarStatus}
+                      deletarTarefa={deletarTarefa}
+                      atualizarFeedbackColuna={atualizarFeedbackColuna}
+                      obterColuna={obterColuna}
+                      iniciarDrag={iniciarDrag}
+                      finalizarDrag={finalizarDrag}
+                    />
+                  ))}
+              </div>
             </div>
           </div>
 
           {/* FAZENDO */}
 
           <div ref={colunaFazendo} className={classeColuna("fazendo")}>
-            <div className="border-b border-border text-foreground px-4 py-4 flex justify-between items-center w-full">
+            <div
+              className="
+                shrink-0
+                border-b
+                border-border
+                text-foreground
+                px-4
+                py-4
+                flex
+                justify-between
+                items-center
+                w-full
+              "
+            >
               <span>Fazendo</span>
 
-              <span className="bg-primary/15 text-primary px-2 py-0.5 rounded-3xl">
+              <span
+                className="
+                  bg-primary/15
+                  text-primary
+                  px-2
+                  py-0.5
+                  rounded-3xl
+                "
+              >
                 {fazendo}
               </span>
             </div>
 
-            <div className="flex flex-col p-4 text-foreground gap-4">
-              {tarefas
-                .filter((tarefa) => tarefa.status === "fazendo")
-                .map((tarefa) => (
-                  <CardTarefa
-                    key={tarefa.id}
-                    tarefa={tarefa}
-                    cor="bg-primary"
-                    mudarStatus={mudarStatus}
-                    deletarTarefa={deletarTarefa}
-                    atualizarFeedbackColuna={atualizarFeedbackColuna}
-                    obterColuna={obterColuna}
-                    iniciarDrag={iniciarDrag}
-                    finalizarDrag={finalizarDrag}
-                  />
-                ))}
+            <div
+              className="
+                flex-1
+                min-h-0
+                overflow-y-auto
+                p-4
+                text-foreground
+              "
+            >
+              <div className="flex flex-col gap-4">
+                {tarefas
+                  .filter((tarefa) => tarefa.status === "fazendo")
+                  .map((tarefa) => (
+                    <CardTarefa
+                      key={tarefa.id}
+                      tarefa={tarefa}
+                      cor="bg-primary"
+                      mudarStatus={mudarStatus}
+                      deletarTarefa={deletarTarefa}
+                      atualizarFeedbackColuna={atualizarFeedbackColuna}
+                      obterColuna={obterColuna}
+                      iniciarDrag={iniciarDrag}
+                      finalizarDrag={finalizarDrag}
+                    />
+                  ))}
+              </div>
             </div>
           </div>
 
           {/* CONCLUÍDO */}
 
           <div ref={colunaConcluido} className={classeColuna("concluido")}>
-            <div className="border-b border-border text-foreground px-4 py-4 flex justify-between items-center w-full">
+            <div
+              className="
+                shrink-0
+                border-b
+                border-border
+                text-foreground
+                px-4
+                py-4
+                flex
+                justify-between
+                items-center
+                w-full
+              "
+            >
               <span>Concluído</span>
 
-              <span className="bg-primary/15 text-primary px-2 py-0.5 rounded-3xl">
+              <span
+                className="
+                  bg-primary/15
+                  text-primary
+                  px-2
+                  py-0.5
+                  rounded-3xl
+                "
+              >
                 {concluidas2}
               </span>
             </div>
 
-            <div className="flex flex-col p-4 text-foreground gap-4">
-              {tarefas
-                .filter((tarefa) => tarefa.status === "concluido")
-                .map((tarefa) => (
-                  <CardTarefa
-                    key={tarefa.id}
-                    tarefa={tarefa}
-                    cor="bg-green-400"
-                    mudarStatus={mudarStatus}
-                    deletarTarefa={deletarTarefa}
-                    atualizarFeedbackColuna={atualizarFeedbackColuna}
-                    obterColuna={obterColuna}
-                    iniciarDrag={iniciarDrag}
-                    finalizarDrag={finalizarDrag}
-                  />
-                ))}
+            <div
+              className="
+                flex-1
+                min-h-0
+                overflow-y-auto
+                p-4
+                text-foreground
+              "
+            >
+              <div className="flex flex-col gap-4">
+                {tarefas
+                  .filter((tarefa) => tarefa.status === "concluido")
+                  .map((tarefa) => (
+                    <CardTarefa
+                      key={tarefa.id}
+                      tarefa={tarefa}
+                      cor="bg-green-400"
+                      mudarStatus={mudarStatus}
+                      deletarTarefa={deletarTarefa}
+                      atualizarFeedbackColuna={atualizarFeedbackColuna}
+                      obterColuna={obterColuna}
+                      iniciarDrag={iniciarDrag}
+                      finalizarDrag={finalizarDrag}
+                    />
+                  ))}
+              </div>
             </div>
           </div>
         </div>

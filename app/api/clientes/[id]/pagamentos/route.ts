@@ -36,12 +36,7 @@ export async function GET(
   }
 
   // 3. Verificar se o cliente possui mensalidade configurada
-  if (
-    cliente.valor_mensalidade === null ||
-    cliente.valor_mensalidade === undefined ||
-    cliente.dia_vencimento === null ||
-    cliente.dia_vencimento === undefined
-  ) {
+  if (!cliente.valor_mensalidade || !cliente.dia_vencimento) {
     return Response.json([]);
   }
 

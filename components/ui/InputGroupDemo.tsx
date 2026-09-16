@@ -1,4 +1,5 @@
 import { Search } from "lucide-react";
+import * as React from "react";
 
 import {
   InputGroup,
@@ -6,15 +7,22 @@ import {
   InputGroupInput,
 } from "@/components/ui/input-group";
 
-export function InputGroupDemo() {
+type InputGroupDemoProps = {
+  value: string;
+  onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+};
+
+export function InputGroupDemo({ value, onChange }: InputGroupDemoProps) {
   return (
-    <InputGroup className="w-full bg-background border-border ">
+    <InputGroup className="w-full bg-background border-border">
       <InputGroupInput
+        value={value}
+        onChange={onChange}
         placeholder="Pesquisar..."
-        className="bg-background text-foreground placeholder:text-muted-foreground "
+        className="bg-background text-foreground placeholder:text-muted-foreground"
       />
 
-      <InputGroupAddon className="text-muted-foreground ">
+      <InputGroupAddon className="text-muted-foreground">
         <Search />
       </InputGroupAddon>
 

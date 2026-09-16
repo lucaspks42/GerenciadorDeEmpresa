@@ -74,6 +74,19 @@ export default function Clientes() {
     }
   }
 
+  const [buscar, setBuscar] = useState("");
+
+  const itensFiltrados = clientes.filter((cliente) => {
+    const pesquisa = buscar.toLowerCase();
+
+    return (
+      cliente.nome.toLowerCase().includes(pesquisa) ||
+      cliente.empresa.toLowerCase().includes(pesquisa) ||
+      cliente.email.toLowerCase().includes(pesquisa) ||
+      cliente.telefone.toLowerCase().includes(pesquisa)
+    );
+  });
+
   return (
     <main className="min-h-screen bg-background text-foreground">
       {modalAberto && (
@@ -128,7 +141,10 @@ export default function Clientes() {
         </div>
 
         <div className="mb-5">
-          <InputGroupDemo />
+          <InputGroupDemo
+            value={buscar}
+            onChange={(e) => setBuscar(e.target.value)}
+          />
         </div>
 
         {clientes.length === 0 ? (
@@ -173,7 +189,7 @@ export default function Clientes() {
               "
             ></div>
 
-            {clientes.map((cliente) => (
+            {itensFiltrados.map((cliente) => (
               <button
                 key={cliente.id}
                 onClick={() => {

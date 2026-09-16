@@ -6,7 +6,13 @@ export async function GET() {
   const ano = hoje.getFullYear();
   const mes = hoje.getMonth();
 
-  // Busca todos os clientes
+  const anoHoje = hoje.getFullYear();
+  const mesHoje = String(hoje.getMonth() + 1).padStart(2, "0");
+  const diaHoje = String(hoje.getDate()).padStart(2, "0");
+
+  const hojeFormatado = `${anoHoje}-${mesHoje}-${diaHoje}`;
+
+  // Busca todos os clientes que possuem mensalidade e dia de vencimento
   const clientes = db
     .prepare(
       `
@@ -29,9 +35,17 @@ export async function GET() {
     dia_vencimento: number;
   }[];
 
-  // Para cada cliente
+  // Cria o próximo pagamento de cada cliente, caso ainda não exista
   for (const cliente of clientes) {
-    const dataVencimento = new Date(ano, mes, cliente.dia_vencimento);
+    const vencimentoPassou = cliente.dia_vencimento < hoje.getDate();
+
+    let mesVencimento = mes;
+
+    if (vencimentoPassou) {
+      mesVencimento = mes + 1;
+    }
+
+    const dataVencimento = new Date(ano, mesVencimento, cliente.dia_vencimento);
 
     const anoFormatado = dataVencimento.getFullYear();
 
@@ -41,7 +55,7 @@ export async function GET() {
 
     const dataFormatada = `${anoFormatado}-${mesFormatado}-${diaFormatado}`;
 
-    // Verifica se já existe pagamento para esse cliente neste mês
+    // Verifica se já existe esse pagamento
     const pagamentoExistente = db
       .prepare(
         `
@@ -77,7 +91,7 @@ export async function GET() {
     }
   }
 
-  // Retorna os pagamentos com os dados dos clientes
+  // Busca todos os pagamentos
   const pagamentos = db
     .prepare(
       `
@@ -89,14 +103,25 @@ export async function GET() {
         pagamentos.valor,
         pagamentos.dia_vencimento,
         pagamentos.data_vencimento,
-        pagamentos.status
+        pagamentos.status,
+
+        CASE
+          WHEN pagamentos.data_vencimento < ? THEN 1
+          WHEN pagamentos.data_vencimento = ? THEN 2
+          ELSE 3
+        END AS prioridade
+
       FROM pagamentos
+
       INNER JOIN clientes
         ON pagamentos.cliente_id = clientes.id
-      ORDER BY pagamentos.data_vencimento ASC
+
+      ORDER BY
+        prioridade ASC,
+        pagamentos.data_vencimento ASC
       `,
     )
-    .all();
+    .all(hojeFormatado, hojeFormatado);
 
   return Response.json(pagamentos);
 }

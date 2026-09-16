@@ -5,6 +5,7 @@ import { X, Pen } from "lucide-react";
 import type { Cliente } from "@/types/Cliente";
 
 import { useEffect, useState } from "react";
+import { FaWhatsapp } from "react-icons/fa";
 
 type InfoClienteProps = {
   fecharModal: () => void;
@@ -86,6 +87,17 @@ export default function InfoCliente({
 
       setEditando(false);
 
+      const respostaPagamentos = await fetch(
+        `/api/clientes/${cliente.id}/pagamentos`,
+      );
+
+      if (respostaPagamentos.ok) {
+        const pagamentosAtualizados: Pagamento[] =
+          await respostaPagamentos.json();
+
+        setPagamentos(pagamentosAtualizados);
+      }
+
       console.log("Alterações salvas:", clienteAtualizado);
     } catch (erro) {
       console.error(erro);
@@ -156,7 +168,7 @@ export default function InfoCliente({
           </div>
         </header>
 
-        <div className="p-8 gap-5 grid grid-cols-3 overflow-y-auto">
+        <div className="p-8 gap-5 grid grid-cols-3 ">
           <div className="flex flex-col gap-2">
             <label className="text-xs text-muted-foreground">Nome</label>
 
@@ -193,12 +205,29 @@ export default function InfoCliente({
           <div className="flex flex-col gap-2">
             <label className="text-xs text-muted-foreground">Telefone</label>
 
-            <input
-              value={telefone}
-              disabled={!editando}
-              onChange={(e) => setTelefone(e.target.value)}
-              className="border border-border bg-background text-foreground rounded-xl p-3 outline-none"
-            />
+            <div className="flex items-center gap-3">
+              <input
+                value={telefone}
+                disabled={!editando}
+                onChange={(e) => setTelefone(e.target.value)}
+                className="flex-1 border border-border bg-background text-foreground rounded-xl p-3 outline-none focus:border-green-500 transition-colors"
+              />
+
+              <button
+                type="button"
+                onClick={() => {
+                  const numero = telefone.replace(/\D/g, "");
+
+                  if (!numero) return;
+
+                  window.open(`https://wa.me/55${numero}`, "_blank");
+                }}
+                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-border text-white shadow-sm transition-all hover:scale-105 hover:bg-green-600 hover:shadow-md active:scale-95"
+                title="Abrir WhatsApp"
+              >
+                <FaWhatsapp size={24} />
+              </button>
+            </div>
           </div>
 
           <div className="flex flex-col gap-2">
@@ -258,54 +287,66 @@ export default function InfoCliente({
           )}
 
           <div className="col-span-3 border border-border bg-background/50 rounded-2xl p-6 mt-2">
-            <div className="flex items-center justify-between mb-5">
-              <div>
-                <h2 className="text-lg font-semibold">Próximos pagamentos</h2>
-
-                <p className="text-sm text-muted-foreground mt-1">
-                  Histórico e próximos vencimentos
-                </p>
+            {pagamentos.length === 0 ? (
+              <div className="text-sm text-muted-foreground">
+                Esse cliente não possui pagamentos
               </div>
-            </div>
+            ) : (
+              <>
+                <div className="flex items-center justify-between mb-5 ">
+                  <div>
+                    <h2 className="text-lg font-semibold">
+                      Próximos pagamentos
+                    </h2>
 
-            <div className="flex flex-col gap-2">
-              {pagamentos.map((pagamento) => {
-                const [ano, mes, dia] = pagamento.data_vencimento.split("-");
-
-                return (
-                  <div
-                    key={pagamento.id}
-                    className="
-                      border
-                      border-border
-                      bg-card
-                      rounded-xl
-                      p-4
-                      flex
-                      items-center
-                      justify-between
-                      hover:border-primary/40
-                      transition-colors
-                    "
-                  >
-                    <span className="text-sm text-muted-foreground">
-                      {dia}/{mes}/{ano}
-                    </span>
-
-                    <span className="text-sm font-semibold">
-                      {pagamento.valor.toLocaleString("pt-BR", {
-                        style: "currency",
-                        currency: "BRL",
-                      })}
-                    </span>
-
-                    <span className="text-xs font-medium text-yellow-400 bg-yellow-400/10 px-3 py-1 rounded-full">
-                      {pagamento.status}
-                    </span>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Histórico e próximos vencimentos
+                    </p>
                   </div>
-                );
-              })}
-            </div>
+                </div>
+
+                <div className="flex flex-col gap-2 max-h-64 overflow-y-auto pr-2 ">
+                  {pagamentos.map((pagamento) => {
+                    const [ano, mes, dia] =
+                      pagamento.data_vencimento.split("-");
+
+                    return (
+                      <div
+                        key={pagamento.id}
+                        className="
+                border
+                border-border
+                bg-card
+                rounded-xl
+                p-4
+                flex
+                items-center
+                justify-between
+                hover:border-primary/40
+                transition-colors
+                
+              "
+                      >
+                        <span className="text-sm text-muted-foreground">
+                          {dia}/{mes}/{ano}
+                        </span>
+
+                        <span className="text-sm font-semibold">
+                          {pagamento.valor.toLocaleString("pt-BR", {
+                            style: "currency",
+                            currency: "BRL",
+                          })}
+                        </span>
+
+                        <span className="text-xs font-medium text-yellow-400 bg-yellow-400/10 px-3 py-1 rounded-full">
+                          {pagamento.status}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>

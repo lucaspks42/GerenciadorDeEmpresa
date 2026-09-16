@@ -1,6 +1,9 @@
 "use client";
 
+import ContadoresClientes from "@/components/ui/ContadoresClientes";
 import ContadoresTarefas from "../components/ui/ContadoresTarefas";
+import ContadoresPagamentos from "@/components/ui/ContadoresPagamentos";
+import ReceitaMensal from "@/components/ui/ReceitaMensal";
 
 export default function Home() {
   return (
@@ -21,70 +24,80 @@ export default function Home() {
         <div className="grid grid-cols-2 gap-5">
           <div
             className="
-              border
-              border-border
-              bg-card
-              rounded-2xl
-              p-6
-              transition-all
-              hover:border-primary/40
-            "
+      border
+      border-border
+      bg-card
+      rounded-2xl
+      p-6
+      transition-all
+      hover:border-primary/40
+      min-h-40
+    "
           >
-            <span className="text-sm text-muted-foreground">
+            <span className="block text-sm text-muted-foreground">
               Total de clientes
             </span>
 
-            <div className="text-3xl font-semibold mt-3">0</div>
+            <div className="mt-3">
+              <ContadoresClientes />
+            </div>
           </div>
 
           <div
             className="
-              border
-              border-border
-              bg-card
-              rounded-2xl
-              p-6
-              transition-all
-              hover:border-primary/40
-            "
+      border
+      border-border
+      bg-card
+      rounded-2xl
+      p-6
+      transition-all
+      hover:border-primary/40
+      min-h-40
+    "
           >
-            <span className="text-sm text-muted-foreground">
+            <span className="block text-sm text-muted-foreground">
               Receita mensal
             </span>
 
-            <div className="text-3xl font-semibold mt-3">R$ 0,00</div>
+            <div className="mt-3">
+              <ReceitaMensal />
+            </div>
           </div>
 
           <div
             className="
-              border
-              border-border
-              bg-card
-              rounded-2xl
-              p-6
-              transition-all
-              hover:border-primary/40
-            "
+      border
+      border-border
+      bg-card
+      rounded-2xl
+      p-6
+      transition-all
+      hover:border-primary/40
+      min-h-40
+    "
           >
-            <span className="text-sm text-muted-foreground">
+            <span className="block text-sm text-muted-foreground">
               Pagamentos próximos
             </span>
 
-            <div className="text-3xl font-semibold mt-3">0</div>
+            <div className="mt-3">
+              <ContadoresPagamentos />
+            </div>
           </div>
 
           <div
             className="
-              border
-              border-border
-              bg-card
-              rounded-2xl
-              p-6
-              transition-all
-              hover:border-primary/40
-            "
+      border
+      border-border
+      bg-card
+      rounded-2xl
+      p-6
+      transition-all
+      hover:border-primary/40
+      min-h-40
+    "
           >
-            <span className="text-sm text-muted-foreground">
+            <span className="block text-sm text-muted-foreground">
               Tarefas pendentes
             </span>
 
