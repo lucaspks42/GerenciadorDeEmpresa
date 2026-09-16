@@ -50,7 +50,7 @@ export default function Sidebar() {
             duration-200
             ${
               pathname === "/"
-                ? "bg-sidebar-accent text-white border border-primary/20"
+                ? "bg-sidebar-accent text-white border border-border"
                 : "text-muted-foreground hover:bg-sidebar-accent hover:text-white"
             }
           `}
@@ -76,7 +76,7 @@ export default function Sidebar() {
             duration-200
             ${
               pathname === "/tarefas"
-                ? "bg-sidebar-accent text-white border border-primary/20"
+                ? "bg-sidebar-accent text-white border border-border"
                 : "text-muted-foreground hover:bg-sidebar-accent hover:text-white"
             }
           `}

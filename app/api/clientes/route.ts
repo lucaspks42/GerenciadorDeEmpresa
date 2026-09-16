@@ -52,9 +52,21 @@ export async function POST(request: Request) {
     diaVencimento,
   });
 }
-
 export async function GET() {
-  const clientes = db.prepare("SELECT * FROM clientes").all();
+  const clientes = db
+    .prepare(`
+      SELECT
+        id,
+        nome,
+        empresa,
+        telefone,
+        email,
+        valor_produto AS valorProduto,
+        valor_mensalidade AS valorMensalidade,
+        dia_vencimento AS diaVencimento
+      FROM clientes
+    `)
+    .all();
 
   return Response.json(clientes);
 }

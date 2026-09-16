@@ -8,7 +8,7 @@ import {
 
 export function InputGroupDemo() {
   return (
-    <InputGroup className="w-full bg-background border-white/30 ">
+    <InputGroup className="w-full bg-background border-border ">
       <InputGroupInput
         placeholder="Pesquisar..."
         className="bg-background text-foreground placeholder:text-muted-foreground "

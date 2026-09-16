@@ -1,9 +1,11 @@
 "use client";
 
 import type { Cliente } from "@/types/Cliente";
+
 import InfoCliente from "@/components/ui/InfoCliente";
 import { InputGroupDemo } from "@/components/ui/InputGroupDemo";
 import ModalCliente from "@/components/ui/ModalCliente";
+
 import { Building, Trash } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -44,6 +46,16 @@ export default function Clientes() {
     setClientes([...clientes, cliente]);
   };
 
+  const atualizarCliente = (clienteAtualizado: Cliente) => {
+    setClientes((clientes) =>
+      clientes.map((cliente) =>
+        cliente.id === clienteAtualizado.id ? clienteAtualizado : cliente,
+      ),
+    );
+
+    setClienteSelecionado(clienteAtualizado);
+  };
+
   async function deletarClientes(id: number) {
     try {
       const resposta = await fetch(`/api/clientes/${id}`, {
@@ -75,10 +87,11 @@ export default function Clientes() {
         <InfoCliente
           fecharModal={() => setClienteSelecionado(null)}
           cliente={clienteSelecionado}
+          atualizarCliente={atualizarCliente}
         />
       )}
 
-      <header className="w-full border-b border-white/30 h-16 px-10 flex items-center">
+      <header className="w-full border-b border-border h-16 px-10 flex items-center">
         <h1 className="text-lg font-semibold">Clientes</h1>
       </header>
 
@@ -108,14 +121,13 @@ export default function Clientes() {
               shadow-primary/10
               border-white/40
               border
-
             "
           >
             + Novo Cliente
           </button>
         </div>
 
-        <div className="mb-5  ">
+        <div className="mb-5">
           <InputGroupDemo />
         </div>
 
@@ -129,7 +141,7 @@ export default function Clientes() {
               h-100
               border
               border-dashed
-              border-white/30
+              border-border
               rounded-2xl
               bg-card/50
             "
@@ -144,7 +156,7 @@ export default function Clientes() {
             </div>
           </div>
         ) : (
-          <div className="border border-white/30 rounded-2xl overflow-hidden bg-card">
+          <div className="border border-border rounded-2xl overflow-hidden bg-card">
             <div
               className="
                 grid
@@ -152,7 +164,7 @@ export default function Clientes() {
                 px-6
                 py-4
                 border-b
-                border-white/30
+                border-border
                 text-xs
                 font-semibold
                 uppercase
@@ -175,7 +187,7 @@ export default function Clientes() {
                   px-6
                   py-5
                   border-b
-                  border-white/30
+                  border-border
                   last:border-b-0
                   hover:bg-accent
                   transition-colors
@@ -184,20 +196,19 @@ export default function Clientes() {
                 "
               >
                 <div>
-                  <div className="text-sm font-semibold text-foreground border-white/30">
+                  <div className="text-sm font-semibold text-foreground border-border">
                     {cliente.nome}
                   </div>
 
                   <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1">
                     <Building size={14} className="text-primary" />
-
                     {cliente.empresa}
                   </div>
                 </div>
 
-                <div className="text-sm  text-white">{cliente.telefone}</div>
+                <div className="text-sm text-white">{cliente.telefone}</div>
 
-                <div className="text-sm  text-white">{cliente.email}</div>
+                <div className="text-sm text-white">{cliente.email}</div>
 
                 <div className="flex justify-end text-white">
                   <div
@@ -207,7 +218,7 @@ export default function Clientes() {
                     }}
                     className="
                       p-2
-                      rounded-lg                       
+                      rounded-lg
                       hover:text-red-400
                       hover:bg-red-500/10
                       transition-colors
