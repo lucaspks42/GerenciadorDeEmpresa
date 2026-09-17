@@ -10,6 +10,36 @@ export default function ConcluirPagamentos({
   pagamento,
   fechar,
 }: ConcluirPagamentosProps) {
+  let corStatus = "";
+
+  if (pagamento.status === "Pago") {
+    corStatus = "border-green-400 bg-green-500/5";
+  } else {
+    corStatus = "border-orange-400 bg-orange-600/5";
+  }
+
+  function formatarData(data: string) {
+    const [ano, mes, dia] = data.split("-");
+    return `${dia}/${mes}/${ano}`;
+  }
+
+  async function confirmarPagamento() {
+    try {
+      const resposta = await fetch(`/api/pagamentos/${pagamento.id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      if (!resposta.ok) {
+        throw new Error("Erro ao salvar alterações");
+      }
+      fechar();
+    } catch (erro) {
+      console.error(erro);
+    }
+  }
+
   return (
     <main className="fixed inset-0 flex items-center justify-center z-50 bg-black/80 backdrop-blur-sm p-6">
       <div className="w-full max-w-4xl max-h-[90vh] bg-card text-card-foreground border border-border gap-4 rounded-2xl flex flex-col shadow-2xl">
@@ -57,13 +87,15 @@ export default function ConcluirPagamentos({
               </div>
             </div>
 
-            <div className="border border-red-400/50 bg-red-500/5 rounded-2xl p-6 min-h-40 transition-all hover:border-red-400 hover:bg-red-500/10">
+            <div
+              className={`border  ${corStatus} rounded-2xl p-6 min-h-40 transition-all  `}
+            >
               <span className="block text-sm font-medium text-muted-foreground uppercase tracking-wide">
                 📅 Vencimento
               </span>
 
               <div className="mt-6 text-2xl font-bold text-center">
-                {pagamento.data_vencimento}
+                {formatarData(pagamento.data_vencimento)}
               </div>
             </div>
 
@@ -107,7 +139,7 @@ export default function ConcluirPagamentos({
             Cancelar
           </button>
           <button
-            onClick={fechar}
+            onClick={confirmarPagamento}
             className="             
             bg-green-500
             hover:bg-green-400    
