@@ -6,19 +6,13 @@ import type { Cliente } from "@/types/Cliente";
 
 import { useEffect, useState } from "react";
 import { FaWhatsapp } from "react-icons/fa";
+import ConcluirPagamentos from "./ConcluirPagamento";
+import type { Pagamento } from "@/types/Pagamentos";
 
 type InfoClienteProps = {
   fecharModal: () => void;
   cliente: Cliente;
   atualizarCliente: (cliente: Cliente) => void;
-};
-
-type Pagamento = {
-  id: number;
-  valor: number;
-  dia_vencimento: number;
-  data_vencimento: string;
-  status: string;
 };
 
 export default function InfoCliente({
@@ -123,8 +117,27 @@ export default function InfoCliente({
 
   const [editando, setEditando] = useState(false);
 
+  const [pagamentoSelecionado, setPagamentoSelecionado] =
+    useState<Pagamento | null>(null);
+
   return (
     <main className="fixed inset-0 flex items-center justify-center z-50 bg-black/80 backdrop-blur-sm p-6">
+      {pagamentoSelecionado && (
+        <ConcluirPagamentos
+          pagamento={pagamentoSelecionado}
+          fechar={() => setPagamentoSelecionado(null)}
+          atualizarPagamento={(id) => {
+            setPagamentos((pagamentosAtuais) =>
+              pagamentosAtuais.map((pagamento) =>
+                pagamento.id === id
+                  ? { ...pagamento, status: "Pago" }
+                  : pagamento,
+              ),
+            );
+          }}
+        />
+      )}
+
       <div className="w-full max-w-6xl max-h-[90vh] bg-card text-card-foreground border border-border rounded-2xl flex flex-col shadow-2xl">
         <header className="border-b border-border px-6 py-5 flex items-center justify-between">
           <div>
@@ -313,19 +326,20 @@ export default function InfoCliente({
                     return (
                       <div
                         key={pagamento.id}
+                        onClick={() => setPagamentoSelecionado(pagamento)}
                         className="
-                border
-                border-border
-                bg-card
-                rounded-xl
-                p-4
-                flex
-                items-center
-                justify-between
-                hover:border-primary/40
-                transition-colors
-                
-              "
+                          border
+                          border-border
+                          bg-card
+                          rounded-xl
+                          p-4
+                          flex
+                          items-center
+                          justify-between
+                          hover:border-primary/40
+                          transition-colors
+                          cursor-pointer
+  "
                       >
                         <span className="text-sm text-muted-foreground">
                           {dia}/{mes}/{ano}
@@ -338,7 +352,13 @@ export default function InfoCliente({
                           })}
                         </span>
 
-                        <span className="text-xs font-medium text-yellow-400 bg-yellow-400/10 px-3 py-1 rounded-full">
+                        <span
+                          className={
+                            pagamento.status === "Pago"
+                              ? "text-xs font-medium text-green-500 bg-green-500/10 px-3 py-1 rounded-full"
+                              : "text-xs font-medium text-yellow-400 bg-yellow-400/10 px-3 py-1 rounded-full"
+                          }
+                        >
                           {pagamento.status}
                         </span>
                       </div>

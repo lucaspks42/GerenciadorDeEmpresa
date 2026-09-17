@@ -19,6 +19,13 @@ type Pagamento = {
 
 export default function Pagamentos() {
   const [pagamentos, setPagamentos] = useState<Pagamento[]>([]);
+  function atualizarPagamento(id: number) {
+    setPagamentos((pagamentosAtuais) =>
+      pagamentosAtuais.map((pagamento) =>
+        pagamento.id === id ? { ...pagamento, status: "Pago" } : pagamento,
+      ),
+    );
+  }
   const [buscar, setBuscar] = useState("");
 
   const [pagamentoSelecionado, setPagamentoSelecionado] =
@@ -51,6 +58,7 @@ export default function Pagamentos() {
         <ConcluirPagamentos
           pagamento={pagamentoSelecionado}
           fechar={() => setPagamentoSelecionado(null)}
+          atualizarPagamento={atualizarPagamento}
         />
       )}
 

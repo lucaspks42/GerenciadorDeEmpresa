@@ -4,11 +4,13 @@ import { CircleCheck, X } from "lucide-react";
 type ConcluirPagamentosProps = {
   pagamento: Pagamento;
   fechar: () => void;
+  atualizarPagamento: (id: number) => void;
 };
 
 export default function ConcluirPagamentos({
   pagamento,
   fechar,
+  atualizarPagamento,
 }: ConcluirPagamentosProps) {
   let corStatus = "";
 
@@ -34,6 +36,7 @@ export default function ConcluirPagamentos({
       if (!resposta.ok) {
         throw new Error("Erro ao salvar alterações");
       }
+      atualizarPagamento(pagamento.id);
       fechar();
     } catch (erro) {
       console.error(erro);
