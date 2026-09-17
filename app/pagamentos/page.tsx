@@ -1,6 +1,8 @@
 "use client";
 
+import ConcluirPagamentos from "@/components/ui/ConcluirPagamento";
 import { InputGroupDemo } from "@/components/ui/InputGroupDemo";
+
 import { useEffect, useState } from "react";
 
 type Pagamento = {
@@ -18,6 +20,9 @@ type Pagamento = {
 export default function Pagamentos() {
   const [pagamentos, setPagamentos] = useState<Pagamento[]>([]);
   const [buscar, setBuscar] = useState("");
+
+  const [pagamentoSelecionado, setPagamentoSelecionado] =
+    useState<Pagamento | null>(null);
 
   useEffect(() => {
     async function buscarPagamentos() {
@@ -42,6 +47,13 @@ export default function Pagamentos() {
 
   return (
     <main className="min-h-screen bg-background text-foreground">
+      {pagamentoSelecionado && (
+        <ConcluirPagamentos
+          pagamento={pagamentoSelecionado}
+          fechar={() => setPagamentoSelecionado(null)}
+        />
+      )}
+
       <header className="w-full border-b border-border h-16 px-10 flex items-center">
         <h1 className="text-lg font-semibold">Lista de Pagamentos</h1>
       </header>
@@ -63,6 +75,9 @@ export default function Pagamentos() {
             return (
               <div
                 key={pagamento.id}
+                onClick={() => {
+                  setPagamentoSelecionado(pagamento);
+                }}
                 className="
                   w-full
                   grid
