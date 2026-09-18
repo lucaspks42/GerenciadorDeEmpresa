@@ -126,11 +126,13 @@ export default function InfoCliente({
         <ConcluirPagamentos
           pagamento={pagamentoSelecionado}
           fechar={() => setPagamentoSelecionado(null)}
-          atualizarPagamento={(id) => {
+          atualizarPagamento={(pagamentoAtualizado) => {
+            console.log("PAGAMENTO ATUALIZADO:", pagamentoAtualizado);
+
             setPagamentos((pagamentosAtuais) =>
               pagamentosAtuais.map((pagamento) =>
-                pagamento.id === id
-                  ? { ...pagamento, status: "Pago" }
+                pagamento.id === pagamentoAtualizado.id
+                  ? pagamentoAtualizado
                   : pagamento,
               ),
             );

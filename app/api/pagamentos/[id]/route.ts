@@ -8,26 +8,62 @@ export async function PATCH(
     const { id } = await params;
     const pagamentoID = Number(id);
 
-    const resultado = db
-      .prepare(`
-        UPDATE pagamentos
-        SET status = ?
-        WHERE id = ?
-      `)
-      .run("Pago", pagamentoID);
+    const dados = await request.json();
 
-    if (resultado.changes === 0) {
-      return Response.json(
-        { mensagem: "Pagamento não encontrado" },
-        { status: 404 },
-      );
+    // ALTERAR STATUS
+    if (dados.status !== undefined) {
+      const resultado = db
+        .prepare(
+          `
+          UPDATE pagamentos
+          SET status = ?
+          WHERE id = ?
+        `,
+        )
+        .run(dados.status, pagamentoID);
+
+      if (resultado.changes === 0) {
+        return Response.json(
+          { mensagem: "Pagamento não encontrado" },
+          { status: 404 },
+        );
+      }
+
+      return Response.json({
+        mensagem: "Status do pagamento atualizado",
+      });
     }
 
-    return Response.json({
-      mensagem: "Pagamento atualizado com sucesso",
-    });
+    // ALTERAR VALOR E DATA
+    if (dados.valor !== undefined && dados.data_vencimento !== undefined) {
+      const resultado = db
+        .prepare(
+          `
+          UPDATE pagamentos
+          SET valor = ?, data_vencimento = ?
+          WHERE id = ?
+        `,
+        )
+        .run(dados.valor, dados.data_vencimento, pagamentoID);
+
+      if (resultado.changes === 0) {
+        return Response.json(
+          { mensagem: "Pagamento não encontrado" },
+          { status: 404 },
+        );
+      }
+
+      return Response.json({
+        mensagem: "Pagamento alterado com sucesso",
+      });
+    }
+
+    return Response.json(
+      { mensagem: "Nenhuma alteração enviada" },
+      { status: 400 },
+    );
   } catch (erro) {
-    console.error(erro);
+    console.error("ERRO NO PATCH:", erro);
 
     return Response.json(
       { mensagem: "Erro ao atualizar pagamento" },
