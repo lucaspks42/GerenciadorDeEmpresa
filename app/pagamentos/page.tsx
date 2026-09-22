@@ -1,8 +1,7 @@
 "use client";
 
 import ConcluirPagamentos from "@/components/ui/ConcluirPagamento";
-import { InputGroupDemo } from "@/components/ui/InputGroupDemo";
-
+import { useSearch } from "@/components/context/SearchContext";
 import { useEffect, useState } from "react";
 
 type Pagamento = {
@@ -19,31 +18,44 @@ type Pagamento = {
 
 export default function Pagamentos() {
   const [pagamentos, setPagamentos] = useState<Pagamento[]>([]);
-  function atualizarPagamento(id: number) {
-    setPagamentos((pagamentosAtuais) =>
-      pagamentosAtuais.map((pagamento) =>
-        pagamento.id === id ? { ...pagamento, status: "Pago" } : pagamento,
-      ),
-    );
-  }
-  const [buscar, setBuscar] = useState("");
 
   const [pagamentoSelecionado, setPagamentoSelecionado] =
     useState<Pagamento | null>(null);
 
+  const { buscar } = useSearch();
+
+  function atualizarPagamento(pagamentoAtualizado: Pagamento) {
+    setPagamentos((pagamentosAtuais) =>
+      pagamentosAtuais.map((pagamento) =>
+        pagamento.id === pagamentoAtualizado.id
+          ? pagamentoAtualizado
+          : pagamento,
+      ),
+    );
+  }
+
   useEffect(() => {
     async function buscarPagamentos() {
-      const resposta = await fetch("/api/pagamentos");
-      const dados = await resposta.json();
+      try {
+        const resposta = await fetch("/api/pagamentos");
 
-      setPagamentos(dados);
+        if (!resposta.ok) {
+          throw new Error("Erro ao buscar pagamentos");
+        }
+
+        const dados: Pagamento[] = await resposta.json();
+
+        setPagamentos(dados);
+      } catch (erro) {
+        console.error("Erro:", erro);
+      }
     }
 
     buscarPagamentos();
   }, []);
 
   const itensFiltrados = pagamentos.filter((pagamento) => {
-    const pesquisa = buscar.toLowerCase();
+    const pesquisa = buscar.toLowerCase().trim();
 
     return (
       pagamento.nome.toLowerCase().includes(pesquisa) ||
@@ -53,7 +65,7 @@ export default function Pagamentos() {
   });
 
   return (
-    <main className="min-h-screen bg-background text-foreground">
+    <main className="h-[calc(100vh-4rem)] overflow-hidden bg-background text-foreground">
       {pagamentoSelecionado && (
         <ConcluirPagamentos
           pagamento={pagamentoSelecionado}
@@ -62,78 +74,94 @@ export default function Pagamentos() {
         />
       )}
 
-      <header className="w-full border-b border-border h-16 px-10 flex items-center">
-        <h1 className="text-lg font-semibold">Lista de Pagamentos</h1>
-      </header>
+      <div className="px-10 py-8 h-full">
+        {itensFiltrados.length === 0 ? (
+          <div className="flex items-center justify-center py-20">
+            <p className="text-sm text-muted-foreground">
+              Nenhum pagamento encontrado.
+            </p>
+          </div>
+        ) : (
+          <div
+            className="
+              w-full
+              h-full
+              border
+              border-border
+              rounded-lg
+              overflow-hidden
+              flex
+              flex-col
+            "
+          >
+            {/* ÁREA QUE ROLA */}
+            <div className="overflow-y-auto flex-1">
+              {itensFiltrados.map((pagamento) => {
+                const data = new Date(pagamento.data_vencimento + "T00:00:00");
 
-      <div className="px-10 py-8">
-        <div className="mb-5">
-          <InputGroupDemo
-            value={buscar}
-            onChange={(e) => setBuscar(e.target.value)}
-          />
-        </div>
+                const dataFormatada = data.toLocaleDateString("pt-BR");
 
-        <div className="w-full border border-border rounded-lg overflow-hidden">
-          {itensFiltrados.map((pagamento) => {
-            const data = new Date(pagamento.data_vencimento + "T00:00:00");
-
-            const dataFormatada = data.toLocaleDateString("pt-BR");
-
-            return (
-              <div
-                key={pagamento.id}
-                onClick={() => {
-                  setPagamentoSelecionado(pagamento);
-                }}
-                className="
-                  w-full
-                  grid
-                  grid-cols-[2fr_1fr_2fr_auto]
-                  items-center
-                  px-6
-                  py-5
-                  border-b
-                  border-border
-                  last:border-b-0
-                  hover:bg-accent
-                  transition-colors
-                  text-left
-                "
-              >
-                <div>
-                  <p className="font-medium">{pagamento.nome}</p>
-
-                  <p className="text-sm text-muted-foreground">
-                    {pagamento.empresa}
-                  </p>
-                </div>
-
-                <div>
-                  <p className="font-medium">
-                    R$ {pagamento.valor.toFixed(2).replace(".", ",")}
-                  </p>
-                </div>
-
-                <div>
-                  <p className="text-sm">Vencimento: {dataFormatada}</p>
-                </div>
-
-                <div>
-                  <span
-                    className={
-                      pagamento.status === "Pago"
-                        ? "text-green-600"
-                        : "text-yellow-600"
-                    }
+                return (
+                  <div
+                    key={pagamento.id}
+                    onClick={() => {
+                      setPagamentoSelecionado(pagamento);
+                    }}
+                    className="
+                      w-full
+                      grid
+                      grid-cols-[2fr_1fr_2fr_auto]
+                      items-center
+                      px-6
+                      py-5
+                      border-b
+                      border-border
+                      last:border-b-0
+                      hover:bg-accent
+                      transition-colors
+                      text-left
+                      cursor-pointer
+                    "
                   >
-                    {pagamento.status}
-                  </span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+                    {/* CLIENTE */}
+                    <div>
+                      <p className="font-medium">{pagamento.nome}</p>
+
+                      <p className="text-sm text-muted-foreground">
+                        {pagamento.empresa}
+                      </p>
+                    </div>
+
+                    {/* VALOR */}
+                    <div>
+                      <p className="font-medium">
+                        R$ {pagamento.valor.toFixed(2).replace(".", ",")}
+                      </p>
+                    </div>
+
+                    {/* VENCIMENTO */}
+                    <div>
+                      <p className="text-sm">Vencimento: {dataFormatada}</p>
+                    </div>
+
+                    {/* STATUS */}
+                    <div>
+                      <span
+                        className={
+                          pagamento.status === "Pago"
+                            ? "text-green-600"
+                            : "text-yellow-600"
+                        }
+                      >
+                        {pagamento.status}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
     </main>
   );

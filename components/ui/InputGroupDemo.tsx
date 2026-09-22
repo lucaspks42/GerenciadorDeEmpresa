@@ -19,14 +19,16 @@ export function InputGroupDemo({ value, onChange }: InputGroupDemoProps) {
         value={value}
         onChange={onChange}
         placeholder="Pesquisar..."
-        className="bg-background text-foreground placeholder:text-muted-foreground"
+        className="
+          bg-background
+          text-foreground
+          placeholder:text-muted-foreground
+        "
       />
 
       <InputGroupAddon className="text-muted-foreground">
-        <Search />
+        <Search size={17} />
       </InputGroupAddon>
-
-      <InputGroupAddon align="inline-end" className="text-muted-foreground" />
     </InputGroup>
   );
 }

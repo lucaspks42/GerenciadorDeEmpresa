@@ -5,6 +5,7 @@ import type { PointerEvent as ReactPointerEvent } from "react";
 import { createPortal } from "react-dom";
 import { motion, useDragControls, useMotionValue } from "motion/react";
 import { Trash } from "lucide-react";
+import Header from "@/components/ui/Header";
 
 type TarefaTipo = {
   id: number;
@@ -537,9 +538,6 @@ export default function Tarefa() {
     }
   }
 
-  /*
-   * Classes das colunas.
-   */
   function classeColuna(statusColuna: string) {
     const estaAtiva = colunaAtiva === statusColuna;
 
@@ -581,20 +579,6 @@ export default function Tarefa() {
           font-bold
         "
       >
-        <header
-          className="
-            w-full
-            border-b
-            border-border
-            h-16
-            flex
-            items-center
-            justify-start
-          "
-        >
-          <h1 className="text-foreground px-4">Planejador de Tarefas</h1>
-        </header>
-
         <div
           className="
             flex

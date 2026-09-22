@@ -1,15 +1,15 @@
 "use client";
 
 import { X, Pen } from "lucide-react";
-
-import type { Cliente } from "@/types/Cliente";
-
 import { useEffect, useState } from "react";
 import { FaWhatsapp } from "react-icons/fa";
-import ConcluirPagamentos from "./ConcluirPagamento";
+
+import type { Cliente } from "@/types/Cliente";
 import type { Pagamento } from "@/types/Pagamentos";
 
-type InfoClienteProps = {
+import ConcluirPagamentos from "./ConcluirPagamento";
+
+export type InfoClienteProps = {
   fecharModal: () => void;
   cliente: Cliente;
   atualizarCliente: (cliente: Cliente) => void;
@@ -21,6 +21,24 @@ export default function InfoCliente({
   atualizarCliente,
 }: InfoClienteProps) {
   const [pagamentos, setPagamentos] = useState<Pagamento[]>([]);
+
+  const [nome, setNome] = useState(cliente.nome);
+  const [empresa, setEmpresa] = useState(cliente.empresa);
+  const [telefone, setTelefone] = useState(cliente.telefone);
+  const [email, setEmail] = useState(cliente.email);
+
+  const [valorProduto, setValorProduto] = useState(cliente.valorProduto);
+
+  const [valorMensalidade, setValorMensalidade] = useState(
+    cliente.valorMensalidade,
+  );
+
+  const [diaVencimento, setDiaVencimento] = useState(cliente.diaVencimento);
+
+  const [editando, setEditando] = useState(false);
+
+  const [pagamentoSelecionado, setPagamentoSelecionado] =
+    useState<Pagamento | null>(null);
 
   useEffect(() => {
     async function buscarPagamentos() {
@@ -35,7 +53,7 @@ export default function InfoCliente({
 
         setPagamentos(pagamentosDoBanco);
       } catch (erro) {
-        console.error(erro);
+        console.error("Erro ao buscar pagamentos:", erro);
       }
     }
 
@@ -91,34 +109,10 @@ export default function InfoCliente({
 
         setPagamentos(pagamentosAtualizados);
       }
-
-      console.log("Alterações salvas:", clienteAtualizado);
     } catch (erro) {
-      console.error(erro);
+      console.error("Erro ao salvar alterações:", erro);
     }
   }
-
-  const fecharAlteracao = () => {
-    setEditando(false);
-  };
-
-  const [nome, setNome] = useState(cliente.nome);
-  const [empresa, setEmpresa] = useState(cliente.empresa);
-  const [telefone, setTelefone] = useState(cliente.telefone);
-  const [email, setEmail] = useState(cliente.email);
-
-  const [valorProduto, setValorProduto] = useState(cliente.valorProduto);
-
-  const [valorMensalidade, setValorMensalidade] = useState(
-    cliente.valorMensalidade,
-  );
-
-  const [diaVencimento, setDiaVencimento] = useState(cliente.diaVencimento);
-
-  const [editando, setEditando] = useState(false);
-
-  const [pagamentoSelecionado, setPagamentoSelecionado] =
-    useState<Pagamento | null>(null);
 
   return (
     <main className="fixed inset-0 flex items-center justify-center z-50 bg-black/80 backdrop-blur-sm p-6">
@@ -127,8 +121,6 @@ export default function InfoCliente({
           pagamento={pagamentoSelecionado}
           fechar={() => setPagamentoSelecionado(null)}
           atualizarPagamento={(pagamentoAtualizado) => {
-            console.log("PAGAMENTO ATUALIZADO:", pagamentoAtualizado);
-
             setPagamentos((pagamentosAtuais) =>
               pagamentosAtuais.map((pagamento) =>
                 pagamento.id === pagamentoAtualizado.id
@@ -150,40 +142,38 @@ export default function InfoCliente({
             </p>
           </div>
 
-          <div>
-            <div className="flex flex-row">
-              <button
-                onClick={() => setEditando(true)}
-                className="
-                  p-2
-                  rounded-lg
-                  text-muted-foreground
-                  hover:text-green-600
-                  hover:bg-accent
-                  transition-colors
-                "
-              >
-                <Pen size={20} />
-              </button>
+          <div className="flex flex-row">
+            <button
+              onClick={() => setEditando(true)}
+              className="
+                p-2
+                rounded-lg
+                text-muted-foreground
+                hover:text-green-600
+                hover:bg-accent
+                transition-colors
+              "
+            >
+              <Pen size={20} />
+            </button>
 
-              <button
-                onClick={fecharModal}
-                className="
-                  p-2
-                  rounded-lg
-                  text-muted-foreground
-                  hover:text-red-600
-                  hover:bg-accent
-                  transition-colors
-                "
-              >
-                <X size={20} />
-              </button>
-            </div>
+            <button
+              onClick={fecharModal}
+              className="
+                p-2
+                rounded-lg
+                text-muted-foreground
+                hover:text-red-600
+                hover:bg-accent
+                transition-colors
+              "
+            >
+              <X size={20} />
+            </button>
           </div>
         </header>
 
-        <div className="p-8 gap-5 grid grid-cols-3 ">
+        <div className="p-8 gap-5 grid grid-cols-3 overflow-y-auto">
           <div className="flex flex-col gap-2">
             <label className="text-xs text-muted-foreground">Nome</label>
 
@@ -294,7 +284,7 @@ export default function InfoCliente({
 
               <button
                 className="border border-border rounded-xl px-3 h-12.5"
-                onClick={fecharAlteracao}
+                onClick={() => setEditando(false)}
               >
                 Cancelar
               </button>
@@ -308,7 +298,7 @@ export default function InfoCliente({
               </div>
             ) : (
               <>
-                <div className="flex items-center justify-between mb-5 ">
+                <div className="flex items-center justify-between mb-5">
                   <div>
                     <h2 className="text-lg font-semibold">
                       Próximos pagamentos
@@ -320,7 +310,7 @@ export default function InfoCliente({
                   </div>
                 </div>
 
-                <div className="flex flex-col gap-2 max-h-64 overflow-y-auto pr-2 ">
+                <div className="flex flex-col gap-2 max-h-64 overflow-y-auto pr-2">
                   {pagamentos.map((pagamento) => {
                     const [ano, mes, dia] =
                       pagamento.data_vencimento.split("-");
@@ -341,7 +331,7 @@ export default function InfoCliente({
                           hover:border-primary/40
                           transition-colors
                           cursor-pointer
-  "
+                        "
                       >
                         <span className="text-sm text-muted-foreground">
                           {dia}/{mes}/{ano}

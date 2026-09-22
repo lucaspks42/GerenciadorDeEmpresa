@@ -10,7 +10,6 @@ export async function PATCH(
 
     const dados = await request.json();
 
-    // ALTERAR STATUS
     if (dados.status !== undefined) {
       const resultado = db
         .prepare(
@@ -34,7 +33,6 @@ export async function PATCH(
       });
     }
 
-    // ALTERAR VALOR E DATA
     if (dados.valor !== undefined && dados.data_vencimento !== undefined) {
       const resultado = db
         .prepare(

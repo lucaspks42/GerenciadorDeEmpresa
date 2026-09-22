@@ -3,8 +3,8 @@
 import type { Cliente } from "@/types/Cliente";
 
 import InfoCliente from "@/components/ui/InfoCliente";
-import { InputGroupDemo } from "@/components/ui/InputGroupDemo";
 import ModalCliente from "@/components/ui/ModalCliente";
+import { useSearch } from "@/components/context/SearchContext";
 
 import { Building, Trash } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -12,14 +12,12 @@ import { useEffect, useState } from "react";
 export default function Clientes() {
   const [modalAberto, setModalAberto] = useState(false);
 
-  const [clienteSelecionado, setClienteSelecionado] = useState<Cliente | null>(
-    null,
-  );
-
   const [clientes, setClientes] = useState<Cliente[]>([]);
 
+  const { buscar, clienteSelecionado, setClienteSelecionado } = useSearch();
+
   useEffect(() => {
-    async function buscarCliente() {
+    async function buscarClientes() {
       try {
         const resposta = await fetch("/api/clientes");
 
@@ -31,24 +29,24 @@ export default function Clientes() {
 
         setClientes(clientesDoBanco);
       } catch (erro) {
-        console.error(erro);
+        console.error("Erro ao buscar clientes:", erro);
       }
     }
 
-    buscarCliente();
+    buscarClientes();
   }, []);
 
-  const fechar = () => {
+  const fecharModal = () => {
     setModalAberto(false);
   };
 
   const adicionarCliente = (cliente: Cliente) => {
-    setClientes([...clientes, cliente]);
+    setClientes((clientesAtuais) => [...clientesAtuais, cliente]);
   };
 
   const atualizarCliente = (clienteAtualizado: Cliente) => {
-    setClientes((clientes) =>
-      clientes.map((cliente) =>
+    setClientes((clientesAtuais) =>
+      clientesAtuais.map((cliente) =>
         cliente.id === clienteAtualizado.id ? clienteAtualizado : cliente,
       ),
     );
@@ -56,7 +54,7 @@ export default function Clientes() {
     setClienteSelecionado(clienteAtualizado);
   };
 
-  async function deletarClientes(id: number) {
+  async function deletarCliente(id: number) {
     try {
       const resposta = await fetch(`/api/clientes/${id}`, {
         method: "DELETE",
@@ -66,18 +64,24 @@ export default function Clientes() {
         throw new Error("Erro ao deletar cliente");
       }
 
-      setClientes((clientes) =>
-        clientes.filter((cliente) => cliente.id !== id),
+      setClientes((clientesAtuais) =>
+        clientesAtuais.filter((cliente) => cliente.id !== id),
       );
+
+      if (clienteSelecionado?.id === id) {
+        setClienteSelecionado(null);
+      }
     } catch (erro) {
       console.error("Erro ao deletar cliente:", erro);
     }
   }
 
-  const [buscar, setBuscar] = useState("");
-
   const itensFiltrados = clientes.filter((cliente) => {
-    const pesquisa = buscar.toLowerCase();
+    const pesquisa = buscar.toLowerCase().trim();
+
+    if (!pesquisa) {
+      return true;
+    }
 
     return (
       cliente.nome.toLowerCase().includes(pesquisa) ||
@@ -89,13 +93,15 @@ export default function Clientes() {
 
   return (
     <main className="min-h-screen bg-background text-foreground">
+      {/* Modal para adicionar cliente */}
       {modalAberto && (
         <ModalCliente
-          fecharModal={fechar}
+          fecharModal={fecharModal}
           adicionarCliente={adicionarCliente}
         />
       )}
 
+      {/* Informações do cliente */}
       {clienteSelecionado && (
         <InfoCliente
           fecharModal={() => setClienteSelecionado(null)}
@@ -104,11 +110,8 @@ export default function Clientes() {
         />
       )}
 
-      <header className="w-full border-b border-border h-16 px-10 flex items-center">
-        <h1 className="text-lg font-semibold">Clientes</h1>
-      </header>
-
       <div className="px-10 py-8">
+        {/* Cabeçalho da página */}
         <div className="flex items-center justify-between gap-4 mb-8">
           <div>
             <h2 className="text-2xl font-semibold">Clientes</h2>
@@ -140,13 +143,7 @@ export default function Clientes() {
           </button>
         </div>
 
-        <div className="mb-5">
-          <InputGroupDemo
-            value={buscar}
-            onChange={(e) => setBuscar(e.target.value)}
-          />
-        </div>
-
+        {/* Nenhum cliente cadastrado */}
         {clientes.length === 0 ? (
           <div
             className="
@@ -166,13 +163,39 @@ export default function Clientes() {
               Nenhum cliente cadastrado
             </div>
 
-            <div className="text-sm text-center mt-2 text-white">
+            <div className="text-sm text-center mt-2 text-muted-foreground">
               Cadastre seu primeiro cliente para começar a acompanhar pagamentos
               e tarefas.
             </div>
           </div>
+        ) : itensFiltrados.length === 0 ? (
+          /* Nenhum resultado da pesquisa */
+          <div
+            className="
+              flex
+              flex-col
+              items-center
+              justify-center
+              h-60
+              border
+              border-dashed
+              border-border
+              rounded-2xl
+              bg-card/50
+            "
+          >
+            <div className="text-lg font-semibold">
+              Nenhum cliente encontrado
+            </div>
+
+            <p className="text-sm text-muted-foreground mt-2">
+              Nenhum resultado para {buscar}.
+            </p>
+          </div>
         ) : (
+          /* Lista de clientes */
           <div className="border border-border rounded-2xl overflow-hidden bg-card">
+            {/* Cabeçalho da tabela */}
             <div
               className="
                 grid
@@ -187,11 +210,21 @@ export default function Clientes() {
                 tracking-wide
                 text-muted-foreground
               "
-            ></div>
+            >
+              <div>Cliente</div>
 
+              <div>Telefone</div>
+
+              <div>Email</div>
+
+              <div></div>
+            </div>
+
+            {/* Clientes */}
             {itensFiltrados.map((cliente) => (
               <button
                 key={cliente.id}
+                type="button"
                 onClick={() => {
                   setClienteSelecionado(cliente);
                 }}
@@ -211,26 +244,31 @@ export default function Clientes() {
                   text-left
                 "
               >
+                {/* Nome + empresa */}
                 <div>
-                  <div className="text-sm font-semibold text-foreground border-border">
+                  <div className="text-sm font-semibold text-foreground">
                     {cliente.nome}
                   </div>
 
                   <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1">
                     <Building size={14} className="text-primary" />
+
                     {cliente.empresa}
                   </div>
                 </div>
 
+                {/* Telefone */}
                 <div className="text-sm text-white">{cliente.telefone}</div>
 
+                {/* Email */}
                 <div className="text-sm text-white">{cliente.email}</div>
 
+                {/* Excluir */}
                 <div className="flex justify-end text-white">
                   <div
                     onClick={(e) => {
                       e.stopPropagation();
-                      deletarClientes(cliente.id);
+                      deletarCliente(cliente.id);
                     }}
                     className="
                       p-2
