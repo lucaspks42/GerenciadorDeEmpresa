@@ -1,7 +1,7 @@
 "use client";
 
 import ContadoresClientes from "@/components/ui/ContadoresClientes";
-import ContadoresTarefas from "../components/ui/ContadoresTarefas";
+import ContadoresTarefas from "../../components/ui/ContadoresTarefas";
 import ContadoresPagamentos from "@/components/ui/ContadoresPagamentos";
 import ReceitaMensal from "@/components/ui/ReceitaMensal";
 import { useSearch } from "@/components/context/SearchContext";
