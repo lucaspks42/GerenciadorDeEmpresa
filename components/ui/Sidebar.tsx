@@ -13,8 +13,6 @@ export default function Sidebar() {
 
   return (
     <aside className="w-68 h-screen bg-sidebar text-sidebar-foreground border-r border-sidebar-border flex flex-col">
-      {/* LOGO / NOME */}
-
       <div className="px-5 py-6 border-b border-sidebar-border">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/20">
@@ -33,12 +31,9 @@ export default function Sidebar() {
         </div>
       </div>
 
-      {/* MENU */}
-
       <nav className="px-3 mt-6 flex flex-col gap-1">
-        {/* DASHBOARD */}
         <a
-          href="http://localhost:3000/"
+          href="/"
           className={`
             p-3
             rounded-xl
@@ -49,7 +44,7 @@ export default function Sidebar() {
             transition-all
             duration-200
             ${
-              pathname === "/"
+              pathname === "/dashboard"
                 ? "bg-sidebar-accent text-white border border-border"
                 : "text-muted-foreground hover:bg-sidebar-accent hover:text-white"
             }
@@ -57,12 +52,11 @@ export default function Sidebar() {
         >
           <LayoutDashboard
             size={19}
-            className={pathname === "/" ? "text-primary" : ""}
+            className={pathname === "/dashboard" ? "text-primary" : ""}
           />
           Dashboard
         </a>
 
-        {/* TAREFAS */}
         <a
           href="/tarefas"
           className={`
@@ -88,7 +82,6 @@ export default function Sidebar() {
           Tarefas
         </a>
 
-        {/* CLIENTES */}
         <a
           href="/clientes"
           className={`
@@ -114,7 +107,6 @@ export default function Sidebar() {
           Clientes
         </a>
 
-        {/* PAGAMENTOS */}
         <a
           href="/pagamentos"
           className={`
@@ -140,8 +132,6 @@ export default function Sidebar() {
           Pagamentos
         </a>
       </nav>
-
-      {/* RODAPÉ */}
 
       <div className="mt-auto px-4 py-5 border-t border-sidebar-border">
         <div className="text-xs text-muted-foreground">Painel pessoal</div>

@@ -1,7 +1,10 @@
 "use client";
 
-import { event } from "next/dist/build/output/log";
-import { FormEvent, useState } from "react";
+import FormCadastro from "@/components/ui/FormCadastro";
+import FormLogin from "@/components/ui/FormLogin";
+import Image from "next/image";
+import { AnimatePresence, motion } from "motion/react";
+import { useState } from "react";
 
 export default function Cadastro() {
   const [nome, setNome] = useState("");
@@ -9,7 +12,9 @@ export default function Cadastro() {
   const [senha, setSenha] = useState("");
   const [mensagem, setMensagem] = useState("");
 
-  async function cadastrar(event: FormEvent) {
+  const [modoLogin, setModoLogin] = useState(false);
+
+  async function cadastrar(event: React.FormEvent) {
     event.preventDefault();
 
     setMensagem("");
@@ -41,97 +46,153 @@ export default function Cadastro() {
   }
 
   const classeInput = `
-        border
-        border-white/30
-        bg-background
-        text-foreground
-        placeholder:text-muted-foreground
-        rounded-xl
-        p-3
-        outline-none
-        transition-all
-        focus:border-primary
-        focus:ring-2
-        focus:ring-primary/20
-        w-full
-    `;
+    border
+    border-white/30
+    bg-background
+    text-foreground
+    placeholder:text-muted-foreground
+    rounded-xl
+    p-3
+    outline-none
+    transition-all
+    focus:border-primary
+    focus:ring-2
+    focus:ring-primary/20
+    w-full
+  `;
 
   return (
-    <main>
-      <div className="flex min-h-screen items-center justify-center">
-        <form
-          onSubmit={cadastrar}
-          className="h-150 w-150 border border-border rounded-xl px-10 py-10 flex-col flex gap-8 "
-        >
-          <header className="-mx-10 w-auto border-b border-border px-10 pb-3 text-2xl">
-            Cadastro
-          </header>
-          <div className="flex flex-col gap-4">
-            <div>
-              <label className="text-sm">Nome Completo</label>
-              <input
-                type="text"
-                value={nome}
-                placeholder="Digite o seu nome"
-                className={classeInput}
-                onChange={(event) => setNome(event.target.value)}
-              />
-            </div>
-            <div>
-              <label className="text-sm">Email</label>
-              <input
-                type="text"
-                value={email}
-                placeholder="Digite o seu email"
-                className={classeInput}
-                onChange={(event) => setEmail(event.target.value)}
-              />
-            </div>
-            <div>
-              <label className="text-sm">Senha</label>
-              <input
-                type="password"
-                value={senha}
-                placeholder="Digite sua senha"
-                className={classeInput}
-                onChange={(event) => setSenha(event.target.value)}
-              />
-            </div>
-            <div className="flex gap-3 justify-end py-5 px-6     border-white/30">
-              <button
-                className="              border
-              border-white/30
-              bg-background
-              hover:bg-accent
-              text-muted-foreground
-              hover:text-foreground
-              transition-colors
-              rounded-xl
-              px-5
-              py-2.5
-              text-sm"
-              >
-                Cancelar
-              </button>
-              <button
-                className="              bg-primary
-              hover:bg-primary/85
-              text-primary-foreground
-              transition-colors
-              rounded-xl
-              px-5
-              py-2.5
-              text-sm
-              font-semibold
-              shadow-lg
-              shadow-primary/10"
-              >
-                Cadastrar
-              </button>
-            </div>
+    <main className="relative min-h-screen bg-background text-white font-bold">
+      <motion.div
+        animate={{ left: modoLogin ? "40%" : "0%" }}
+        transition={{
+          duration: 0.6,
+          ease: "easeInOut",
+        }}
+        className="absolute left-0 top-0 h-full w-[60%]"
+      >
+        <Image src="/fundo.svg" alt="" fill priority className="object-cover" />
+      </motion.div>
+
+      <motion.div
+        animate={{ left: modoLogin ? "0%" : "60%" }}
+        transition={{
+          duration: 0.6,
+          ease: "easeInOut",
+        }}
+        className="absolute left-[60%] top-0 h-full w-[40%] bg-background"
+      >
+        <div className="flex h-full flex-col justify-between px-8 py-10">
+          <div className="flex items-center gap-3">
+            <div className="h-11 w-11 rounded-full bg-gradient-to-br from-violet-700 via-violet-800 to-violet-950" />
+
+            <span className="text-lg font-semibold">AdminFlow</span>
           </div>
-        </form>
-      </div>
+
+          <div className="flex flex-1 flex-col items-center justify-center">
+            <div className="w-full max-w-md">
+              <AnimatePresence mode="wait">
+                {modoLogin ? (
+                  <motion.h1
+                    key="titulo-login"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    transition={{
+                      duration: 0.3,
+                      ease: "easeInOut",
+                    }}
+                    className="mb-6 text-xl font-semibold"
+                  >
+                    Login
+                  </motion.h1>
+                ) : (
+                  <motion.h1
+                    key="titulo-cadastro"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    transition={{
+                      duration: 0.3,
+                      ease: "easeInOut",
+                    }}
+                    className="mb-6 text-xl font-semibold"
+                  >
+                    Cadastro
+                  </motion.h1>
+                )}
+              </AnimatePresence>
+
+              <AnimatePresence mode="wait">
+                {modoLogin ? (
+                  <motion.div
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 20 }}
+                    transition={{
+                      duration: 0.3,
+                      ease: "easeInOut",
+                    }}
+                    key="login"
+                  >
+                    <FormLogin />
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{
+                      duration: 0.3,
+                      ease: "easeInOut",
+                    }}
+                    key="cadastro"
+                  >
+                    <FormCadastro />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+            <AnimatePresence mode="wait">
+              {modoLogin ? (
+                <motion.p
+                  key="trocar-cadastro"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.3 }}
+                  className="mt-4 text-center text-sm text-muted-foreground"
+                >
+                  Não possui uma conta?{" "}
+                  <button
+                    onClick={() => setModoLogin(false)}
+                    className="text-primary hover:underline"
+                  >
+                    Criar conta
+                  </button>
+                </motion.p>
+              ) : (
+                <motion.p
+                  key="trocar-login"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.3 }}
+                  className="mt-4 text-center text-sm text-muted-foreground"
+                >
+                  Já possui uma conta?{" "}
+                  <button
+                    onClick={() => setModoLogin(true)}
+                    className="text-primary hover:underline"
+                  >
+                    Entrar
+                  </button>
+                </motion.p>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
+      </motion.div>
     </main>
   );
 }

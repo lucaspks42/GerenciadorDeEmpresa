@@ -5,7 +5,6 @@ import type { PointerEvent as ReactPointerEvent } from "react";
 import { createPortal } from "react-dom";
 import { motion, useDragControls, useMotionValue } from "motion/react";
 import { Trash } from "lucide-react";
-import Header from "@/components/ui/Header";
 
 type TarefaTipo = {
   id: number;

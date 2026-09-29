@@ -11,7 +11,7 @@ import type { Cliente } from "@/types/Cliente";
 import { Building } from "lucide-react";
 
 import { useEffect, useState } from "react";
-import ModalCliente from "@/components/ui/ModalCliente";
+
 import InfoCliente from "@/components/ui/InfoCliente";
 
 export default function Home() {
