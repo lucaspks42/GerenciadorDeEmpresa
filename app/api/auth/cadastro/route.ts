@@ -1,5 +1,7 @@
-import db from "@/lib/db";
+import { db } from "@/src/prisma/db";
 import bcrypt from "bcryptjs";
+
+const runtime = db.runtime();
 
 export async function POST(request: Request) {
   try {
@@ -16,9 +18,18 @@ export async function POST(request: Request) {
       );
     }
 
-    const usuarioExistente = db
-      .prepare("SELECT id FROM usuarios WHERE email = ?")
-      .get(email);
+    const usuarioPlano = db.raw.sql`
+      SELECT
+        "id"
+      FROM "Usuario"
+      WHERE "email" = ${email}
+    `
+      .returnsRow({
+        id: db.sql.public.Usuario.columns.id,
+      })
+      .build();
+
+    const [usuarioExistente] = await runtime.query(usuarioPlano);
 
     if (usuarioExistente) {
       return Response.json(
@@ -31,25 +42,38 @@ export async function POST(request: Request) {
 
     const senhaHash = await bcrypt.hash(senha, 10);
 
-    const resultado = db
-      .prepare(
-        `
-          INSERT INTO usuarios
-          (nome, email, senha)
-          VALUES (?, ?, ?)
-        `,
+    const inserirPlano = db.raw.sql`
+      INSERT INTO "Usuario"
+      (
+        "nome",
+        "email",
+        "senha"
       )
-      .run(nome, email, senhaHash);
+      VALUES
+      (
+        ${nome},
+        ${email},
+        ${senhaHash}
+      )
+      RETURNING
+        "id"
+    `
+      .returnsRow({
+        id: db.sql.public.Usuario.columns.id,
+      })
+      .build();
+
+    const [usuario] = await runtime.query(inserirPlano);
 
     return Response.json(
       {
         mensagem: "Usuário cadastrado com sucesso",
-        id: Number(resultado.lastInsertRowid),
+        id: usuario.id,
       },
       { status: 201 },
     );
   } catch (erro) {
-    console.error("Erro ao cadastrar usuário:", erro);
+    console.error("ERRO AO CADASTRAR USUÁRIO:", erro);
 
     return Response.json(
       {

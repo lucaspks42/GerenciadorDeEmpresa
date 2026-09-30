@@ -1,127 +1,169 @@
-import db from "@/lib/db";
+import { db } from "@/src/prisma/db";
+
+const runtime = db.runtime();
 
 export async function GET() {
-  const hoje = new Date();
+  try {
+    const hoje = new Date();
 
-  const ano = hoje.getFullYear();
-  const mes = hoje.getMonth();
+    const ano = hoje.getFullYear();
+    const mes = hoje.getMonth();
 
-  const anoHoje = hoje.getFullYear();
-  const mesHoje = String(hoje.getMonth() + 1).padStart(2, "0");
-  const diaHoje = String(hoje.getDate()).padStart(2, "0");
+    const anoHoje = hoje.getFullYear();
+    const mesHoje = String(hoje.getMonth() + 1).padStart(2, "0");
+    const diaHoje = String(hoje.getDate()).padStart(2, "0");
 
-  const hojeFormatado = `${anoHoje}-${mesHoje}-${diaHoje}`;
+    const hojeFormatado = `${anoHoje}-${mesHoje}-${diaHoje}`;
 
-  // Busca todos os clientes que possuem mensalidade e dia de vencimento
-  const clientes = db
-    .prepare(
-      `
+    const clientesPlano = db.raw.sql`
       SELECT
-        id,
-        nome,
-        empresa,
-        valor_mensalidade,
-        dia_vencimento
-      FROM clientes
-      WHERE valor_mensalidade IS NOT NULL
-      AND dia_vencimento IS NOT NULL
-      `,
-    )
-    .all() as {
-    id: number;
-    nome: string;
-    empresa: string;
-    valor_mensalidade: number;
-    dia_vencimento: number;
-  }[];
+        "id",
+        "nome",
+        "empresa",
+        "valorMensalidade",
+        "diaVencimento"
+      FROM "Cliente"
+      WHERE "valorMensalidade" IS NOT NULL
+      AND "diaVencimento" IS NOT NULL
+    `
+      .returnsRow({
+        id: db.sql.public.Cliente.columns.id,
+        nome: db.sql.public.Cliente.columns.nome,
+        empresa: db.sql.public.Cliente.columns.empresa,
+        valorMensalidade: db.sql.public.Cliente.columns.valorMensalidade,
+        diaVencimento: db.sql.public.Cliente.columns.diaVencimento,
+      })
+      .build();
 
-  // Cria o próximo pagamento de cada cliente, caso ainda não exista
-  for (const cliente of clientes) {
-    const vencimentoPassou = cliente.dia_vencimento < hoje.getDate();
+    const clientes = await runtime.query(clientesPlano);
 
-    let mesVencimento = mes;
+    for (const cliente of clientes) {
+      if (cliente.valorMensalidade == null || cliente.diaVencimento == null) {
+        continue;
+      }
 
-    if (vencimentoPassou) {
-      mesVencimento = mes + 1;
+      const vencimentoPassou = cliente.diaVencimento < hoje.getDate();
+
+      let mesVencimento = mes;
+
+      if (vencimentoPassou) {
+        mesVencimento = mes + 1;
+      }
+
+      const ultimoDiaDoMes = new Date(ano, mesVencimento + 1, 0).getDate();
+
+      const dia = Math.min(cliente.diaVencimento, ultimoDiaDoMes);
+
+      const dataVencimento = new Date(ano, mesVencimento, dia);
+
+      const dataFormatada =
+        `${dataVencimento.getFullYear()}-` +
+        `${String(dataVencimento.getMonth() + 1).padStart(2, "0")}-` +
+        `${String(dataVencimento.getDate()).padStart(2, "0")}`;
+
+      const existentePlano = db.raw.sql`
+        SELECT
+          "id"
+        FROM "Pagamento"
+        WHERE "clienteId" = ${cliente.id}
+        AND "dataVencimento"::date = ${dataFormatada}::date
+      `
+        .returnsRow({
+          id: db.sql.public.Pagamento.columns.id,
+        })
+        .build();
+
+      const [pagamentoExistente] = await runtime.query(existentePlano);
+
+      if (!pagamentoExistente) {
+        const inserirPlano = db.raw.sql`
+          INSERT INTO "Pagamento"
+          (
+            "clienteId",
+            "valor",
+            "diaVencimento",
+            "dataVencimento",
+            "status"
+          )
+          VALUES
+          (
+            ${cliente.id},
+            ${cliente.valorMensalidade},
+            ${cliente.diaVencimento},
+            ${dataFormatada}::date,
+            'Pendente'
+          )
+        `
+          .affectedCount()
+          .build();
+
+        await runtime.execute(inserirPlano);
+      }
     }
 
-    const dataVencimento = new Date(ano, mesVencimento, cliente.dia_vencimento);
+    const pagamentosPlano = db.raw.sql`
+  SELECT
+    p."id",
+    p."clienteId",
+    c."nome",
+    c."empresa",
+    p."valor",
+    p."diaVencimento",
+    TO_CHAR(p."dataVencimento", 'YYYY-MM-DD') AS "dataVencimento",
+    p."status",
 
-    const anoFormatado = dataVencimento.getFullYear();
+    CASE
+      WHEN p."dataVencimento"::date < ${hojeFormatado}::date
+        THEN 1
+      WHEN p."dataVencimento"::date = ${hojeFormatado}::date
+        THEN 2
+      ELSE 3
+    END AS "prioridade"
 
-    const mesFormatado = String(dataVencimento.getMonth() + 1).padStart(2, "0");
+  FROM "Pagamento" p
 
-    const diaFormatado = String(dataVencimento.getDate()).padStart(2, "0");
+  INNER JOIN "Cliente" c
+    ON p."clienteId" = c."id"
 
-    const dataFormatada = `${anoFormatado}-${mesFormatado}-${diaFormatado}`;
+  ORDER BY
+    "prioridade" ASC,
+    p."dataVencimento" ASC
+`
+      .returnsRow({
+        id: db.sql.public.Pagamento.columns.id,
+        clienteId: db.sql.public.Pagamento.columns.clienteId,
+        nome: db.sql.public.Cliente.columns.nome,
+        empresa: db.sql.public.Cliente.columns.empresa,
+        valor: db.sql.public.Pagamento.columns.valor,
+        diaVencimento: db.sql.public.Pagamento.columns.diaVencimento,
 
-    // Verifica se já existe esse pagamento
-    const pagamentoExistente = db
-      .prepare(
-        `
-        SELECT id
-        FROM pagamentos
-        WHERE cliente_id = ?
-        AND data_vencimento = ?
-        `,
-      )
-      .get(cliente.id, dataFormatada);
+        // IMPORTANTE: não usar Pagamento.columns.dataVencimento
+        dataVencimento: "pg/text@1",
 
-    // Se não existir, cria
-    if (!pagamentoExistente) {
-      db.prepare(
-        `
-        INSERT INTO pagamentos
-        (
-          cliente_id,
-          valor,
-          dia_vencimento,
-          data_vencimento,
-          status
-        )
-        VALUES (?, ?, ?, ?, ?)
-        `,
-      ).run(
-        cliente.id,
-        cliente.valor_mensalidade,
-        cliente.dia_vencimento,
-        dataFormatada,
-        "Pendente",
-      );
-    }
+        status: db.sql.public.Pagamento.columns.status,
+        prioridade: "pg/int4@1",
+      })
+      .build();
+
+    const pagamentos = await runtime.query(pagamentosPlano);
+
+    const pagamentosFormatados = pagamentos.map((pagamento) => ({
+      ...pagamento,
+      valor: Number(pagamento.valor),
+    }));
+
+    return Response.json(pagamentosFormatados);
+
+    return Response.json(pagamentos);
+  } catch (erro) {
+    console.error("ERRO AO BUSCAR PAGAMENTOS:", erro);
+
+    return Response.json(
+      {
+        erro: "Erro ao buscar pagamentos",
+        detalhe: String(erro),
+      },
+      { status: 500 },
+    );
   }
-
-  // Busca todos os pagamentos
-  const pagamentos = db
-    .prepare(
-      `
-      SELECT
-        pagamentos.id,
-        pagamentos.cliente_id,
-        clientes.nome,
-        clientes.empresa,
-        pagamentos.valor,
-        pagamentos.dia_vencimento,
-        pagamentos.data_vencimento,
-        pagamentos.status,
-
-        CASE
-          WHEN pagamentos.data_vencimento < ? THEN 1
-          WHEN pagamentos.data_vencimento = ? THEN 2
-          ELSE 3
-        END AS prioridade
-
-      FROM pagamentos
-
-      INNER JOIN clientes
-        ON pagamentos.cliente_id = clientes.id
-
-      ORDER BY
-        prioridade ASC,
-        pagamentos.data_vencimento ASC
-      `,
-    )
-    .all(hojeFormatado, hojeFormatado);
-
-  return Response.json(pagamentos);
 }

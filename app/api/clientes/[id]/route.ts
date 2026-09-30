@@ -1,21 +1,110 @@
-import db from "@/lib/db";
+import { db } from "@/src/prisma/db";
+
+const runtime = db.runtime();
+
+export async function GET(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  try {
+    const { id } = await params;
+
+    const clienteId = Number(id);
+
+    if (!Number.isInteger(clienteId)) {
+      return Response.json({ erro: "ID inválido" }, { status: 400 });
+    }
+
+    const plano = db.raw.sql`
+      SELECT
+        "id",
+        "nome",
+        "empresa",
+        "email",
+        "telefone",
+        "valorProduto",
+        "valorMensalidade",
+        "diaVencimento"
+      FROM "Cliente"
+      WHERE "id" = ${clienteId}
+    `
+      .returnsRow({
+        id: db.sql.public.Cliente.columns.id,
+        nome: db.sql.public.Cliente.columns.nome,
+        empresa: db.sql.public.Cliente.columns.empresa,
+        email: db.sql.public.Cliente.columns.email,
+        telefone: db.sql.public.Cliente.columns.telefone,
+        valorProduto: db.sql.public.Cliente.columns.valorProduto,
+        valorMensalidade: db.sql.public.Cliente.columns.valorMensalidade,
+        diaVencimento: db.sql.public.Cliente.columns.diaVencimento,
+      })
+      .build();
+
+    const [cliente] = await runtime.query(plano);
+
+    if (!cliente) {
+      return Response.json({ erro: "Cliente não encontrado" }, { status: 404 });
+    }
+
+    return Response.json(cliente);
+  } catch (erro) {
+    console.error("ERRO AO BUSCAR CLIENTE:", erro);
+
+    return Response.json({ erro: "Erro ao buscar cliente" }, { status: 500 });
+  }
+}
 
 export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const { id } = await params;
+  try {
+    const { id } = await params;
 
-  const resultado = db.prepare("DELETE FROM clientes WHERE id = ?").run(id);
+    const clienteId = Number(id);
 
-  return Response.json({
-    mensagem: "cliente deletado",
-  });
-}
-export async function GET() {
-  const clientes = db.prepare("SELECT * FROM clientes").all();
+    if (!Number.isInteger(clienteId)) {
+      return Response.json({ erro: "ID inválido" }, { status: 400 });
+    }
 
-  return Response.json(clientes);
+    // Primeiro remove os pagamentos relacionados ao cliente
+    const excluirPagamentosPlano = db.raw.sql`
+      DELETE FROM "Pagamento"
+      WHERE "clienteId" = ${clienteId}
+    `
+      .affectedCount()
+      .build();
+
+    await runtime.execute(excluirPagamentosPlano);
+
+    // Depois remove o cliente
+    const excluirClientePlano = db.raw.sql`
+      DELETE FROM "Cliente"
+      WHERE "id" = ${clienteId}
+    `
+      .affectedCount()
+      .build();
+
+    const resultado = await runtime.execute(excluirClientePlano);
+
+    if (resultado.affectedRows === 0) {
+      return Response.json({ erro: "Cliente não encontrado" }, { status: 404 });
+    }
+
+    return Response.json({
+      mensagem: "Cliente deletado",
+    });
+  } catch (erro) {
+    console.error("ERRO AO DELETAR CLIENTE:", erro);
+
+    return Response.json(
+      {
+        erro: "Erro ao deletar cliente",
+        detalhe: String(erro),
+      },
+      { status: 500 },
+    );
+  }
 }
 
 export async function PATCH(
@@ -26,7 +115,35 @@ export async function PATCH(
     const dados = await request.json();
 
     const { id } = await params;
+
     const clienteId = Number(id);
+
+    if (!Number.isInteger(clienteId)) {
+      return Response.json({ erro: "ID inválido" }, { status: 400 });
+    }
+
+    const clienteAtualPlano = db.raw.sql`
+      SELECT
+        "id",
+        "valorProduto",
+        "valorMensalidade",
+        "diaVencimento"
+      FROM "Cliente"
+      WHERE "id" = ${clienteId}
+    `
+      .returnsRow({
+        id: db.sql.public.Cliente.columns.id,
+        valorProduto: db.sql.public.Cliente.columns.valorProduto,
+        valorMensalidade: db.sql.public.Cliente.columns.valorMensalidade,
+        diaVencimento: db.sql.public.Cliente.columns.diaVencimento,
+      })
+      .build();
+
+    const [clienteAtual] = await runtime.query(clienteAtualPlano);
+
+    if (!clienteAtual) {
+      return Response.json({ erro: "Cliente não encontrado" }, { status: 404 });
+    }
 
     const {
       nome,
@@ -38,63 +155,32 @@ export async function PATCH(
       diaVencimento,
     } = dados;
 
-    console.log("ID:", id);
-    console.log("DADOS:", dados);
-
-    const clienteAtual = db
-      .prepare("SELECT * FROM clientes WHERE id = ?")
-      .get(clienteId) as
-      | {
-          valor_produto: number | null;
-          valor_mensalidade: number | null;
-          dia_vencimento: number | null;
-        }
-      | undefined;
-
-    if (!clienteAtual) {
-      return Response.json({ erro: "Cliente não encontrado" }, { status: 404 });
-    }
-
     const novoValorMensalidade =
-      valorMensalidade ?? clienteAtual.valor_mensalidade;
+      valorMensalidade ?? clienteAtual.valorMensalidade;
 
-    const novoDiaVencimento = diaVencimento ?? clienteAtual.dia_vencimento;
+    const novoDiaVencimento = diaVencimento ?? clienteAtual.diaVencimento;
 
-    // Verifica se a configuração da mensalidade mudou
     const mensalidadeMudou =
-      novoValorMensalidade !== clienteAtual.valor_mensalidade ||
-      novoDiaVencimento !== clienteAtual.dia_vencimento;
+      novoValorMensalidade !== clienteAtual.valorMensalidade ||
+      novoDiaVencimento !== clienteAtual.diaVencimento;
 
-    const resultado = db
-      .prepare(
-        `
-        UPDATE clientes
-        SET
-          nome = ?,
-          empresa = ?,
-          email = ?,
-          telefone = ?,
-          valor_produto = ?,
-          valor_mensalidade = ?,
-          dia_vencimento = ?
-        WHERE id = ?
-      `,
-      )
-      .run(
-        nome,
-        empresa,
-        email,
-        telefone,
-        valorProduto ?? clienteAtual.valor_produto,
-        novoValorMensalidade,
-        novoDiaVencimento,
-        clienteId,
-      );
+    const plano = db.raw.sql`
+      UPDATE "Cliente"
+      SET
+        "nome" = ${nome},
+        "empresa" = ${empresa ?? null},
+        "email" = ${email ?? null},
+        "telefone" = ${telefone ?? null},
+        "valorProduto" = ${valorProduto ?? clienteAtual.valorProduto},
+        "valorMensalidade" = ${novoValorMensalidade},
+        "diaVencimento" = ${novoDiaVencimento}
+      WHERE "id" = ${clienteId}
+    `
+      .affectedCount()
+      .build();
 
-    console.log("RESULTADO:", resultado);
+    await runtime.execute(plano);
 
-    // Se a mensalidade ou o dia de vencimento mudou,
-    // remove somente os pagamentos pendentes futuros.
     if (mensalidadeMudou) {
       const hoje = new Date();
 
@@ -104,21 +190,23 @@ export async function PATCH(
 
       const dataHoje = `${ano}-${mes}-${dia}`;
 
-      db.prepare(
-        `
-        DELETE FROM pagamentos
-        WHERE cliente_id = ?
-        AND status = 'Pendente'
-        AND data_vencimento >= ?
-      `,
-      ).run(clienteId, dataHoje);
+      const excluirPlano = db.raw.sql`
+        DELETE FROM "Pagamento"
+        WHERE "clienteId" = ${clienteId}
+        AND "status" = 'Pendente'
+        AND "dataVencimento" >= ${dataHoje}::date
+      `
+        .affectedCount()
+        .build();
+
+      await runtime.execute(excluirPlano);
     }
 
     return Response.json({
       mensagem: "Cliente atualizado com sucesso",
     });
   } catch (erro) {
-    console.error("ERRO NO PATCH:", erro);
+    console.error("ERRO NO PATCH DO CLIENTE:", erro);
 
     return Response.json(
       { erro: "Erro ao atualizar cliente" },

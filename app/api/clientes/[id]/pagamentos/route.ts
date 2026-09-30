@@ -1,121 +1,137 @@
-import db from "@/lib/db";
+import { db } from "@/src/prisma/db";
+
+const runtime = db.runtime();
 
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const { id } = await params;
+  try {
+    const { id } = await params;
 
-  const clienteId = Number(id);
+    const clienteId = Number(id);
 
-  // 1. Buscar os dados do cliente
-  const cliente = db
-    .prepare(
-      `
-      SELECT
-        id,
-        nome,
-        valor_mensalidade,
-        dia_vencimento
-      FROM clientes
-      WHERE id = ?
-      `,
-    )
-    .get(clienteId) as
-    | {
-        id: number;
-        nome: string;
-        valor_mensalidade: number;
-        dia_vencimento: number;
-      }
-    | undefined;
-
-  // 2. Verificar se o cliente existe
-  if (!cliente) {
-    return Response.json({ erro: "Cliente não encontrado" }, { status: 404 });
-  }
-
-  // 3. Verificar se o cliente possui mensalidade configurada
-  if (!cliente.valor_mensalidade || !cliente.dia_vencimento) {
-    return Response.json([]);
-  }
-
-  // 4. Data atual
-  const hoje = new Date();
-
-  // 5. Gerar os próximos 12 meses
-  for (let i = 0; i < 12; i++) {
-    const ano = hoje.getFullYear();
-    const mes = hoje.getMonth() + i;
-
-    // Último dia daquele mês
-    const ultimoDiaDoMes = new Date(ano, mes + 1, 0).getDate();
-
-    // Evita problemas com vencimento no dia 31
-    const dia = Math.min(cliente.dia_vencimento, ultimoDiaDoMes);
-
-    const dataVencimento = new Date(ano, mes, dia);
-
-    const anoFormatado = dataVencimento.getFullYear();
-
-    const mesFormatado = String(dataVencimento.getMonth() + 1).padStart(2, "0");
-
-    const diaFormatado = String(dataVencimento.getDate()).padStart(2, "0");
-
-    const dataFormatada = `${anoFormatado}-${mesFormatado}-${diaFormatado}`;
-
-    // 6. Verificar se esse pagamento já existe
-    const pagamentoExistente = db
-      .prepare(
-        `
-        SELECT id
-        FROM pagamentos
-        WHERE cliente_id = ?
-        AND data_vencimento = ?
-        `,
-      )
-      .get(clienteId, dataFormatada);
-
-    // 7. Se não existir, criar
-    if (!pagamentoExistente) {
-      db.prepare(
-        `
-        INSERT INTO pagamentos
-        (
-          cliente_id,
-          valor,
-          dia_vencimento,
-          data_vencimento,
-          status
-        )
-        VALUES (?, ?, ?, ?, ?)
-        `,
-      ).run(
-        clienteId,
-        cliente.valor_mensalidade,
-        cliente.dia_vencimento,
-        dataFormatada,
-        "Pendente",
-      );
+    if (!Number.isInteger(clienteId)) {
+      return Response.json({ erro: "ID inválido" }, { status: 400 });
     }
-  }
 
-  // 8. Buscar os pagamentos do cliente
-  const pagamentos = db
-    .prepare(
-      `
+    const clientePlano = db.raw.sql`
       SELECT
-        pagamentos.id,
-        pagamentos.valor,
-        pagamentos.dia_vencimento,
-        pagamentos.data_vencimento,
-        pagamentos.status
-      FROM pagamentos
-      WHERE pagamentos.cliente_id = ?
-      ORDER BY pagamentos.data_vencimento ASC
-      `,
-    )
-    .all(clienteId);
+        "id",
+        "nome",
+        "valorMensalidade",
+        "diaVencimento"
+      FROM "Cliente"
+      WHERE "id" = ${clienteId}
+    `
+      .returnsRow({
+        id: db.sql.public.Cliente.columns.id,
+        nome: db.sql.public.Cliente.columns.nome,
+        valorMensalidade: db.sql.public.Cliente.columns.valorMensalidade,
+        diaVencimento: db.sql.public.Cliente.columns.diaVencimento,
+      })
+      .build();
 
-  return Response.json(pagamentos);
+    const [cliente] = await runtime.query(clientePlano);
+
+    if (!cliente) {
+      return Response.json({ erro: "Cliente não encontrado" }, { status: 404 });
+    }
+
+    if (cliente.valorMensalidade == null || cliente.diaVencimento == null) {
+      return Response.json([]);
+    }
+
+    const hoje = new Date();
+
+    for (let i = 0; i < 12; i++) {
+      const ano = hoje.getFullYear();
+      const mes = hoje.getMonth() + i;
+
+      const ultimoDiaDoMes = new Date(ano, mes + 1, 0).getDate();
+
+      const dia = Math.min(cliente.diaVencimento, ultimoDiaDoMes);
+
+      const dataVencimento = new Date(ano, mes, dia);
+
+      const dataFormatada =
+        `${dataVencimento.getFullYear()}-` +
+        `${String(dataVencimento.getMonth() + 1).padStart(2, "0")}-` +
+        `${String(dataVencimento.getDate()).padStart(2, "0")}`;
+
+      const existentePlano = db.raw.sql`
+        SELECT
+          "id"
+        FROM "Pagamento"
+        WHERE "clienteId" = ${clienteId}
+        AND "dataVencimento"::date = ${dataFormatada}::date
+      `
+        .returnsRow({
+          id: db.sql.public.Pagamento.columns.id,
+        })
+        .build();
+
+      const [pagamentoExistente] = await runtime.query(existentePlano);
+
+      if (!pagamentoExistente) {
+        const dataPg = dataVencimento.toISOString();
+
+        const dataParaBanco = new Date(dataPg);
+
+        const inserirPlano = db.raw.sql`
+          INSERT INTO "Pagamento"
+          (
+            "clienteId",
+            "valor",
+            "diaVencimento",
+            "dataVencimento",
+            "status"
+          )
+          VALUES
+          (
+            ${clienteId},
+            ${cliente.valorMensalidade},
+            ${cliente.diaVencimento},
+            ${dataParaBanco.toISOString()},
+            'Pendente'
+          )
+        `
+          .affectedCount()
+          .build();
+
+        await runtime.execute(inserirPlano);
+      }
+    }
+
+    const pagamentosPlano = db.raw.sql`
+      SELECT
+        "id",
+        "valor",
+        "diaVencimento",
+        "dataVencimento",
+        "status"
+      FROM "Pagamento"
+      WHERE "clienteId" = ${clienteId}
+      ORDER BY "dataVencimento" ASC
+    `
+      .returnsRow({
+        id: db.sql.public.Pagamento.columns.id,
+        valor: db.sql.public.Pagamento.columns.valor,
+        diaVencimento: db.sql.public.Pagamento.columns.diaVencimento,
+        dataVencimento: db.sql.public.Pagamento.columns.dataVencimento,
+        status: db.sql.public.Pagamento.columns.status,
+      })
+      .build();
+
+    const pagamentos = await runtime.query(pagamentosPlano);
+
+    return Response.json(pagamentos);
+  } catch (erro) {
+    console.error("ERRO AO BUSCAR PAGAMENTOS DO CLIENTE:", erro);
+
+    return Response.json(
+      { erro: "Erro ao buscar pagamentos" },
+      { status: 500 },
+    );
+  }
 }

@@ -1,35 +1,12 @@
-import db from "@/lib/db";
+import { db } from "@/src/prisma/db";
+
+const runtime = db.runtime();
 
 export async function POST(request: Request) {
-  const dados = await request.json();
+  try {
+    const dados = await request.json();
 
-  const {
-    nome,
-    empresa,
-    email,
-    telefone,
-    valorProduto,
-    valorMensalidade,
-    diaVencimento,
-  } = dados;
-
-  const resultado = db
-    .prepare(
-      `
-      INSERT INTO clientes
-      (
-        nome,
-        empresa,
-        email,
-        telefone,
-        valor_produto,
-        valor_mensalidade,
-        dia_vencimento
-      )
-      VALUES (?, ?, ?, ?, ?, ?, ?)
-      `,
-    )
-    .run(
+    const {
       nome,
       empresa,
       email,
@@ -37,36 +14,97 @@ export async function POST(request: Request) {
       valorProduto,
       valorMensalidade,
       diaVencimento,
+    } = dados;
+
+    const plano = db.raw.sql`
+      INSERT INTO "Cliente"
+      (
+        "nome",
+        "empresa",
+        "email",
+        "telefone",
+        "valorProduto",
+        "valorMensalidade",
+        "diaVencimento"
+      )
+      VALUES
+      (
+        ${nome},
+        ${empresa ?? null},
+        ${email ?? null},
+        ${telefone ?? null},
+        ${valorProduto ?? null},
+        ${valorMensalidade ?? null},
+        ${diaVencimento ?? null}
+      )
+      RETURNING
+        "id",
+        "nome",
+        "empresa",
+        "email",
+        "telefone",
+        "valorProduto",
+        "valorMensalidade",
+        "diaVencimento"
+    `
+      .returnsRow({
+        id: db.sql.public.Cliente.columns.id,
+        nome: db.sql.public.Cliente.columns.nome,
+        empresa: db.sql.public.Cliente.columns.empresa,
+        email: db.sql.public.Cliente.columns.email,
+        telefone: db.sql.public.Cliente.columns.telefone,
+        valorProduto: db.sql.public.Cliente.columns.valorProduto,
+        valorMensalidade: db.sql.public.Cliente.columns.valorMensalidade,
+        diaVencimento: db.sql.public.Cliente.columns.diaVencimento,
+      })
+      .build();
+
+    const [cliente] = await runtime.query(plano);
+
+    return Response.json(cliente, { status: 201 });
+  } catch (erro) {
+    console.error("ERRO AO CADASTRAR CLIENTE:", erro);
+
+    return Response.json(
+      { erro: "Erro ao cadastrar cliente" },
+      { status: 500 },
     );
-
-  const clienteId = Number(resultado.lastInsertRowid);
-
-  return Response.json({
-    id: clienteId,
-    nome,
-    empresa,
-    email,
-    telefone,
-    valorProduto,
-    valorMensalidade,
-    diaVencimento,
-  });
+  }
 }
-export async function GET() {
-  const clientes = db
-    .prepare(`
-      SELECT
-        id,
-        nome,
-        empresa,
-        telefone,
-        email,
-        valor_produto AS valorProduto,
-        valor_mensalidade AS valorMensalidade,
-        dia_vencimento AS diaVencimento
-      FROM clientes
-    `)
-    .all();
 
-  return Response.json(clientes);
+export async function GET() {
+  try {
+    const plano = db.raw.sql`
+      SELECT
+        "id",
+        "nome",
+        "empresa",
+        "telefone",
+        "email",
+        "valorProduto",
+        "valorMensalidade",
+        "diaVencimento"
+      FROM "Cliente"
+      ORDER BY "id" ASC
+    `
+      .returnsRow({
+        id: db.sql.public.Cliente.columns.id,
+        nome: db.sql.public.Cliente.columns.nome,
+        empresa: db.sql.public.Cliente.columns.empresa,
+        telefone: db.sql.public.Cliente.columns.telefone,
+        email: db.sql.public.Cliente.columns.email,
+        valorProduto: db.sql.public.Cliente.columns.valorProduto,
+        valorMensalidade: db.sql.public.Cliente.columns.valorMensalidade,
+        diaVencimento: db.sql.public.Cliente.columns.diaVencimento,
+      })
+      .build();
+
+    const clientes = await runtime.query(plano);
+
+    return Response.json(clientes);
+  } catch (erro) {
+    console.error("ERRO AO BUSCAR CLIENTES:", erro);
+
+    return Response.json({ erro: "Erro ao buscar clientes" }, { status: 500 });
+  }
 }

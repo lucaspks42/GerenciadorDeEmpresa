@@ -1,0 +1,40 @@
+// use prisma-next
+model Cliente {
+  id               Int         @id @default(autoincrement())
+  nome             String
+  empresa          String?
+  telefone         String?
+  email            String?
+  valorProduto     Decimal?
+  valorMensalidade Decimal?
+  diaVencimento    Int?
+
+  pagamentos       Pagamento[]
+}
+
+model Pagamento {
+  id             Int       @id @default(autoincrement())
+  clienteId      Int
+  valor          Decimal
+  diaVencimento  Int?
+  dataVencimento DateTime?
+  status         String    @default("Pendente")
+
+  cliente        Cliente   @relation(fields: [clienteId], references: [id])
+}
+
+model Tarefa {
+  id        Int      @id @default(autoincrement())
+  titulo    String
+  descricao String?
+  status    String   @default("aFazer")
+  criadoEm  DateTime @default(now())
+}
+
+model Usuario {
+  id       Int      @id @default(autoincrement())
+  nome     String
+  email    String   @unique
+  senha    String
+  criadoEm DateTime @default(now())
+}

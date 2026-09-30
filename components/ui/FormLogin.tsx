@@ -37,7 +37,7 @@ export default function FormCadastro() {
   }
 
   return (
-    <form onSubmit={enviar} className="space-y-4 text-black">
+    <form onSubmit={enviar} className="space-y-4 text-black w-full ">
       <div>
         <label htmlFor="email" className={rotulo}>
           E-mail

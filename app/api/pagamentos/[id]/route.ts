@@ -1,4 +1,6 @@
-import db from "@/lib/db";
+import { db } from "@/src/prisma/db";
+
+const runtime = db.runtime();
 
 export async function PATCH(
   request: Request,
@@ -6,22 +8,27 @@ export async function PATCH(
 ) {
   try {
     const { id } = await params;
-    const pagamentoID = Number(id);
+
+    const pagamentoId = Number(id);
+
+    if (!Number.isInteger(pagamentoId)) {
+      return Response.json({ mensagem: "ID inválido" }, { status: 400 });
+    }
 
     const dados = await request.json();
 
     if (dados.status !== undefined) {
-      const resultado = db
-        .prepare(
-          `
-          UPDATE pagamentos
-          SET status = ?
-          WHERE id = ?
-        `,
-        )
-        .run(dados.status, pagamentoID);
+      const plano = db.raw.sql`
+        UPDATE "Pagamento"
+        SET "status" = ${dados.status}
+        WHERE "id" = ${pagamentoId}
+      `
+        .affectedCount()
+        .build();
 
-      if (resultado.changes === 0) {
+      const resultado = await runtime.execute(plano);
+
+      if (resultado.affectedRows === 0) {
         return Response.json(
           { mensagem: "Pagamento não encontrado" },
           { status: 404 },
@@ -34,17 +41,19 @@ export async function PATCH(
     }
 
     if (dados.valor !== undefined && dados.data_vencimento !== undefined) {
-      const resultado = db
-        .prepare(
-          `
-          UPDATE pagamentos
-          SET valor = ?, data_vencimento = ?
-          WHERE id = ?
-        `,
-        )
-        .run(dados.valor, dados.data_vencimento, pagamentoID);
+      const plano = db.raw.sql`
+        UPDATE "Pagamento"
+        SET
+          "valor" = ${dados.valor},
+          "dataVencimento" = ${dados.data_vencimento}
+        WHERE "id" = ${pagamentoId}
+      `
+        .affectedCount()
+        .build();
 
-      if (resultado.changes === 0) {
+      const resultado = await runtime.execute(plano);
+
+      if (resultado.affectedRows === 0) {
         return Response.json(
           { mensagem: "Pagamento não encontrado" },
           { status: 404 },
@@ -61,7 +70,7 @@ export async function PATCH(
       { status: 400 },
     );
   } catch (erro) {
-    console.error("ERRO NO PATCH:", erro);
+    console.error("ERRO AO ATUALIZAR PAGAMENTO:", erro);
 
     return Response.json(
       { mensagem: "Erro ao atualizar pagamento" },
