@@ -7,12 +7,23 @@ export async function POST(request: Request) {
   try {
     const dados = await request.json();
 
-    const { nome, email, senha } = dados;
+    const nome = dados.nome?.trim();
+    const email = dados.email?.trim().toLowerCase();
+    const senha = dados.senha;
 
     if (!nome || !email || !senha) {
       return Response.json(
         {
           erro: "Preencha todos os campos",
+        },
+        { status: 400 },
+      );
+    }
+
+    if (senha.length < 6) {
+      return Response.json(
+        {
+          erro: "A senha precisa ter pelo menos 6 caracteres.",
         },
         { status: 400 },
       );
@@ -29,7 +40,8 @@ export async function POST(request: Request) {
       })
       .build();
 
-    const [usuarioExistente] = await runtime.query(usuarioPlano);
+    const usuarios = await runtime.query(usuarioPlano);
+    const usuarioExistente = usuarios[0];
 
     if (usuarioExistente) {
       return Response.json(
@@ -63,7 +75,17 @@ export async function POST(request: Request) {
       })
       .build();
 
-    const [usuario] = await runtime.query(inserirPlano);
+    const usuariosCriados = await runtime.query(inserirPlano);
+    const usuario = usuariosCriados[0];
+
+    if (!usuario) {
+      return Response.json(
+        {
+          erro: "Não foi possível criar o usuário",
+        },
+        { status: 500 },
+      );
+    }
 
     return Response.json(
       {

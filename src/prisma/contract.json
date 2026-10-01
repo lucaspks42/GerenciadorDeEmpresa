@@ -12,6 +12,10 @@
       "model": "Pagamento",
       "namespace": "public"
     },
+    "Sessao": {
+      "model": "Sessao",
+      "namespace": "public"
+    },
     "Tarefa": {
       "model": "Tarefa",
       "namespace": "public"
@@ -220,6 +224,74 @@
               "table": "Pagamento"
             }
           },
+          "Sessao": {
+            "fields": {
+              "expiraEm": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
+              "id": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              },
+              "token": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "usuarioId": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/int4@1",
+                  "kind": "scalar"
+                }
+              }
+            },
+            "relations": {
+              "usuario": {
+                "cardinality": "N:1",
+                "nullable": false,
+                "on": {
+                  "localFields": [
+                    "usuarioId"
+                  ],
+                  "targetFields": [
+                    "id"
+                  ]
+                },
+                "to": {
+                  "model": "Usuario",
+                  "namespace": "public"
+                }
+              }
+            },
+            "storage": {
+              "fields": {
+                "expiraEm": {
+                  "column": "expiraEm"
+                },
+                "id": {
+                  "column": "id"
+                },
+                "token": {
+                  "column": "token"
+                },
+                "usuarioId": {
+                  "column": "usuarioId"
+                }
+              },
+              "namespaceId": "public",
+              "table": "Sessao"
+            }
+          },
           "Tarefa": {
             "fields": {
               "criadoEm": {
@@ -319,7 +391,23 @@
                 }
               }
             },
-            "relations": {},
+            "relations": {
+              "sessoes": {
+                "cardinality": "1:N",
+                "on": {
+                  "localFields": [
+                    "id"
+                  ],
+                  "targetFields": [
+                    "usuarioId"
+                  ]
+                },
+                "to": {
+                  "model": "Sessao",
+                  "namespace": "public"
+                }
+              }
+            },
             "storage": {
               "fields": {
                 "criadoEm": {
@@ -483,6 +571,74 @@
               },
               "uniques": []
             },
+            "Sessao": {
+              "columns": {
+                "expiraEm": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "nativeType": "timestamptz",
+                  "nullable": false
+                },
+                "id": {
+                  "codecId": "pg/int4@1",
+                  "default": {
+                    "expression": "autoincrement()",
+                    "kind": "function"
+                  },
+                  "nativeType": "int4",
+                  "nullable": false
+                },
+                "token": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false
+                },
+                "usuarioId": {
+                  "codecId": "pg/int4@1",
+                  "nativeType": "int4",
+                  "nullable": false
+                }
+              },
+              "foreignKeys": [
+                {
+                  "source": {
+                    "columns": [
+                      "usuarioId"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Sessao"
+                  },
+                  "target": {
+                    "columns": [
+                      "id"
+                    ],
+                    "namespaceId": "public",
+                    "tableName": "Usuario"
+                  }
+                }
+              ],
+              "indexes": [
+                {
+                  "columns": [
+                    "usuarioId"
+                  ],
+                  "name": "Sessao_usuarioId_idx_5f01c7d6",
+                  "prefix": "Sessao_usuarioId_idx",
+                  "unique": false
+                }
+              ],
+              "primaryKey": {
+                "columns": [
+                  "id"
+                ]
+              },
+              "uniques": [
+                {
+                  "columns": [
+                    "token"
+                  ]
+                }
+              ]
+            },
             "Tarefa": {
               "columns": {
                 "criadoEm": {
@@ -589,7 +745,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "69bb581df0cc828fc1f1b8d131587b0c63e5b659fcfc457eeae7b5d9268c5401"
+    "storageHash": "93a02b35f6c8bf323ebb37f0b901c58b5ecbca3833cf8fd1245e9a4fbf591e5a"
   },
   "capabilities": {
     "postgres": {

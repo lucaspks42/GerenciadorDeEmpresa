@@ -34,7 +34,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'93a02b35f6c8bf323ebb37f0b901c58b5ecbca3833cf8fd1245e9a4fbf591e5a'>;
+  StorageHashBase<'69bb581df0cc828fc1f1b8d131587b0c63e5b659fcfc457eeae7b5d9268c5401'>;
 export type ExecutionHash = ExecutionHashBase<string>;
 export type ProfileHash =
   ProfileHashBase<'3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2'>;
@@ -267,12 +267,6 @@ export type FieldOutputTypes = {
       readonly status: CodecTypes['pg/text@1']['output'];
       readonly valor: CodecTypes['pg/numeric@1']['output'];
     };
-    readonly Sessao: {
-      readonly expiraEm: CodecTypes['pg/timestamptz-temporal@1']['output'];
-      readonly id: CodecTypes['pg/int4@1']['output'];
-      readonly token: CodecTypes['pg/text@1']['output'];
-      readonly usuarioId: CodecTypes['pg/int4@1']['output'];
-    };
     readonly Tarefa: {
       readonly criadoEm: CodecTypes['pg/timestamptz-temporal@1']['output'];
       readonly descricao: CodecTypes['pg/text@1']['output'] | null;
@@ -308,12 +302,6 @@ export type FieldInputTypes = {
       readonly id: CodecTypes['pg/int4@1']['input'];
       readonly status: CodecTypes['pg/text@1']['input'];
       readonly valor: CodecTypes['pg/numeric@1']['input'];
-    };
-    readonly Sessao: {
-      readonly expiraEm: CodecTypes['pg/timestamptz-temporal@1']['input'];
-      readonly id: CodecTypes['pg/int4@1']['input'];
-      readonly token: CodecTypes['pg/text@1']['input'];
-      readonly usuarioId: CodecTypes['pg/int4@1']['input'];
     };
     readonly Tarefa: {
       readonly criadoEm: CodecTypes['pg/timestamptz-temporal@1']['input'];
@@ -351,12 +339,6 @@ export type StorageColumnTypes = {
       readonly status: CodecTypes['pg/text@1']['output'];
       readonly valor: CodecTypes['pg/numeric@1']['output'];
     };
-    readonly Sessao: {
-      readonly expiraEm: CodecTypes['pg/timestamptz-temporal@1']['output'];
-      readonly id: CodecTypes['pg/int4@1']['output'];
-      readonly token: CodecTypes['pg/text@1']['output'];
-      readonly usuarioId: CodecTypes['pg/int4@1']['output'];
-    };
     readonly Tarefa: {
       readonly criadoEm: CodecTypes['pg/timestamptz-temporal@1']['output'];
       readonly descricao: CodecTypes['pg/text@1']['output'] | null;
@@ -392,12 +374,6 @@ export type StorageColumnInputTypes = {
       readonly id: CodecTypes['pg/int4@1']['input'];
       readonly status: CodecTypes['pg/text@1']['input'];
       readonly valor: CodecTypes['pg/numeric@1']['input'];
-    };
-    readonly Sessao: {
-      readonly expiraEm: CodecTypes['pg/timestamptz-temporal@1']['input'];
-      readonly id: CodecTypes['pg/int4@1']['input'];
-      readonly token: CodecTypes['pg/text@1']['input'];
-      readonly usuarioId: CodecTypes['pg/int4@1']['input'];
     };
     readonly Tarefa: {
       readonly criadoEm: CodecTypes['pg/timestamptz-temporal@1']['input'];
@@ -439,14 +415,6 @@ export namespace Models {
     cliente: public_Cliente;
     readonly [RelationKeys]?: 'cliente';
   };
-  export type public_Sessao = {
-    expiraEm: CodecTypes['pg/timestamptz-temporal@1']['output'];
-    id: CodecTypes['pg/int4@1']['output'];
-    token: CodecTypes['pg/text@1']['output'];
-    usuarioId: CodecTypes['pg/int4@1']['output'];
-    usuario: public_Usuario;
-    readonly [RelationKeys]?: 'usuario';
-  };
   export type public_Tarefa = {
     criadoEm: CodecTypes['pg/timestamptz-temporal@1']['output'];
     descricao: CodecTypes['pg/text@1']['output'] | null;
@@ -461,8 +429,7 @@ export namespace Models {
     id: CodecTypes['pg/int4@1']['output'];
     nome: CodecTypes['pg/text@1']['output'];
     senha: CodecTypes['pg/text@1']['output'];
-    sessoes: public_Sessao[];
-    readonly [RelationKeys]?: 'sessoes';
+    readonly [RelationKeys]?: never;
   };
 }
 
@@ -470,7 +437,6 @@ export declare const models: {
   public: {
     Cliente: Models.public_Cliente;
     Pagamento: Models.public_Pagamento;
-    Sessao: Models.public_Sessao;
     Tarefa: Models.public_Tarefa;
     Usuario: Models.public_Usuario;
   };
@@ -612,58 +578,6 @@ type ContractBase = Omit<
                 },
               ];
             };
-            readonly Sessao: {
-              columns: {
-                readonly expiraEm: {
-                  readonly nativeType: 'timestamptz';
-                  readonly codecId: 'pg/timestamptz-temporal@1';
-                  readonly nullable: false;
-                };
-                readonly id: {
-                  readonly nativeType: 'int4';
-                  readonly codecId: 'pg/int4@1';
-                  readonly nullable: false;
-                  readonly default: {
-                    readonly kind: 'function';
-                    readonly expression: 'autoincrement()';
-                  };
-                };
-                readonly token: {
-                  readonly nativeType: 'text';
-                  readonly codecId: 'pg/text@1';
-                  readonly nullable: false;
-                };
-                readonly usuarioId: {
-                  readonly nativeType: 'int4';
-                  readonly codecId: 'pg/int4@1';
-                  readonly nullable: false;
-                };
-              };
-              primaryKey: { readonly columns: readonly ['id'] };
-              uniques: readonly [{ readonly columns: readonly ['token'] }];
-              indexes: readonly [
-                {
-                  readonly name: 'Sessao_usuarioId_idx_5f01c7d6';
-                  readonly prefix: 'Sessao_usuarioId_idx';
-                  readonly columns: readonly ['usuarioId'];
-                  readonly unique: false;
-                },
-              ];
-              foreignKeys: readonly [
-                {
-                  readonly source: {
-                    readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'Sessao';
-                    readonly columns: readonly ['usuarioId'];
-                  };
-                  readonly target: {
-                    readonly namespaceId: 'public' & NamespaceId;
-                    readonly tableName: 'Usuario';
-                    readonly columns: readonly ['id'];
-                  };
-                },
-              ];
-            };
             readonly Tarefa: {
               columns: {
                 readonly criadoEm: {
@@ -757,7 +671,6 @@ type ContractBase = Omit<
   readonly roots: {
     readonly Cliente: { readonly namespace: 'public' & NamespaceId; readonly model: 'Cliente' };
     readonly Pagamento: { readonly namespace: 'public' & NamespaceId; readonly model: 'Pagamento' };
-    readonly Sessao: { readonly namespace: 'public' & NamespaceId; readonly model: 'Sessao' };
     readonly Tarefa: { readonly namespace: 'public' & NamespaceId; readonly model: 'Tarefa' };
     readonly Usuario: { readonly namespace: 'public' & NamespaceId; readonly model: 'Usuario' };
   };
@@ -885,53 +798,6 @@ type ContractBase = Omit<
               };
             };
           };
-          readonly Sessao: {
-            readonly fields: {
-              readonly expiraEm: {
-                readonly nullable: false;
-                readonly type: {
-                  readonly kind: 'scalar';
-                  readonly codecId: 'pg/timestamptz-temporal@1';
-                };
-              };
-              readonly id: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
-              };
-              readonly token: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
-              };
-              readonly usuarioId: {
-                readonly nullable: false;
-                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
-              };
-            };
-            readonly relations: {
-              readonly usuario: {
-                readonly to: {
-                  readonly namespace: 'public' & NamespaceId;
-                  readonly model: 'Usuario';
-                };
-                readonly cardinality: 'N:1';
-                readonly nullable: false;
-                readonly on: {
-                  readonly localFields: readonly ['usuarioId'];
-                  readonly targetFields: readonly ['id'];
-                };
-              };
-            };
-            readonly storage: {
-              readonly table: 'Sessao';
-              readonly namespaceId: 'public';
-              readonly fields: {
-                readonly expiraEm: { readonly column: 'expiraEm' };
-                readonly id: { readonly column: 'id' };
-                readonly token: { readonly column: 'token' };
-                readonly usuarioId: { readonly column: 'usuarioId' };
-              };
-            };
-          };
           readonly Tarefa: {
             readonly fields: {
               readonly criadoEm: {
@@ -997,19 +863,7 @@ type ContractBase = Omit<
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
               };
             };
-            readonly relations: {
-              readonly sessoes: {
-                readonly to: {
-                  readonly namespace: 'public' & NamespaceId;
-                  readonly model: 'Sessao';
-                };
-                readonly cardinality: '1:N';
-                readonly on: {
-                  readonly localFields: readonly ['id'];
-                  readonly targetFields: readonly ['usuarioId'];
-                };
-              };
-            };
+            readonly relations: Record<string, never>;
             readonly storage: {
               readonly table: 'Usuario';
               readonly namespaceId: 'public';

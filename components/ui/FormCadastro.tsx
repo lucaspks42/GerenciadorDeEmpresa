@@ -1,14 +1,19 @@
-import { EyeIcon, EyeOffIcon } from "lucide-react";
+"use client";
 
+import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { useState } from "react";
 
 const campo =
   "w-full rounded-lg bg-neutral-100 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500";
+
 const rotulo = "mb-1 block text-xs text-neutral-600";
 
 export default function FormCadastro() {
   const [mostraSenha, setMostrarSenha] = useState(false);
   const [erro, setErro] = useState("");
+  const [sucesso, setSucesso] = useState("");
+  const [carregando, setCarregando] = useState(false);
+
   const [form, setForm] = useState({
     nome: "",
     email: "",
@@ -17,31 +22,73 @@ export default function FormCadastro() {
   });
 
   function atualizar(e: React.ChangeEvent<HTMLInputElement>) {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    setForm((formAtual) => ({
+      ...formAtual,
+      [e.target.name]: e.target.value,
+    }));
   }
 
-  function enviar(e: React.FormEvent) {
+  async function enviar(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+
+    setErro("");
+    setSucesso("");
 
     if (form.senha.length < 6) {
       setErro("A senha precisa ter pelo menos 6 caracteres.");
       return;
     }
+
     if (form.senha !== form.confirmar) {
       setErro("As senhas não coincidem.");
       return;
     }
 
-    setErro("");
-    console.log("Cadastro:", form); // aqui depois entra o salvamento real
+    try {
+      setCarregando(true);
+
+      const resposta = await fetch("/api/auth/cadastro", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          nome: form.nome,
+          email: form.email,
+          senha: form.senha,
+        }),
+      });
+
+      const resultado = await resposta.json();
+
+      if (!resposta.ok) {
+        setErro(resultado.erro || "Erro ao cadastrar usuário.");
+        return;
+      }
+
+      setSucesso(resultado.mensagem || "Usuário cadastrado com sucesso!");
+
+      setForm({
+        nome: "",
+        email: "",
+        senha: "",
+        confirmar: "",
+      });
+    } catch (erro) {
+      console.error("ERRO NO CADASTRO:", erro);
+      setErro("Não foi possível conectar ao servidor.");
+    } finally {
+      setCarregando(false);
+    }
   }
 
   return (
-    <form onSubmit={enviar} className="space-y-4 text-black w-full">
+    <form onSubmit={enviar} className="w-full space-y-4 text-black">
       <div>
         <label htmlFor="nome" className={rotulo}>
           Nome
         </label>
+
         <input
           type="text"
           id="nome"
@@ -58,6 +105,7 @@ export default function FormCadastro() {
         <label htmlFor="email" className={rotulo}>
           E-mail
         </label>
+
         <input
           type="email"
           id="email"
@@ -74,6 +122,7 @@ export default function FormCadastro() {
         <label htmlFor="senha" className={rotulo}>
           Senha
         </label>
+
         <div className="relative">
           <input
             type={mostraSenha ? "text" : "password"}
@@ -85,9 +134,10 @@ export default function FormCadastro() {
             onChange={atualizar}
             className={campo}
           />
+
           <button
             type="button"
-            onClick={() => setMostrarSenha(!mostraSenha)}
+            onClick={() => setMostrarSenha((valor) => !valor)}
             aria-label="Mostrar senha oculta"
             className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-500"
           >
@@ -100,6 +150,7 @@ export default function FormCadastro() {
         <label htmlFor="confirmar" className={rotulo}>
           Confirmar senha
         </label>
+
         <input
           id="confirmar"
           name="confirmar"
@@ -112,11 +163,16 @@ export default function FormCadastro() {
         />
       </div>
 
+      {erro && <p className="text-sm text-red-600">{erro}</p>}
+
+      {sucesso && <p className="text-sm text-green-600">{sucesso}</p>}
+
       <button
         type="submit"
-        className="w-full rounded-lg bg-violet-800 py-3 text-sm font-semibold text-white hover:bg-blue-700"
+        disabled={carregando}
+        className="w-full rounded-lg bg-violet-800 py-3 text-sm font-semibold text-white hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-50"
       >
-        Cadastrar
+        {carregando ? "Cadastrando..." : "Cadastrar"}
       </button>
 
       <hr className="border-neutral-200" />

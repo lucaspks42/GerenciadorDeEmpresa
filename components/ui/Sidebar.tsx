@@ -6,10 +6,20 @@ import {
   LayoutDashboard,
   UsersRound,
   Wallet,
+  LogOut,
 } from "lucide-react";
+import Link from "next/link";
 
 export default function Sidebar() {
   const pathname = usePathname();
+
+  async function sair() {
+    await fetch("/api/auth/logout", {
+      method: "POST",
+    });
+
+    window.location.href = "/login";
+  }
 
   return (
     <aside className="w-68 h-screen bg-sidebar text-sidebar-foreground border-r border-sidebar-border flex flex-col">
@@ -32,30 +42,30 @@ export default function Sidebar() {
       </div>
 
       <nav className="px-3 mt-6 flex flex-col gap-1">
-        <a
+        <Link
           href="/"
           className={`
-            p-3
-            rounded-xl
-            flex
-            items-center
-            gap-3
-            text-sm
-            transition-all
-            duration-200
-            ${
-              pathname === "/dashboard"
-                ? "bg-sidebar-accent text-white border border-border"
-                : "text-muted-foreground hover:bg-sidebar-accent hover:text-white"
-            }
-          `}
+    p-3
+    rounded-xl
+    flex
+    items-center
+    gap-3
+    text-sm
+    transition-all
+    duration-200
+    ${
+      pathname === "/"
+        ? "bg-sidebar-accent text-white border border-border"
+        : "text-muted-foreground hover:bg-sidebar-accent hover:text-white"
+    }
+  `}
         >
           <LayoutDashboard
             size={19}
-            className={pathname === "/dashboard" ? "text-primary" : ""}
+            className={pathname === "/" ? "text-primary" : ""}
           />
           Dashboard
-        </a>
+        </Link>
 
         <a
           href="/tarefas"
@@ -134,7 +144,16 @@ export default function Sidebar() {
       </nav>
 
       <div className="mt-auto px-4 py-5 border-t border-sidebar-border">
-        <div className="text-xs text-muted-foreground">Painel pessoal</div>
+        <div className="text-xs text-muted-foreground mb-3">Painel pessoal</div>
+
+        <button
+          type="button"
+          onClick={sair}
+          className="w-full p-3 rounded-xl flex items-center gap-3 text-sm text-muted-foreground hover:bg-sidebar-accent hover:text-white transition-all duration-200"
+        >
+          <LogOut size={19} />
+          Sair
+        </button>
       </div>
     </aside>
   );
