@@ -1,0 +1,460 @@
+[
+  {
+    "id": "schema.public",
+    "label": "Create schema \"public\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres"
+    },
+    "precheck": [],
+    "execute": [
+      {
+        "description": "Create schema \"public\"",
+        "sql": "CREATE SCHEMA IF NOT EXISTS \"public\"",
+        "params": []
+      }
+    ],
+    "postcheck": []
+  },
+  {
+    "id": "table.Cliente",
+    "label": "Create table \"Cliente\"",
+    "summary": "Creates table \"Cliente\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "Cliente"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"Cliente\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Cliente\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"Cliente\"",
+        "sql": "CREATE TABLE \"public\".\"Cliente\" (\n  \"diaVencimento\" int4,\n  \"email\" text,\n  \"empresa\" text,\n  \"id\" SERIAL NOT NULL,\n  \"nome\" text NOT NULL,\n  \"telefone\" text,\n  \"valorMensalidade\" numeric,\n  \"valorProduto\" numeric,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"Cliente\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Cliente\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.Pagamento",
+    "label": "Create table \"Pagamento\"",
+    "summary": "Creates table \"Pagamento\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "Pagamento"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"Pagamento\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Pagamento\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"Pagamento\"",
+        "sql": "CREATE TABLE \"public\".\"Pagamento\" (\n  \"clienteId\" int4 NOT NULL,\n  \"dataVencimento\" timestamptz,\n  \"diaVencimento\" int4,\n  \"id\" SERIAL NOT NULL,\n  \"status\" text DEFAULT 'Pendente' NOT NULL,\n  \"valor\" numeric NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"Pagamento\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Pagamento\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.Sessao",
+    "label": "Create table \"Sessao\"",
+    "summary": "Creates table \"Sessao\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "Sessao"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"Sessao\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Sessao\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"Sessao\"",
+        "sql": "CREATE TABLE \"public\".\"Sessao\" (\n  \"expiraEm\" timestamptz NOT NULL,\n  \"id\" SERIAL NOT NULL,\n  \"token\" text NOT NULL,\n  \"usuarioId\" int4 NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"Sessao\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Sessao\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.Tarefa",
+    "label": "Create table \"Tarefa\"",
+    "summary": "Creates table \"Tarefa\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "Tarefa"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"Tarefa\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Tarefa\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"Tarefa\"",
+        "sql": "CREATE TABLE \"public\".\"Tarefa\" (\n  \"criadoEm\" timestamptz DEFAULT (now()) NOT NULL,\n  \"descricao\" text,\n  \"id\" SERIAL NOT NULL,\n  \"status\" text DEFAULT 'aFazer' NOT NULL,\n  \"titulo\" text NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"Tarefa\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Tarefa\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.Usuario",
+    "label": "Create table \"Usuario\"",
+    "summary": "Creates table \"Usuario\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "Usuario"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"Usuario\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Usuario\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"Usuario\"",
+        "sql": "CREATE TABLE \"public\".\"Usuario\" (\n  \"criadoEm\" timestamptz DEFAULT (now()) NOT NULL,\n  \"email\" text NOT NULL,\n  \"id\" SERIAL NOT NULL,\n  \"nome\" text NOT NULL,\n  \"senha\" text NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"Usuario\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Usuario\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.Sessao.Sessao_token_key",
+    "label": "Add unique constraint on \"Sessao\" (token)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "Sessao_token_key",
+        "table": "Sessao"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"Sessao_token_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Sessao_token_key",
+          "public",
+          "\"public\".\"Sessao\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"Sessao_token_key\"",
+        "sql": "ALTER TABLE \"public\".\"Sessao\" ADD CONSTRAINT \"Sessao_token_key\" UNIQUE (\"token\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"Sessao_token_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Sessao_token_key",
+          "public",
+          "\"public\".\"Sessao\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.Usuario.Usuario_email_key",
+    "label": "Add unique constraint on \"Usuario\" (email)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "Usuario_email_key",
+        "table": "Usuario"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"Usuario_email_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Usuario_email_key",
+          "public",
+          "\"public\".\"Usuario\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"Usuario_email_key\"",
+        "sql": "ALTER TABLE \"public\".\"Usuario\" ADD CONSTRAINT \"Usuario_email_key\" UNIQUE (\"email\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"Usuario_email_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Usuario_email_key",
+          "public",
+          "\"public\".\"Usuario\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Pagamento.Pagamento_clienteId_idx_7ae16308",
+    "label": "Create index \"Pagamento_clienteId_idx_7ae16308\" on \"Pagamento\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Pagamento_clienteId_idx_7ae16308",
+        "table": "Pagamento"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Pagamento_clienteId_idx_7ae16308\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Pagamento_clienteId_idx_7ae16308\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Pagamento_clienteId_idx_7ae16308\"",
+        "sql": "CREATE INDEX \"Pagamento_clienteId_idx_7ae16308\" ON \"public\".\"Pagamento\" (\"clienteId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Pagamento_clienteId_idx_7ae16308\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Pagamento_clienteId_idx_7ae16308\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Sessao.Sessao_usuarioId_idx_5f01c7d6",
+    "label": "Create index \"Sessao_usuarioId_idx_5f01c7d6\" on \"Sessao\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Sessao_usuarioId_idx_5f01c7d6",
+        "table": "Sessao"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Sessao_usuarioId_idx_5f01c7d6\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Sessao_usuarioId_idx_5f01c7d6\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Sessao_usuarioId_idx_5f01c7d6\"",
+        "sql": "CREATE INDEX \"Sessao_usuarioId_idx_5f01c7d6\" ON \"public\".\"Sessao\" (\"usuarioId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Sessao_usuarioId_idx_5f01c7d6\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Sessao_usuarioId_idx_5f01c7d6\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.Pagamento.Pagamento_clienteId_fkey",
+    "label": "Add foreign key \"Pagamento_clienteId_fkey\" on \"Pagamento\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "Pagamento_clienteId_fkey",
+        "table": "Pagamento"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"Pagamento_clienteId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Pagamento_clienteId_fkey",
+          "public",
+          "\"public\".\"Pagamento\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"Pagamento_clienteId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"Pagamento\"\nADD CONSTRAINT \"Pagamento_clienteId_fkey\"\nFOREIGN KEY (\"clienteId\")\nREFERENCES \"public\".\"Cliente\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"Pagamento_clienteId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Pagamento_clienteId_fkey",
+          "public",
+          "\"public\".\"Pagamento\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.Sessao.Sessao_usuarioId_fkey",
+    "label": "Add foreign key \"Sessao_usuarioId_fkey\" on \"Sessao\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "Sessao_usuarioId_fkey",
+        "table": "Sessao"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"Sessao_usuarioId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Sessao_usuarioId_fkey",
+          "public",
+          "\"public\".\"Sessao\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"Sessao_usuarioId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"Sessao\"\nADD CONSTRAINT \"Sessao_usuarioId_fkey\"\nFOREIGN KEY (\"usuarioId\")\nREFERENCES \"public\".\"Usuario\" (\"id\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"Sessao_usuarioId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Sessao_usuarioId_fkey",
+          "public",
+          "\"public\".\"Sessao\""
+        ]
+      }
+    ]
+  }
+]

@@ -1,6 +1,7 @@
 "use client";
 
 import { EyeIcon, EyeOffIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 const campo =
@@ -9,6 +10,8 @@ const campo =
 const rotulo = "mb-1 block text-xs text-neutral-600";
 
 export default function FormCadastro() {
+  const router = useRouter();
+
   const [mostraSenha, setMostrarSenha] = useState(false);
   const [erro, setErro] = useState("");
   const [sucesso, setSucesso] = useState("");
@@ -74,6 +77,9 @@ export default function FormCadastro() {
         senha: "",
         confirmar: "",
       });
+
+      // Vai para a Dashboard após o cadastro
+      router.push("/");
     } catch (erro) {
       console.error("ERRO NO CADASTRO:", erro);
       setErro("Não foi possível conectar ao servidor.");

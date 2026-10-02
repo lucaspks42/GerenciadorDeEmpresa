@@ -1,5 +1,7 @@
 import { db } from "@/src/prisma/db";
 import bcrypt from "bcryptjs";
+import crypto from "crypto";
+import { cookies } from "next/headers";
 
 const runtime = db.runtime();
 
@@ -29,6 +31,7 @@ export async function POST(request: Request) {
       );
     }
 
+    // Verifica se o e-mail já existe
     const usuarioPlano = db.raw.sql`
       SELECT
         "id"
@@ -52,8 +55,10 @@ export async function POST(request: Request) {
       );
     }
 
+    // Criptografa a senha
     const senhaHash = await bcrypt.hash(senha, 10);
 
+    // Cria o usuário
     const inserirPlano = db.raw.sql`
       INSERT INTO "Usuario"
       (
@@ -86,6 +91,47 @@ export async function POST(request: Request) {
         { status: 500 },
       );
     }
+
+    // Cria a sessão automaticamente
+    const token = crypto.randomBytes(32).toString("hex");
+
+    const expiraEm = new Date(
+      Date.now() + 7 * 24 * 60 * 60 * 1000,
+    ).toISOString();
+
+    const sessaoPlano = db.raw.sql`
+      INSERT INTO "Sessao"
+      (
+        "token",
+        "usuarioId",
+        "expiraEm"
+      )
+      VALUES
+      (
+        ${token},
+        ${usuario.id},
+        ${expiraEm}
+      )
+      RETURNING
+        "id"
+    `
+      .returnsRow({
+        id: db.sql.public.Sessao.columns.id,
+      })
+      .build();
+
+    await runtime.query(sessaoPlano);
+
+    // Salva a sessão no navegador
+    const cookieStore = await cookies();
+
+    cookieStore.set("sessao", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 7 * 24 * 60 * 60,
+    });
 
     return Response.json(
       {

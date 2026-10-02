@@ -12,7 +12,7 @@ export default async function SistemaLayout({
   const sessao = await obterSessao();
 
   if (!sessao) {
-    redirect("/login");
+    redirect("/cadastro");
   }
 
   return (

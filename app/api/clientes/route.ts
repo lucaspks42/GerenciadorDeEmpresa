@@ -16,6 +16,19 @@ export async function POST(request: Request) {
       diaVencimento,
     } = dados;
 
+    const valorProdutoFinal =
+      valorProduto === "" || valorProduto === null ? 0 : Number(valorProduto);
+
+    const valorMensalidadeFinal =
+      valorMensalidade === "" || valorMensalidade === null
+        ? 0
+        : Number(valorMensalidade);
+
+    const diaVencimentoFinal =
+      diaVencimento === "" || diaVencimento === null
+        ? 0
+        : Number(diaVencimento);
+
     const plano = db.raw.sql`
       INSERT INTO "Cliente"
       (
@@ -30,12 +43,12 @@ export async function POST(request: Request) {
       VALUES
       (
         ${nome},
-        ${empresa ?? null},
-        ${email ?? null},
-        ${telefone ?? null},
-        ${valorProduto ?? null},
-        ${valorMensalidade ?? null},
-        ${diaVencimento ?? null}
+        ${empresa || null},
+        ${email || null},
+        ${telefone || null},
+        ${valorProdutoFinal},
+        ${valorMensalidadeFinal},
+        ${diaVencimentoFinal}
       )
       RETURNING
         "id",
@@ -91,8 +104,8 @@ export async function GET() {
         id: db.sql.public.Cliente.columns.id,
         nome: db.sql.public.Cliente.columns.nome,
         empresa: db.sql.public.Cliente.columns.empresa,
-        telefone: db.sql.public.Cliente.columns.telefone,
         email: db.sql.public.Cliente.columns.email,
+        telefone: db.sql.public.Cliente.columns.telefone,
         valorProduto: db.sql.public.Cliente.columns.valorProduto,
         valorMensalidade: db.sql.public.Cliente.columns.valorMensalidade,
         diaVencimento: db.sql.public.Cliente.columns.diaVencimento,

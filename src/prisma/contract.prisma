@@ -1,4 +1,10 @@
 // use prisma-next
+
+enum PerfilUsuario{
+  ADMINISTRADOR
+  FUNCIONARIO
+}
+
 model Cliente {
   id               Int         @id @default(autoincrement())
   nome             String
@@ -36,6 +42,7 @@ model Usuario {
   nome     String
   email    String   @unique
   senha    String
+  perfil   PerfilUsuario
   criadoEm DateTime @default(now())
 
   sessoes  Sessao[]

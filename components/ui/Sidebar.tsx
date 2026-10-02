@@ -18,7 +18,7 @@ export default function Sidebar() {
       method: "POST",
     });
 
-    window.location.href = "/login";
+    window.location.href = "/cadastro";
   }
 
   return (

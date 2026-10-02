@@ -28,6 +28,21 @@
   "domain": {
     "namespaces": {
       "public": {
+        "enum": {
+          "PerfilUsuario": {
+            "codecId": "pg/text@1",
+            "members": [
+              {
+                "name": "ADMINISTRADOR",
+                "value": "ADMINISTRADOR"
+              },
+              {
+                "name": "FUNCIONARIO",
+                "value": "FUNCIONARIO"
+              }
+            ]
+          }
+        },
         "models": {
           "Cliente": {
             "fields": {
@@ -383,6 +398,19 @@
                   "kind": "scalar"
                 }
               },
+              "perfil": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                },
+                "valueSet": {
+                  "entityKind": "enum",
+                  "entityName": "PerfilUsuario",
+                  "namespaceId": "public",
+                  "plane": "domain"
+                }
+              },
               "senha": {
                 "nullable": false,
                 "type": {
@@ -421,6 +449,9 @@
                 },
                 "nome": {
                   "column": "nome"
+                },
+                "perfil": {
+                  "column": "perfil"
                 },
                 "senha": {
                   "column": "senha"
@@ -689,6 +720,13 @@
               "uniques": []
             },
             "Usuario": {
+              "checks": [
+                {
+                  "expression": "\"perfil\" IN ('ADMINISTRADOR', 'FUNCIONARIO')",
+                  "name": "Usuario_perfil_check_1159265b",
+                  "prefix": "Usuario_perfil_check"
+                }
+              ],
               "columns": {
                 "criadoEm": {
                   "codecId": "pg/timestamptz-temporal@1",
@@ -718,6 +756,17 @@
                   "nativeType": "text",
                   "nullable": false
                 },
+                "perfil": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": false,
+                  "valueSet": {
+                    "entityKind": "valueSet",
+                    "entityName": "PerfilUsuario",
+                    "namespaceId": "public",
+                    "plane": "storage"
+                  }
+                },
                 "senha": {
                   "codecId": "pg/text@1",
                   "nativeType": "text",
@@ -739,13 +788,22 @@
                 }
               ]
             }
+          },
+          "valueSet": {
+            "PerfilUsuario": {
+              "kind": "valueSet",
+              "values": [
+                "ADMINISTRADOR",
+                "FUNCIONARIO"
+              ]
+            }
           }
         },
         "id": "public",
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "93a02b35f6c8bf323ebb37f0b901c58b5ecbca3833cf8fd1245e9a4fbf591e5a"
+    "storageHash": "516b08bb31dccca9578140e046205fa85f3e8827d6b44ef86c7f439f536e6949"
   },
   "capabilities": {
     "postgres": {
