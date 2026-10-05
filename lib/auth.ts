@@ -14,23 +14,46 @@ export async function obterSessao() {
 
   const sessaoPlano = db.raw.sql`
     SELECT
-      "id",
-      "usuarioId"
+      "Sessao"."id" AS "sessaoId",
+      "Usuario"."id" AS "usuarioId",
+      "Usuario"."nome",
+      "Usuario"."email",
+      "Usuario"."perfil"
     FROM "Sessao"
-    WHERE "token" = ${token}
-    AND "expiraEm" > NOW()
+    JOIN "Usuario"
+      ON "Usuario"."id" = "Sessao"."usuarioId"
+    WHERE "Sessao"."token" = ${token}
+      AND "Sessao"."expiraEm" > NOW()
   `
     .returnsRow({
-      id: db.sql.public.Sessao.columns.id,
-      usuarioId: db.sql.public.Sessao.columns.usuarioId,
+      sessaoId: db.sql.public.Sessao.columns.id,
+      usuarioId: db.sql.public.Usuario.columns.id,
+      nome: db.sql.public.Usuario.columns.nome,
+      email: db.sql.public.Usuario.columns.email,
+      perfil: db.sql.public.Usuario.columns.perfil,
     })
     .build();
 
-  const [sessao] = await runtime.query(sessaoPlano);
+  const sessoes = await runtime.query(sessaoPlano);
+  const sessao = sessoes[0];
 
   if (!sessao) {
     return null;
   }
 
   return sessao;
+}
+
+export async function exigirAdministrador() {
+  const usuario = await obterSessao();
+
+  if (!usuario) {
+    return;
+  }
+
+  if (usuario.perfil !== "ADMINISTRADOR") {
+    return;
+  }
+
+  return usuario;
 }

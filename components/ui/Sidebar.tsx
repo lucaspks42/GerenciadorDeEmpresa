@@ -141,6 +141,31 @@ export default function Sidebar() {
           />
           Pagamentos
         </a>
+
+        <a
+          href="/administracao"
+          className={`
+            p-3
+            rounded-xl
+            flex
+            items-center
+            gap-3
+            text-sm
+            transition-all
+            duration-200
+            ${
+              pathname === "/administracao"
+                ? "bg-sidebar-accent text-white border border-primary/20"
+                : "text-muted-foreground hover:bg-sidebar-accent hover:text-white"
+            }
+          `}
+        >
+          <Wallet
+            size={19}
+            className={pathname === "/pagamentos" ? "text-primary" : ""}
+          />
+          Painel Administrativo
+        </a>
       </nav>
 
       <div className="mt-auto px-4 py-5 border-t border-sidebar-border">

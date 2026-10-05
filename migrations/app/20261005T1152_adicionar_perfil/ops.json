@@ -1,0 +1,165 @@
+[
+  {
+    "id": "column.public.Usuario.perfil",
+    "label": "Add column \"perfil\" to \"Usuario\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "perfil",
+        "table": "Usuario"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"perfil\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Usuario",
+          "perfil"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"perfil\"",
+        "sql": "ALTER TABLE \"public\".\"Usuario\" ADD COLUMN \"perfil\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"perfil\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Usuario",
+          "perfil"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "data_migration.backfill-Usuario-perfil",
+    "label": "Data transform: backfill-Usuario-perfil",
+    "operationClass": "data",
+    "target": {
+      "id": "postgres"
+    },
+    "precheck": [
+      {
+        "description": "Check backfill-Usuario-perfil has work to do",
+        "sql": "SELECT EXISTS (SELECT \"id\" AS \"id\" FROM \"public\".\"Usuario\" WHERE \"perfil\" IS NULL LIMIT 1) AS ok",
+        "params": []
+      }
+    ],
+    "execute": [
+      {
+        "description": "Run backfill-Usuario-perfil",
+        "sql": "UPDATE \"public\".\"Usuario\" SET \"perfil\" = $1 WHERE \"perfil\" IS NULL",
+        "params": [
+          "ADMINISTRADOR"
+        ]
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "Verify backfill-Usuario-perfil resolved all violations",
+        "sql": "SELECT NOT EXISTS (SELECT \"id\" AS \"id\" FROM \"public\".\"Usuario\" WHERE \"perfil\" IS NULL LIMIT 1) AS ok",
+        "params": []
+      }
+    ]
+  },
+  {
+    "id": "alterNullability.setNotNull.Usuario.perfil",
+    "label": "Set NOT NULL on \"Usuario\".\"perfil\"",
+    "operationClass": "destructive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "perfil",
+        "table": "Usuario"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"perfil\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Usuario",
+          "perfil"
+        ]
+      },
+      {
+        "description": "ensure no NULL values in \"perfil\"",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"public\".\"Usuario\" WHERE \"perfil\" IS NULL) AS \"result\"",
+        "params": []
+      }
+    ],
+    "execute": [
+      {
+        "description": "set NOT NULL on \"perfil\"",
+        "sql": "ALTER TABLE \"public\".\"Usuario\" ALTER COLUMN \"perfil\" SET NOT NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"perfil\" is NOT NULL",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3 AND \"is_nullable\" = $4)) AS \"result\"",
+        "params": [
+          "public",
+          "Usuario",
+          "perfil",
+          "NO"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "checkConstraint.Usuario.Usuario_perfil_check_1159265b",
+    "label": "Add check constraint \"Usuario_perfil_check_1159265b\" on \"Usuario\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "checkConstraint",
+        "name": "Usuario_perfil_check_1159265b",
+        "table": "Usuario"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"Usuario_perfil_check_1159265b\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Usuario_perfil_check_1159265b",
+          "public",
+          "\"public\".\"Usuario\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add check constraint \"Usuario_perfil_check_1159265b\"",
+        "sql": "ALTER TABLE \"public\".\"Usuario\" ADD CONSTRAINT \"Usuario_perfil_check_1159265b\" CHECK (\"perfil\" IN ('ADMINISTRADOR', 'FUNCIONARIO'))"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"Usuario_perfil_check_1159265b\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Usuario_perfil_check_1159265b",
+          "public",
+          "\"public\".\"Usuario\""
+        ]
+      }
+    ]
+  }
+]

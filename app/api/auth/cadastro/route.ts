@@ -2,6 +2,7 @@ import { db } from "@/src/prisma/db";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import { cookies } from "next/headers";
+import { param } from "@prisma/orm-postgres/relational-core/expression";
 
 const runtime = db.runtime();
 
@@ -43,8 +44,8 @@ export async function POST(request: Request) {
       })
       .build();
 
-    const usuarios = await runtime.query(usuarioPlano);
-    const usuarioExistente = usuarios[0];
+    const usuariosEncontrados = await runtime.query(usuarioPlano);
+    const usuarioExistente = usuariosEncontrados[0];
 
     if (usuarioExistente) {
       return Response.json(
@@ -55,8 +56,29 @@ export async function POST(request: Request) {
       );
     }
 
+    // Verifica se já existe algum usuário no sistema
+    const primeiroUsuario = db.raw.sql`
+      SELECT
+        "id"
+      FROM "Usuario"
+      LIMIT 1
+    `
+      .returnsRow({
+        id: db.sql.public.Usuario.columns.id,
+      })
+      .build();
+
+    const usuariosExistentes = await runtime.query(primeiroUsuario);
+    const usuarioEncontrado = usuariosExistentes[0];
+
+    // O primeiro usuário será administrador.
+    // Os próximos serão funcionários.
+    const perfil = usuarioEncontrado ? "FUNCIONARIO" : "ADMINISTRADOR";
+
     // Criptografa a senha
     const senhaHash = await bcrypt.hash(senha, 10);
+
+    console.log(db.sql.public);
 
     // Cria o usuário
     const inserirPlano = db.raw.sql`
@@ -64,14 +86,18 @@ export async function POST(request: Request) {
       (
         "nome",
         "email",
-        "senha"
+        "senha",
+        "perfil"
       )
       VALUES
       (
         ${nome},
         ${email},
-        ${senhaHash}
-      )
+        ${senhaHash},
+        ${param(perfil, {
+          codecId: db.sql.public.Usuario.columns.perfil.codecId,
+        })}
+            )
       RETURNING
         "id"
     `
@@ -137,6 +163,7 @@ export async function POST(request: Request) {
       {
         mensagem: "Usuário cadastrado com sucesso",
         id: usuario.id,
+        perfil,
       },
       { status: 201 },
     );

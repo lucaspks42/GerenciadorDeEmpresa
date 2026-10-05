@@ -1,3 +1,4 @@
+import { obterSessao } from "@/lib/auth";
 import { db } from "@/src/prisma/db";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
@@ -24,13 +25,15 @@ export async function POST(request: Request) {
     const usuarioPlano = db.raw.sql`
       SELECT
         "id",
-        "senha"
+        "senha",
+        "perfil"
       FROM "Usuario"
       WHERE "email" = ${email}
     `
       .returnsRow({
         id: db.sql.public.Usuario.columns.id,
         senha: db.sql.public.Usuario.columns.senha,
+        perfil: db.sql.public.Usuario.columns.perfil,
       })
       .build();
 
@@ -100,6 +103,7 @@ export async function POST(request: Request) {
       {
         mensagem: "Login realizado com sucesso",
         id: usuarioExistente.id,
+        perfil: usuarioExistente.perfil,
       },
       { status: 200 },
     );
@@ -109,6 +113,27 @@ export async function POST(request: Request) {
     return Response.json(
       {
         erro: "Erro interno ao fazer login",
+      },
+      { status: 500 },
+    );
+  }
+}
+
+export async function GET() {
+  try {
+    const sessao = await obterSessao();
+
+    if (!sessao) {
+      return Response.json({ erro: "Não autenticado" }, { status: 401 });
+    }
+
+    return Response.json(sessao);
+  } catch (erro) {
+    console.error("ERRO AO VERIFICAR SESSÃO:", erro);
+
+    return Response.json(
+      {
+        erro: "Erro interno ao verificar sessão",
       },
       { status: 500 },
     );
