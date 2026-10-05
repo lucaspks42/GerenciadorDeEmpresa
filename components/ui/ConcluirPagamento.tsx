@@ -1,3 +1,5 @@
+"use client";
+
 import { Pagamento } from "@/types/Pagamentos";
 import { CircleCheck, Pen, X } from "lucide-react";
 import { useState } from "react";
@@ -29,8 +31,19 @@ export default function ConcluirPagamentos({
     pagamento.data_vencimento,
   );
 
-  function formatarData(data: string) {
-    const [ano, mes, dia] = data.split("-");
+  function formatarData(data?: string | null) {
+    if (!data) {
+      return "Não informado";
+    }
+
+    const partes = data.split("-");
+
+    if (partes.length !== 3) {
+      return data;
+    }
+
+    const [ano, mes, dia] = partes;
+
     return `${dia}/${mes}/${ano}`;
   }
 
@@ -88,67 +101,73 @@ export default function ConcluirPagamentos({
         throw new Error("Erro ao salvar alterações");
       }
 
-      atualizarPagamento({
+      const pagamentoAtualizado: Pagamento = {
         ...pagamento,
         valor,
         data_vencimento: dataVencimento,
-      });
+      };
+
+      atualizarPagamento(pagamentoAtualizado);
 
       setEditando(false);
     } catch (erro) {
-      console.error(erro);
+      console.error("ERRO AO SALVAR ALTERAÇÕES:", erro);
     }
   }
 
   return (
-    <main className="fixed inset-0 flex items-center justify-center z-50 bg-black/80 backdrop-blur-sm p-6">
-      <div className="w-full max-w-4xl max-h-[90vh] bg-card text-card-foreground border border-border gap-4 rounded-2xl flex flex-col shadow-2xl">
-        <header className="border-b border-border px-6 py-5 flex items-center justify-between">
+    <main className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-6 backdrop-blur-sm">
+      {" "}
+      <div className="flex max-h-[90vh] w-full max-w-4xl flex-col gap-4 rounded-2xl border border-border bg-card text-card-foreground shadow-2xl">
+        {/* HEADER */}{" "}
+        <header className="flex items-center justify-between border-b border-border px-6 py-5">
+          {" "}
           <div>
-            <h2 className="text-xl font-semibold">{pagamento.nome}</h2>
+            {" "}
+            <h2 className="text-xl font-semibold">{pagamento.nome} </h2>
+            ```
             <h2>{pagamento.empresa}</h2>
           </div>
-
           <div className="flex flex-row">
             <button
               onClick={() => setEditando(true)}
-              className="p-2 rounded-lg text-muted-foreground hover:text-green-600 hover:bg-accent transition-colors"
+              className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-green-600"
             >
               <Pen size={20} />
             </button>
 
             <button
               onClick={fechar}
-              className="p-2 rounded-lg text-muted-foreground hover:text-red-600 hover:bg-accent transition-colors"
+              className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-red-600"
             >
               <X size={20} />
             </button>
           </div>
         </header>
-
+        {/* RESUMO */}
         <div className="px-10 py-8">
           <div className="mb-6">
             <h3 className="text-lg font-semibold">Resumo do pagamento</h3>
 
-            <p className="text-sm text-muted-foreground mt-1">
+            <p className="mt-1 text-sm text-muted-foreground">
               Confira os dados antes de confirmar o pagamento.
             </p>
           </div>
 
           <div className="grid grid-cols-3 gap-5">
             {/* VALOR */}
-            <div className="border border-green-400/50 bg-green-500/5 rounded-2xl p-6 min-h-40 transition-all hover:border-green-400 hover:bg-green-500/10">
-              <span className="block text-sm font-medium text-muted-foreground uppercase tracking-wide">
+            <div className="min-h-40 rounded-2xl border border-green-400/50 bg-green-500/5 p-6 transition-all hover:border-green-400 hover:bg-green-500/10">
+              <span className="block text-sm font-medium uppercase tracking-wide text-muted-foreground">
                 💰 Valor
               </span>
 
-              <div className="mt-6 text-3xl font-bold text-center">
+              <div className="mt-6 text-center text-3xl font-bold">
                 {editando ? (
                   <input
                     type="number"
                     value={valor}
                     onChange={(e) => setValor(Number(e.target.value))}
-                    className="w-full border border-border bg-background rounded-xl p-3 text-center outline-none"
+                    className="w-full rounded-xl border border-border bg-background p-3 text-center outline-none"
                   />
                 ) : (
                   <div>
@@ -163,19 +182,19 @@ export default function ConcluirPagamentos({
 
             {/* VENCIMENTO */}
             <div
-              className={`border ${corStatus} rounded-2xl p-6 min-h-40 transition-all`}
+              className={`min-h-40 rounded-2xl border p-6 transition-all ${corStatus}`}
             >
-              <span className="block text-sm font-medium text-muted-foreground uppercase tracking-wide">
+              <span className="block text-sm font-medium uppercase tracking-wide text-muted-foreground">
                 📅 Vencimento
               </span>
 
-              <div className="mt-6 text-2xl font-bold text-center">
+              <div className="mt-6 text-center text-2xl font-bold">
                 {editando ? (
                   <input
                     type="date"
                     value={dataVencimento}
                     onChange={(e) => setDataVencimento(e.target.value)}
-                    className="w-full border border-border bg-background rounded-xl p-3 text-center outline-none"
+                    className="w-full rounded-xl border border-border bg-background p-3 text-center outline-none"
                   />
                 ) : (
                   <div>{formatarData(pagamento.data_vencimento)}</div>
@@ -184,17 +203,17 @@ export default function ConcluirPagamentos({
             </div>
 
             {/* STATUS */}
-            <div className="border border-border bg-background/50 rounded-2xl p-6 min-h-40 transition-all hover:border-primary/40">
-              <span className="block text-sm font-medium text-muted-foreground uppercase tracking-wide">
+            <div className="min-h-40 rounded-2xl border border-border bg-background/50 p-6 transition-all hover:border-primary/40">
+              <span className="block text-sm font-medium uppercase tracking-wide text-muted-foreground">
                 Status
               </span>
 
               <div className="mt-6 flex justify-center">
                 <span
-                  className={`px-4 py-2 rounded-full text-sm font-semibold ${
+                  className={`rounded-full border px-4 py-2 text-sm font-semibold ${
                     pagamento.status === "Pago"
-                      ? "bg-green-500/15 text-green-500 border border-green-500/30"
-                      : "bg-yellow-500/15 text-yellow-500 border border-yellow-500/30"
+                      ? "border-green-500/30 bg-green-500/15 text-green-500"
+                      : "border-yellow-500/30 bg-yellow-500/15 text-yellow-500"
                   }`}
                 >
                   {pagamento.status === "Pago" ? "🟢 Pago" : "🟡 Pendente"}
@@ -203,9 +222,9 @@ export default function ConcluirPagamentos({
             </div>
           </div>
         </div>
-
+        {/* CONFIRMAÇÃO */}
         <div className="px-10 pb-6">
-          <div className="border border-primary/20 bg-primary/10 rounded-2xl p-6 flex gap-4">
+          <div className="flex gap-4 rounded-2xl border border-primary/20 bg-primary/10 p-6">
             <CircleCheck />
 
             <div>
@@ -217,21 +236,20 @@ export default function ConcluirPagamentos({
             </div>
           </div>
         </div>
-
         {/* BOTÕES */}
-        <div className="flex gap-3 justify-end py-5 px-6 border-t border-border">
+        <div className="flex justify-end gap-3 border-t border-border px-6 py-5">
           {editando ? (
             <>
               <button
                 onClick={() => setEditando(false)}
-                className="border border-border bg-background hover:bg-accent text-muted-foreground hover:text-foreground transition-colors rounded-xl px-5 py-2.5 text-sm"
+                className="rounded-xl border border-border bg-background px-5 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
               >
                 Cancelar
               </button>
 
               <button
                 onClick={salvarAlterações}
-                className="bg-green-500 hover:bg-green-400 text-primary-foreground transition-colors rounded-xl px-5 py-2.5 text-sm font-semibold shadow-lg shadow-primary/10"
+                className="rounded-xl bg-green-500 px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/10 transition-colors hover:bg-green-400"
               >
                 Salvar alterações
               </button>
@@ -240,14 +258,14 @@ export default function ConcluirPagamentos({
             <>
               <button
                 onClick={fechar}
-                className="border border-border bg-background hover:bg-accent text-muted-foreground hover:text-foreground transition-colors rounded-xl px-5 py-2.5 text-sm"
+                className="rounded-xl border border-border bg-background px-5 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
               >
                 Cancelar
               </button>
 
               <button
                 onClick={confirmarPagamento}
-                className="bg-green-500 hover:bg-green-400 text-primary-foreground transition-colors rounded-xl px-5 py-2.5 text-sm font-semibold shadow-lg shadow-primary/10"
+                className="rounded-xl bg-green-500 px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/10 transition-colors hover:bg-green-400"
               >
                 Confirmar pagamento
               </button>

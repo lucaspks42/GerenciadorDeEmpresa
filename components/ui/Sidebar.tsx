@@ -6,7 +6,8 @@ import {
   LayoutDashboard,
   UsersRound,
   Wallet,
-  LogOut,
+  Cog,
+  UserRoundCog,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -142,33 +143,35 @@ export default function Sidebar() {
           Pagamentos
         </a>
 
-        <a
-          href="/administracao"
-          className={`
-            p-3
-            rounded-xl
-            flex
-            items-center
-            gap-3
-            text-sm
-            transition-all
-            duration-200
-            ${
-              pathname === "/administracao"
-                ? "bg-sidebar-accent text-white border border-primary/20"
-                : "text-muted-foreground hover:bg-sidebar-accent hover:text-white"
-            }
-          `}
-        >
-          <Wallet
-            size={19}
-            className={pathname === "/pagamentos" ? "text-primary" : ""}
-          />
-          Painel Administrativo
-        </a>
+        <div className="border-t py-1">
+          <a
+            href="/administracao"
+            className={`
+    p-3
+    rounded-xl
+    flex
+    items-center
+    gap-3
+    text-sm
+    transition-all
+    duration-200
+    ${
+      pathname === "/administracao"
+        ? "bg-sidebar-accent text-white border border-primary/20"
+        : "text-muted-foreground hover:bg-sidebar-accent hover:text-white"
+    }
+  `}
+          >
+            <Cog
+              size={19}
+              className={pathname === "/administracao" ? "text-primary" : ""}
+            />
+            Painel Administrativo
+          </a>
+        </div>
       </nav>
 
-      <div className="mt-auto px-4 py-5 border-t border-sidebar-border">
+      <div className="mt-auto px-4 py-5 border-t border-sidebar-border ">
         <div className="text-xs text-muted-foreground mb-3">Painel pessoal</div>
 
         <button
@@ -176,7 +179,7 @@ export default function Sidebar() {
           onClick={sair}
           className="w-full p-3 rounded-xl flex items-center gap-3 text-sm text-muted-foreground hover:bg-sidebar-accent hover:text-white transition-all duration-200"
         >
-          <LogOut size={19} />
+          <UserRoundCog size={19} />
           Sair
         </button>
       </div>

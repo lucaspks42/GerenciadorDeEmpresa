@@ -16,7 +16,7 @@ export default class M extends Migration<Start, End> {
         table: 'Usuario',
         column: col('perfil', 'text', { codecRef: { codecId: 'pg/text@1' } }),
       }),
-      this.dataTransform(endContract, 'backfill-Usuario-perfil', {
+      this.dataTransform(endContract as unknown as End, 'backfill-Usuario-perfil', {
         check: () => placeholder('backfill-Usuario-perfil:check'),
         run: () => placeholder('backfill-Usuario-perfil:run'),
       }),

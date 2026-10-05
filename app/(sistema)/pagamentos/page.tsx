@@ -2,23 +2,11 @@
 
 import ConcluirPagamentos from "@/components/ui/ConcluirPagamento";
 import { useSearch } from "@/components/context/SearchContext";
+import type { Pagamento } from "@/types/Pagamentos";
 import { useEffect, useState } from "react";
-
-type Pagamento = {
-  id: number;
-  cliente_id: number;
-  nome: string;
-  empresa: string;
-  valor: number;
-  dia_vencimento: number;
-  data_vencimento: string;
-  status: string;
-  prioridade: number;
-};
 
 export default function Pagamentos() {
   const [pagamentos, setPagamentos] = useState<Pagamento[]>([]);
-
   const [pagamentoSelecionado, setPagamentoSelecionado] =
     useState<Pagamento | null>(null);
 
@@ -74,7 +62,7 @@ export default function Pagamentos() {
         />
       )}
 
-      <div className="px-10 py-8 h-full">
+      <div className="h-full px-10 py-8">
         {itensFiltrados.length === 0 ? (
           <div className="flex items-center justify-center py-20">
             <p className="text-sm text-muted-foreground">
@@ -82,20 +70,8 @@ export default function Pagamentos() {
             </p>
           </div>
         ) : (
-          <div
-            className="
-              w-full
-              h-full
-              border
-              border-border
-              rounded-lg
-              overflow-hidden
-              flex
-              flex-col
-            "
-          >
-            {/* ÁREA QUE ROLA */}
-            <div className="overflow-y-auto flex-1">
+          <div className="h-full overflow-y-auto pr-2">
+            <div className="space-y-3">
               {itensFiltrados.map((pagamento) => {
                 const data = new Date(pagamento.data_vencimento + "T00:00:00");
 
@@ -108,53 +84,52 @@ export default function Pagamentos() {
                       setPagamentoSelecionado(pagamento);
                     }}
                     className="
-                      w-full
-                      grid
-                      grid-cols-[2fr_1fr_2fr_auto]
-                      items-center
-                      px-6
-                      py-5
-                      border-b
-                      border-border
-                      last:border-b-0
-                      hover:bg-accent
-                      transition-colors
-                      text-left
-                      cursor-pointer
-                    "
+                  w-full
+                  rounded-lg
+                  border
+                  border-border
+                  bg-card
+                  px-6
+                  py-5
+                  transition-colors
+                  hover:bg-accent
+                  cursor-pointer
+                "
                   >
-                    {/* CLIENTE */}
-                    <div>
-                      <p className="font-medium">{pagamento.nome}</p>
+                    <div className="grid grid-cols-[2fr_1fr_2fr_auto] items-center gap-6">
+                      {/* CLIENTE */}
+                      <div>
+                        <p className="font-medium">{pagamento.nome}</p>
 
-                      <p className="text-sm text-muted-foreground">
-                        {pagamento.empresa}
-                      </p>
-                    </div>
+                        <p className="text-sm text-muted-foreground">
+                          {pagamento.empresa}
+                        </p>
+                      </div>
 
-                    {/* VALOR */}
-                    <div>
-                      <p className="font-medium">
-                        R$ {pagamento.valor.toFixed(2).replace(".", ",")}
-                      </p>
-                    </div>
+                      {/* VALOR */}
+                      <div>
+                        <p className="font-medium">
+                          R$ {pagamento.valor.toFixed(2).replace(".", ",")}
+                        </p>
+                      </div>
 
-                    {/* VENCIMENTO */}
-                    <div>
-                      <p className="text-sm">Vencimento: {dataFormatada}</p>
-                    </div>
+                      {/* VENCIMENTO */}
+                      <div>
+                        <p className="text-sm">Vencimento: {dataFormatada}</p>
+                      </div>
 
-                    {/* STATUS */}
-                    <div>
-                      <span
-                        className={
-                          pagamento.status === "Pago"
-                            ? "text-green-600"
-                            : "text-yellow-600"
-                        }
-                      >
-                        {pagamento.status}
-                      </span>
+                      {/* STATUS */}
+                      <div className="text-right">
+                        <span
+                          className={
+                            pagamento.status === "Pago"
+                              ? "text-green-600"
+                              : "text-yellow-600"
+                          }
+                        >
+                          {pagamento.status}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 );

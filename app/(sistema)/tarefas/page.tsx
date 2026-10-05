@@ -545,7 +545,8 @@ export default function Tarefa() {
 
     return `
       border
-      h-[600px]
+      h-[calc(100vh-180px)]
+      min-h-[600px]
       rounded-2xl
       flex-1
       flex
