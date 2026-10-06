@@ -117,15 +117,11 @@ export default function ConcluirPagamentos({
 
   return (
     <main className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-6 backdrop-blur-sm">
-      {" "}
       <div className="flex max-h-[90vh] w-full max-w-4xl flex-col gap-4 rounded-2xl border border-border bg-card text-card-foreground shadow-2xl">
-        {/* HEADER */}{" "}
         <header className="flex items-center justify-between border-b border-border px-6 py-5">
-          {" "}
           <div>
-            {" "}
             <h2 className="text-xl font-semibold">{pagamento.nome} </h2>
-            ```
+
             <h2>{pagamento.empresa}</h2>
           </div>
           <div className="flex flex-row">
@@ -144,7 +140,7 @@ export default function ConcluirPagamentos({
             </button>
           </div>
         </header>
-        {/* RESUMO */}
+
         <div className="px-10 py-8">
           <div className="mb-6">
             <h3 className="text-lg font-semibold">Resumo do pagamento</h3>
@@ -155,7 +151,6 @@ export default function ConcluirPagamentos({
           </div>
 
           <div className="grid grid-cols-3 gap-5">
-            {/* VALOR */}
             <div className="min-h-40 rounded-2xl border border-green-400/50 bg-green-500/5 p-6 transition-all hover:border-green-400 hover:bg-green-500/10">
               <span className="block text-sm font-medium uppercase tracking-wide text-muted-foreground">
                 💰 Valor
@@ -180,7 +175,6 @@ export default function ConcluirPagamentos({
               </div>
             </div>
 
-            {/* VENCIMENTO */}
             <div
               className={`min-h-40 rounded-2xl border p-6 transition-all ${corStatus}`}
             >
@@ -202,7 +196,6 @@ export default function ConcluirPagamentos({
               </div>
             </div>
 
-            {/* STATUS */}
             <div className="min-h-40 rounded-2xl border border-border bg-background/50 p-6 transition-all hover:border-primary/40">
               <span className="block text-sm font-medium uppercase tracking-wide text-muted-foreground">
                 Status
@@ -222,7 +215,7 @@ export default function ConcluirPagamentos({
             </div>
           </div>
         </div>
-        {/* CONFIRMAÇÃO */}
+
         <div className="px-10 pb-6">
           <div className="flex gap-4 rounded-2xl border border-primary/20 bg-primary/10 p-6">
             <CircleCheck />
@@ -236,7 +229,7 @@ export default function ConcluirPagamentos({
             </div>
           </div>
         </div>
-        {/* BOTÕES */}
+
         <div className="flex justify-end gap-3 border-t border-border px-6 py-5">
           {editando ? (
             <>

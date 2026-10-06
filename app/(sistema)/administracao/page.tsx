@@ -16,8 +16,8 @@ export default function Administracao() {
     <main className="h-[calc(100vh-4rem)] overflow-hidden bg-background text-foreground">
       {modalAberto && <ModalUsuario onClose={fecharModal} />}
 
-      <div className="px-20 py-8">
-        <div className="mb-8">
+      <div className="px-12 py-6">
+        <div className="mb-6">
           <h1 className="text-3xl font-bold">Administração</h1>
 
           <p className="mt-2 text-muted-foreground">
@@ -25,9 +25,8 @@ export default function Administracao() {
           </p>
         </div>
 
-        {/* Estatísticas */}
         <div className="grid grid-cols-3 gap-5">
-          <div className="min-h-40 rounded-2xl border border-border bg-card p-6 transition-all hover:-translate-y-1 hover:border-primary/40">
+          <div className="min-h-44 rounded-2xl border border-border bg-card p-6 transition-all hover:-translate-y-1 hover:border-primary/40">
             <div className="flex h-full flex-col justify-between">
               <CiUser className="text-4xl text-primary" />
 
@@ -41,7 +40,7 @@ export default function Administracao() {
             </div>
           </div>
 
-          <div className="min-h-40 rounded-2xl border border-border bg-card p-6 transition-all hover:-translate-y-1 hover:border-primary/40">
+          <div className="min-h-44 rounded-2xl border border-border bg-card p-6 transition-all hover:-translate-y-1 hover:border-primary/40">
             <div className="flex h-full flex-col justify-between">
               <CiUser className="text-4xl text-primary" />
 
@@ -55,7 +54,7 @@ export default function Administracao() {
             </div>
           </div>
 
-          <div className="min-h-40 rounded-2xl border border-border bg-card p-6 transition-all hover:-translate-y-1 hover:border-primary/40">
+          <div className="min-h-44 rounded-2xl border border-border bg-card p-6 transition-all hover:-translate-y-1 hover:border-primary/40">
             <div className="flex h-full flex-col justify-between">
               <IoShieldOutline className="text-4xl text-primary" />
 
@@ -70,12 +69,10 @@ export default function Administracao() {
           </div>
         </div>
 
-        {/* Acesso rápido */}
         <div className="mt-8">
           <h2 className="mb-4 text-xl font-semibold">Acesso rápido</h2>
 
-          <div className="grid grid-cols-2 gap-5">
-            {/* Usuários */}
+          <div className="grid  gap-5">
             <button
               type="button"
               onClick={() => setModalAberto(true)}
@@ -94,7 +91,6 @@ export default function Administracao() {
               </div>
             </button>
 
-            {/* Permissões */}
             <button
               type="button"
               className="flex items-center gap-4 rounded-2xl border border-border bg-card p-6 text-left transition-all hover:border-primary/40 hover:bg-primary/5"

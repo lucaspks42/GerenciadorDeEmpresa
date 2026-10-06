@@ -5,6 +5,8 @@ enum PerfilUsuario{
   FUNCIONARIO
 }
 
+Get-Content prisma.config.ts
+
 model Cliente {
   id               Int         @id @default(autoincrement())
   nome             String
@@ -46,6 +48,15 @@ model Usuario {
   criadoEm DateTime @default(now())
 
   sessoes  Sessao[]
+}
+
+model SolicitacaoCadastro {
+  id       Int               @id @default(autoincrement())
+  nome     String
+  email    String
+  senha    String
+  status   StatusSolicitacao @default(PENDENTE)
+  criadoEm DateTime          @default(now())
 }
 
 model Sessao {

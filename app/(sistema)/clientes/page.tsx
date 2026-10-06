@@ -93,7 +93,6 @@ export default function Clientes() {
 
   return (
     <main className="min-h-screen bg-background text-foreground">
-      {/* Modal para adicionar cliente */}
       {modalAberto && (
         <ModalCliente
           fecharModal={fecharModal}
@@ -101,7 +100,6 @@ export default function Clientes() {
         />
       )}
 
-      {/* Informações do cliente */}
       {clienteSelecionado && (
         <InfoCliente
           fecharModal={() => setClienteSelecionado(null)}
@@ -111,7 +109,6 @@ export default function Clientes() {
       )}
 
       <div className="px-10 py-8">
-        {/* Cabeçalho da página */}
         <div className="flex items-center justify-between gap-4 mb-8">
           <div>
             <h2 className="text-2xl font-semibold">Clientes</h2>
@@ -143,7 +140,6 @@ export default function Clientes() {
           </button>
         </div>
 
-        {/* Nenhum cliente cadastrado */}
         {clientes.length === 0 ? (
           <div
             className="
@@ -193,9 +189,7 @@ export default function Clientes() {
             </p>
           </div>
         ) : (
-          /* Lista de clientes */
           <div className="border border-border rounded-2xl overflow-hidden bg-card">
-            {/* Cabeçalho da tabela */}
             <div
               className="
                 grid
@@ -220,7 +214,6 @@ export default function Clientes() {
               <div></div>
             </div>
 
-            {/* Clientes */}
             {itensFiltrados.map((cliente) => (
               <button
                 key={cliente.id}
@@ -244,7 +237,6 @@ export default function Clientes() {
                   text-left
                 "
               >
-                {/* Nome + empresa */}
                 <div>
                   <div className="text-sm font-semibold text-foreground">
                     {cliente.nome}
@@ -257,13 +249,10 @@ export default function Clientes() {
                   </div>
                 </div>
 
-                {/* Telefone */}
                 <div className="text-sm text-white">{cliente.telefone}</div>
 
-                {/* Email */}
                 <div className="text-sm text-white">{cliente.email}</div>
 
-                {/* Excluir */}
                 <div className="flex justify-end text-white">
                   <div
                     onClick={(e) => {

@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { useSearch } from "../context/SearchContext";
-import { InputGroupDemo } from "./InputGroupDemo";
+import { Input } from "./Input";
 
 export default function Header() {
   const pathname = usePathname();
@@ -17,6 +17,8 @@ export default function Header() {
     titulo = "Pagamentos";
   } else if (pathname === "/tarefas") {
     titulo = "Tarefas";
+  } else if (pathname === "/administração") {
+    titulo = "Painel Administrativo";
   }
 
   return (
@@ -24,7 +26,7 @@ export default function Header() {
       <h1 className="text-lg font-semibold">{titulo}</h1>
 
       <div className="w-96">
-        <InputGroupDemo
+        <Input
           value={buscar}
           onChange={(e) => {
             console.log("DIGITOU:", e.target.value);
