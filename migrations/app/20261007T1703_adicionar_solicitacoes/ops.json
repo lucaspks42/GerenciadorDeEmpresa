@@ -1,0 +1,41 @@
+[
+  {
+    "id": "table.SolicitacaoCadastro",
+    "label": "Create table \"SolicitacaoCadastro\"",
+    "summary": "Creates table \"SolicitacaoCadastro\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "SolicitacaoCadastro"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"SolicitacaoCadastro\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"SolicitacaoCadastro\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"SolicitacaoCadastro\"",
+        "sql": "CREATE TABLE \"public\".\"SolicitacaoCadastro\" (\n  \"id\" SERIAL NOT NULL,\n  \"nome\" text NOT NULL,\n  \"email\" text NOT NULL,\n  \"senha\" text NOT NULL,\n  \"status\" text DEFAULT 'PENDENTE' NOT NULL,\n  \"criadoEm\" timestamptz DEFAULT (now()) NOT NULL,\n  PRIMARY KEY (\"id\"),\n  CONSTRAINT \"SolicitacaoCadastro_status_check_a1b2d3c8\" CHECK (\"status\" IN ('PENDENTE', 'APROVADO', 'RECUSADO'))\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"SolicitacaoCadastro\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"SolicitacaoCadastro\""
+        ]
+      }
+    ]
+  }
+]

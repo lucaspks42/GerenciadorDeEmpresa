@@ -1,11 +1,16 @@
 // use prisma-next
 
-enum PerfilUsuario{
+enum PerfilUsuario {
   ADMINISTRADOR
   FUNCIONARIO
 }
 
-Get-Content prisma.config.ts
+enum StatusSolicitacao {
+  PENDENTE
+  APROVADO
+  RECUSADO
+}
+
 
 model Cliente {
   id               Int         @id @default(autoincrement())
@@ -51,12 +56,12 @@ model Usuario {
 }
 
 model SolicitacaoCadastro {
-  id       Int               @id @default(autoincrement())
+  id       Int                @id @default(autoincrement())
   nome     String
   email    String
   senha    String
-  status   StatusSolicitacao @default(PENDENTE)
-  criadoEm DateTime          @default(now())
+  status   StatusSolicitacao  @default(PENDENTE)
+  criadoEm DateTime           @default(now())
 }
 
 model Sessao {

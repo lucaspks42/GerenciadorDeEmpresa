@@ -34,7 +34,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'516b08bb31dccca9578140e046205fa85f3e8827d6b44ef86c7f439f536e6949'>;
+  StorageHashBase<'2b4c41ab3b19b3ca7c067cc359e339bf6d131439a7f84a1641b3c1ffc61db5ee'>;
 export type ExecutionHash = ExecutionHashBase<string>;
 export type ProfileHash =
   ProfileHashBase<'3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2'>;
@@ -273,6 +273,14 @@ export type FieldOutputTypes = {
       readonly token: CodecTypes['pg/text@1']['output'];
       readonly usuarioId: CodecTypes['pg/int4@1']['output'];
     };
+    readonly SolicitacaoCadastro: {
+      readonly criadoEm: CodecTypes['pg/timestamptz-temporal@1']['output'];
+      readonly email: CodecTypes['pg/text@1']['output'];
+      readonly id: CodecTypes['pg/int4@1']['output'];
+      readonly nome: CodecTypes['pg/text@1']['output'];
+      readonly senha: CodecTypes['pg/text@1']['output'];
+      readonly status: 'PENDENTE' | 'APROVADO' | 'RECUSADO';
+    };
     readonly Tarefa: {
       readonly criadoEm: CodecTypes['pg/timestamptz-temporal@1']['output'];
       readonly descricao: CodecTypes['pg/text@1']['output'] | null;
@@ -315,6 +323,14 @@ export type FieldInputTypes = {
       readonly id: CodecTypes['pg/int4@1']['input'];
       readonly token: CodecTypes['pg/text@1']['input'];
       readonly usuarioId: CodecTypes['pg/int4@1']['input'];
+    };
+    readonly SolicitacaoCadastro: {
+      readonly criadoEm: CodecTypes['pg/timestamptz-temporal@1']['input'];
+      readonly email: CodecTypes['pg/text@1']['input'];
+      readonly id: CodecTypes['pg/int4@1']['input'];
+      readonly nome: CodecTypes['pg/text@1']['input'];
+      readonly senha: CodecTypes['pg/text@1']['input'];
+      readonly status: 'PENDENTE' | 'APROVADO' | 'RECUSADO';
     };
     readonly Tarefa: {
       readonly criadoEm: CodecTypes['pg/timestamptz-temporal@1']['input'];
@@ -359,6 +375,14 @@ export type StorageColumnTypes = {
       readonly token: CodecTypes['pg/text@1']['output'];
       readonly usuarioId: CodecTypes['pg/int4@1']['output'];
     };
+    readonly SolicitacaoCadastro: {
+      readonly criadoEm: CodecTypes['pg/timestamptz-temporal@1']['output'];
+      readonly email: CodecTypes['pg/text@1']['output'];
+      readonly id: CodecTypes['pg/int4@1']['output'];
+      readonly nome: CodecTypes['pg/text@1']['output'];
+      readonly senha: CodecTypes['pg/text@1']['output'];
+      readonly status: 'PENDENTE' | 'APROVADO' | 'RECUSADO';
+    };
     readonly Tarefa: {
       readonly criadoEm: CodecTypes['pg/timestamptz-temporal@1']['output'];
       readonly descricao: CodecTypes['pg/text@1']['output'] | null;
@@ -401,6 +425,14 @@ export type StorageColumnInputTypes = {
       readonly id: CodecTypes['pg/int4@1']['input'];
       readonly token: CodecTypes['pg/text@1']['input'];
       readonly usuarioId: CodecTypes['pg/int4@1']['input'];
+    };
+    readonly SolicitacaoCadastro: {
+      readonly criadoEm: CodecTypes['pg/timestamptz-temporal@1']['input'];
+      readonly email: CodecTypes['pg/text@1']['input'];
+      readonly id: CodecTypes['pg/int4@1']['input'];
+      readonly nome: CodecTypes['pg/text@1']['input'];
+      readonly senha: CodecTypes['pg/text@1']['input'];
+      readonly status: 'PENDENTE' | 'APROVADO' | 'RECUSADO';
     };
     readonly Tarefa: {
       readonly criadoEm: CodecTypes['pg/timestamptz-temporal@1']['input'];
@@ -451,6 +483,15 @@ export namespace Models {
     usuario: public_Usuario;
     readonly [RelationKeys]?: 'usuario';
   };
+  export type public_SolicitacaoCadastro = {
+    criadoEm: CodecTypes['pg/timestamptz-temporal@1']['output'];
+    email: CodecTypes['pg/text@1']['output'];
+    id: CodecTypes['pg/int4@1']['output'];
+    nome: CodecTypes['pg/text@1']['output'];
+    senha: CodecTypes['pg/text@1']['output'];
+    status: 'PENDENTE' | 'APROVADO' | 'RECUSADO';
+    readonly [RelationKeys]?: never;
+  };
   export type public_Tarefa = {
     criadoEm: CodecTypes['pg/timestamptz-temporal@1']['output'];
     descricao: CodecTypes['pg/text@1']['output'] | null;
@@ -476,6 +517,7 @@ export declare const models: {
     Cliente: Models.public_Cliente;
     Pagamento: Models.public_Pagamento;
     Sessao: Models.public_Sessao;
+    SolicitacaoCadastro: Models.public_SolicitacaoCadastro;
     Tarefa: Models.public_Tarefa;
     Usuario: Models.public_Usuario;
   };
@@ -669,6 +711,53 @@ type ContractBase = Omit<
                 },
               ];
             };
+            readonly SolicitacaoCadastro: {
+              columns: {
+                readonly criadoEm: {
+                  readonly nativeType: 'timestamptz';
+                  readonly codecId: 'pg/timestamptz-temporal@1';
+                  readonly nullable: false;
+                  readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
+                };
+                readonly email: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                };
+                readonly id: {
+                  readonly nativeType: 'int4';
+                  readonly codecId: 'pg/int4@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'function';
+                    readonly expression: 'autoincrement()';
+                  };
+                };
+                readonly nome: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                };
+                readonly senha: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                };
+                readonly status: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/text@1', 'PENDENTE'>;
+                  };
+                };
+              };
+              primaryKey: { readonly columns: readonly ['id'] };
+              uniques: readonly [];
+              indexes: readonly [];
+              foreignKeys: readonly [];
+            };
             readonly Tarefa: {
               columns: {
                 readonly criadoEm: {
@@ -760,6 +849,10 @@ type ContractBase = Omit<
               readonly kind: 'valueSet';
               readonly values: readonly ['ADMINISTRADOR', 'FUNCIONARIO'];
             };
+            readonly StatusSolicitacao: {
+              readonly kind: 'valueSet';
+              readonly values: readonly ['PENDENTE', 'APROVADO', 'RECUSADO'];
+            };
           };
         };
       };
@@ -774,6 +867,10 @@ type ContractBase = Omit<
     readonly Cliente: { readonly namespace: 'public' & NamespaceId; readonly model: 'Cliente' };
     readonly Pagamento: { readonly namespace: 'public' & NamespaceId; readonly model: 'Pagamento' };
     readonly Sessao: { readonly namespace: 'public' & NamespaceId; readonly model: 'Sessao' };
+    readonly SolicitacaoCadastro: {
+      readonly namespace: 'public' & NamespaceId;
+      readonly model: 'SolicitacaoCadastro';
+    };
     readonly Tarefa: { readonly namespace: 'public' & NamespaceId; readonly model: 'Tarefa' };
     readonly Usuario: { readonly namespace: 'public' & NamespaceId; readonly model: 'Usuario' };
   };
@@ -948,6 +1045,50 @@ type ContractBase = Omit<
               };
             };
           };
+          readonly SolicitacaoCadastro: {
+            readonly fields: {
+              readonly criadoEm: {
+                readonly nullable: false;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-temporal@1';
+                };
+              };
+              readonly email: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly id: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/int4@1' };
+              };
+              readonly nome: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly senha: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly status: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+            };
+            readonly relations: Record<string, never>;
+            readonly storage: {
+              readonly table: 'SolicitacaoCadastro';
+              readonly namespaceId: 'public';
+              readonly fields: {
+                readonly criadoEm: { readonly column: 'criadoEm' };
+                readonly email: { readonly column: 'email' };
+                readonly id: { readonly column: 'id' };
+                readonly nome: { readonly column: 'nome' };
+                readonly senha: { readonly column: 'senha' };
+                readonly status: { readonly column: 'status' };
+              };
+            };
+          };
           readonly Tarefa: {
             readonly fields: {
               readonly criadoEm: {
@@ -1050,6 +1191,14 @@ type ContractBase = Omit<
             readonly members: readonly [
               { readonly name: 'ADMINISTRADOR'; readonly value: 'ADMINISTRADOR' },
               { readonly name: 'FUNCIONARIO'; readonly value: 'FUNCIONARIO' },
+            ];
+          };
+          readonly StatusSolicitacao: {
+            readonly codecId: 'pg/text@1';
+            readonly members: readonly [
+              { readonly name: 'PENDENTE'; readonly value: 'PENDENTE' },
+              { readonly name: 'APROVADO'; readonly value: 'APROVADO' },
+              { readonly name: 'RECUSADO'; readonly value: 'RECUSADO' },
             ];
           };
         };
