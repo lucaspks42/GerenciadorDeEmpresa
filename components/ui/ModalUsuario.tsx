@@ -1,50 +1,45 @@
-import { EllipsisVertical, X } from "lucide-react";
+import { Usuario } from "@/types/Usuario";
+import { Trash, X } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Input } from "./Input";
+import { useSearch } from "../context/SearchContext";
 
-type ModalUsuarioProps = {
+type ModalUsuariosProps = {
   onClose: () => void;
 };
 
-type Solicitacao = {
-  id: number;
-  nome: string;
-  email: string;
-  criadoEm: string;
-};
+export default function ModalUsuario({ onClose }: ModalUsuariosProps) {
+  const [funcionarios, setFuncionario] = useState<Usuario[]>([]);
 
-export default function ModalUsuario({ onClose }: ModalUsuarioProps) {
-  const [pesquisa, setPesquisa] = useState("");
-
-  const [solicitacoes, setSolicitacoes] = useState<Solicitacao[]>([]);
+  const { buscar } = useSearch();
 
   useEffect(() => {
-    async function buscarSolicitacoes() {
+    async function buscarFuncionarios() {
       try {
-        const resposta = await fetch("/api/admin/solicitacoes");
+        const resposta = await fetch("/api/admin/usuarios");
 
         if (!resposta.ok) {
-          throw new Error("Erro ao buscar solicitações");
+          throw new Error("Erro ao buscar funcionarios");
         }
 
-        const solicitacoesDoBanco: Solicitacao[] = await resposta.json();
+        const funcionariosDoBanco: Usuario[] = await resposta.json();
 
-        setSolicitacoes(solicitacoesDoBanco);
+        setFuncionario(funcionariosDoBanco);
       } catch (erro) {
-        console.error("Erro ao buscar solicitações:", erro);
+        console.error("Erro ao buscar funcionario:", erro);
       }
     }
 
-    buscarSolicitacoes();
+    buscarFuncionarios();
   }, []);
 
-  const solicitacoesFiltradas = solicitacoes.filter((solicitacao) => {
-    const termo = pesquisa.toLowerCase();
+  const itemsFiltrados = funcionarios.filter((funcionario) => {
+    const pesquisa = buscar.toLowerCase().trim();
 
-    return (
-      solicitacao.nome.toLowerCase().includes(termo) ||
-      solicitacao.email.toLowerCase().includes(termo)
-    );
+    if (!pesquisa) {
+      return true;
+    }
+
+    return funcionario.nome.toLowerCase().includes(pesquisa);
   });
 
   return (
@@ -52,10 +47,10 @@ export default function ModalUsuario({ onClose }: ModalUsuarioProps) {
       <div className="flex max-h-[90vh] w-full max-w-6xl flex-col rounded-2xl border border-border bg-card text-card-foreground shadow-2xl">
         <header className="flex justify-between border-b border-border px-6 py-5">
           <div>
-            <h2 className="text-xl font-semibold">Solicitações de acesso</h2>
+            <h2 className="text-xl font-semibold">Painel de Funcionários</h2>
 
             <p className="mt-1 text-sm text-muted-foreground">
-              Verifique e gerencie as solicitações de acesso à empresa.
+              Verifique e gerencie os funcionários
             </p>
           </div>
 
@@ -67,83 +62,121 @@ export default function ModalUsuario({ onClose }: ModalUsuarioProps) {
           </button>
         </header>
 
-        <div className="flex items-center px-10 py-7">
-          <div className="w-full">
-            <Input
-              value={pesquisa}
-              onChange={(e) => setPesquisa(e.target.value)}
-              placeholder="Pesquisar solicitação..."
-            />
-          </div>
-        </div>
-
-        <div className="mx-10 mb-7 overflow-hidden rounded-2xl border border-border bg-card">
-          <div
-            className="
-              grid
-              grid-cols-4
-              px-6
-              py-4
-              border-b
-              border-border
-              text-xs
-              font-semibold
-              uppercase
-              tracking-wide
-              text-muted-foreground
-            "
-          >
-            <div>Solicitante</div>
-
-            <div className="text-center">Email</div>
-
-            <div className="text-center">Data</div>
-
-            <div className="text-right">Ação</div>
-          </div>
-
-          {solicitacoesFiltradas.map((solicitacao) => (
+        <div className="px-10 py-8">
+          {funcionarios.length === 0 ? (
             <div
-              key={solicitacao.id}
               className="
-                grid
-                grid-cols-4
+                flex
+                flex-col
                 items-center
-                px-6
-                py-5
-                border-b
+                justify-center
+                h-100
+                border
+                border-dashed
                 border-border
-                last:border-b-0
-                hover:bg-accent
-                transition-colors
+                rounded-2xl
+                bg-card/50
               "
             >
-              <div className="text-sm font-semibold text-foreground">
-                {solicitacao.nome}
+              <div className="text-lg font-semibold">
+                Nenhum usuário cadastrado
               </div>
 
-              <div className="text-center text-sm text-foreground">
-                {solicitacao.email}
-              </div>
-
-              <div className="text-center text-sm text-muted-foreground">
-                {new Date(solicitacao.criadoEm).toLocaleDateString("pt-BR")}
-              </div>
-
-              <div className="flex justify-end">
-                <button
-                  type="button"
-                  className="rounded-md p-2 text-muted-foreground transition-colors hover:bg-background hover:text-foreground"
-                >
-                  <EllipsisVertical size={20} />
-                </button>
+              <div className="text-sm text-center mt-2 text-muted-foreground">
+                Os usuários cadastrados no sistema aparecerão aqui.
               </div>
             </div>
-          ))}
+          ) : itemsFiltrados.length === 0 ? (
+            <div
+              className="
+                flex
+                flex-col
+                items-center
+                justify-center
+                h-60
+                border
+                border-dashed
+                border-border
+                rounded-2xl
+                bg-card/50
+              "
+            >
+              <div className="text-lg font-semibold">
+                Nenhum funcionário encontrado
+              </div>
 
-          {solicitacoesFiltradas.length === 0 && (
-            <div className="px-6 py-10 text-center text-sm text-muted-foreground">
-              Nenhuma solicitação encontrada.
+              <p className="text-sm text-muted-foreground mt-2">
+                Nenhum resultado para {buscar}.
+              </p>
+            </div>
+          ) : (
+            <div className="border border-border rounded-2xl overflow-hidden bg-card">
+              <div
+                className="
+                  grid
+                  grid-cols-[2fr_2fr_1fr_60px]
+                  items-center
+                  px-6
+                  py-4
+                  border-b
+                  border-border
+                  text-xs
+                  font-semibold
+                  uppercase
+                  tracking-wide
+                  text-muted-foreground
+                "
+              >
+                <div>Funcionário</div>
+                <div>Email</div>
+                <div>Cargo</div>
+                <div></div>
+              </div>
+
+              {itemsFiltrados.map((usuario) => (
+                <div
+                  key={usuario.id}
+                  className="
+                    w-full
+                    grid
+                    grid-cols-[2fr_2fr_1fr_60px]
+                    items-center
+                    px-6
+                    py-5
+                    border-b
+                    border-border
+                    last:border-b-0
+                    hover:bg-accent
+                    transition-colors
+                  "
+                >
+                  <div className="text-sm font-semibold text-foreground">
+                    {usuario.nome}
+                  </div>
+
+                  <div className="text-sm text-foreground">{usuario.email}</div>
+
+                  <div className="text-sm text-foreground">
+                    {usuario.perfil}
+                  </div>
+
+                  <div className="flex justify-end">
+                    <button
+                      type="button"
+                      className="
+                        p-2
+                        rounded-lg
+                        hover:text-red-400
+                        hover:bg-red-500/10
+                        transition-colors
+                        text-white
+                      "
+                    >
+                      <Trash size={18} />
+                    </button>
+                  </div>
+                </div>
+              ))}
             </div>
           )}
         </div>

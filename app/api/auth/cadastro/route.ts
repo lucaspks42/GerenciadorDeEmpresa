@@ -1,8 +1,5 @@
 import { db } from "@/src/prisma/db";
 import bcrypt from "bcryptjs";
-import crypto from "crypto";
-import { cookies } from "next/headers";
-import { param } from "@prisma/orm-postgres/relational-core/expression";
 
 const runtime = db.runtime();
 
@@ -44,6 +41,29 @@ export async function POST(request: Request) {
       })
       .build();
 
+    const solicitacaoPendentePlano = db.raw.sql`
+  SELECT "id"
+  FROM "SolicitacaoCadastro"
+  WHERE "email" = ${email}
+  AND "status" = 'PENDENTE'
+`
+      .returnsRow({
+        id: db.sql.public.SolicitacaoCadastro.columns.id,
+      })
+      .build();
+
+    const solicitacoesCriadas = await runtime.query(solicitacaoPendentePlano);
+    const solicitacao = solicitacoesCriadas[0];
+
+    if (solicitacao) {
+      return Response.json(
+        {
+          erro: "Já existe uma solicitação pendente para este e-mail.",
+        },
+        { status: 409 },
+      );
+    }
+
     const usuariosEncontrados = await runtime.query(usuarioPlano);
     const usuarioExistente = usuariosEncontrados[0];
 
@@ -56,114 +76,49 @@ export async function POST(request: Request) {
       );
     }
 
-    // Verifica se já existe algum usuário no sistema
-    const primeiroUsuario = db.raw.sql`
-      SELECT
-        "id"
-      FROM "Usuario"
-      LIMIT 1
-    `
-      .returnsRow({
-        id: db.sql.public.Usuario.columns.id,
-      })
-      .build();
-
-    const usuariosExistentes = await runtime.query(primeiroUsuario);
-    const usuarioEncontrado = usuariosExistentes[0];
-
-    // O primeiro usuário será administrador.
-    // Os próximos serão funcionários.
-    const perfil = usuarioEncontrado ? "FUNCIONARIO" : "ADMINISTRADOR";
-
-    // Criptografa a senha
     const senhaHash = await bcrypt.hash(senha, 10);
 
-    console.log(db.sql.public);
-
-    // Cria o usuário
     const inserirPlano = db.raw.sql`
-      INSERT INTO "Usuario"
+      INSERT INTO "SolicitacaoCadastro"
       (
         "nome",
         "email",
         "senha",
-        "perfil"
+        "status"
       )
       VALUES
       (
         ${nome},
         ${email},
         ${senhaHash},
-        ${param(perfil, {
-          codecId: db.sql.public.Usuario.columns.perfil.codecId,
-        })}
+        'PENDENTE'
             )
       RETURNING
         "id"
     `
       .returnsRow({
-        id: db.sql.public.Usuario.columns.id,
+        id: db.sql.public.SolicitacaoCadastro.columns.id,
       })
       .build();
 
-    const usuariosCriados = await runtime.query(inserirPlano);
-    const usuario = usuariosCriados[0];
+    const solicitacoesCriados = await runtime.query(inserirPlano);
+    const solicitacoes = solicitacoesCriados[0];
 
-    if (!usuario) {
+    if (!solicitacoes) {
       return Response.json(
         {
-          erro: "Não foi possível criar o usuário",
+          erro: "Não foi possível criar a solicitação de cadastro.",
         },
         { status: 500 },
       );
     }
 
-    // Cria a sessão automaticamente
-    const token = crypto.randomBytes(32).toString("hex");
-
-    const expiraEm = new Date(
-      Date.now() + 7 * 24 * 60 * 60 * 1000,
-    ).toISOString();
-
-    const sessaoPlano = db.raw.sql`
-      INSERT INTO "Sessao"
-      (
-        "token",
-        "usuarioId",
-        "expiraEm"
-      )
-      VALUES
-      (
-        ${token},
-        ${usuario.id},
-        ${expiraEm}
-      )
-      RETURNING
-        "id"
-    `
-      .returnsRow({
-        id: db.sql.public.Sessao.columns.id,
-      })
-      .build();
-
-    await runtime.query(sessaoPlano);
-
-    // Salva a sessão no navegador
-    const cookieStore = await cookies();
-
-    cookieStore.set("sessao", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      path: "/",
-      maxAge: 7 * 24 * 60 * 60,
-    });
-
     return Response.json(
       {
-        mensagem: "Usuário cadastrado com sucesso",
-        id: usuario.id,
-        perfil,
+        mensagem:
+          "Solicitação de cadastro enviada. Aguarde a aprovação de um administrador.",
+        id: solicitacoes.id,
+        status: "PENDENTE",
       },
       { status: 201 },
     );

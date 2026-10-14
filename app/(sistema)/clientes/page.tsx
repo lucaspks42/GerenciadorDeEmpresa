@@ -61,6 +61,11 @@ export default function Clientes() {
       });
 
       if (!resposta.ok) {
+        const erroTexto = await resposta.text();
+
+        console.log("STATUS HTTP:", resposta.status);
+        console.log("RESPOSTA DA API:", erroTexto);
+
         throw new Error("Erro ao deletar cliente");
       }
 

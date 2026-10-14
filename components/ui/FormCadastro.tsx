@@ -1,7 +1,7 @@
 "use client";
 
 import { EyeIcon, EyeOffIcon } from "lucide-react";
-import { useRouter } from "next/navigation";
+
 import { useState } from "react";
 
 const campo =
@@ -10,8 +10,6 @@ const campo =
 const rotulo = "mb-1 block text-xs text-neutral-600";
 
 export default function FormCadastro() {
-  const router = useRouter();
-
   const [mostraSenha, setMostrarSenha] = useState(false);
   const [erro, setErro] = useState("");
   const [sucesso, setSucesso] = useState("");
@@ -69,7 +67,10 @@ export default function FormCadastro() {
         return;
       }
 
-      setSucesso(resultado.mensagem || "Usuário cadastrado com sucesso!");
+      setSucesso(
+        resultado.mensagem ||
+          "Solicitação enviada! Aguarde a aprovação de um administrador.",
+      );
 
       setForm({
         nome: "",
@@ -77,9 +78,6 @@ export default function FormCadastro() {
         senha: "",
         confirmar: "",
       });
-
-      // Vai para a Dashboard após o cadastro
-      router.push("/");
     } catch (erro) {
       console.error("ERRO NO CADASTRO:", erro);
       setErro("Não foi possível conectar ao servidor.");
@@ -178,7 +176,7 @@ export default function FormCadastro() {
         disabled={carregando}
         className="w-full rounded-lg bg-violet-800 py-3 text-sm font-semibold text-white hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-50"
       >
-        {carregando ? "Cadastrando..." : "Cadastrar"}
+        {carregando ? "Enviando solicitação..." : "Solicitar cadastro"}
       </button>
 
       <hr className="border-neutral-200" />

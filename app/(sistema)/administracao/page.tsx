@@ -1,6 +1,9 @@
 "use client";
 
+import ContadoresPendente from "@/components/ui/ContadoresPendente";
+import ModalPermissao from "@/components/ui/ModalPermicoes";
 import ModalUsuario from "@/components/ui/ModalUsuario";
+
 import { useState } from "react";
 import { CiUser } from "react-icons/ci";
 import { IoShieldOutline } from "react-icons/io5";
@@ -12,9 +15,16 @@ export default function Administracao() {
     setModalAberto(false);
   };
 
+  const [usuario, setUsuario] = useState(false);
+
+  const fecharUsuario = () => {
+    setUsuario(false);
+  };
+
   return (
     <main className="h-[calc(100vh-4rem)] overflow-hidden bg-background text-foreground">
-      {modalAberto && <ModalUsuario onClose={fecharModal} />}
+      {modalAberto && <ModalPermissao onClose={fecharModal} />}
+      {usuario && <ModalUsuario onClose={fecharUsuario} />}
 
       <div className="px-12 py-6">
         <div className="mb-6">
@@ -31,11 +41,11 @@ export default function Administracao() {
               <CiUser className="text-4xl text-primary" />
 
               <div>
-                <p className="text-2xl font-semibold">Usuários</p>
+                <p className="text-2xl font-semibold">Pendentes</p>
 
-                <p className="mt-1 text-sm text-muted-foreground">
-                  4 usuários cadastrados
-                </p>
+                <div className="mt-1 text-sm text-muted-foreground">
+                  <ContadoresPendente />
+                </div>
               </div>
             </div>
           </div>
@@ -79,28 +89,31 @@ export default function Administracao() {
               className="flex items-center gap-4 rounded-2xl border border-border bg-card p-6 text-left transition-all hover:border-primary/40 hover:bg-primary/5"
             >
               <div className="rounded-xl bg-primary/10 p-3">
-                <CiUser className="text-3xl text-primary" />
+                <IoShieldOutline className="text-3xl text-primary" />
               </div>
 
               <div>
-                <p className="font-semibold">Usuários cadastrados</p>
+                <p className="font-semibold">
+                  Solicitações de acesso ao sistema
+                </p>
 
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Visualize e gerencie os usuários do sistema.
+                  Visualize o acessos de usuários ao sistema.
                 </p>
               </div>
             </button>
 
             <button
               type="button"
+              onClick={() => setUsuario(true)}
               className="flex items-center gap-4 rounded-2xl border border-border bg-card p-6 text-left transition-all hover:border-primary/40 hover:bg-primary/5"
             >
               <div className="rounded-xl bg-primary/10 p-3">
-                <IoShieldOutline className="text-3xl text-primary" />
+                <CiUser className="text-3xl text-primary" />
               </div>
 
               <div>
-                <p className="font-semibold">Permissões</p>
+                <p className="font-semibold">Funcionarios</p>
 
                 <p className="mt-1 text-sm text-muted-foreground">
                   Controle o acesso dos funcionários.

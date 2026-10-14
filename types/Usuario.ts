@@ -1,7 +1,6 @@
-export interface Usuario {
+export type Usuario = {
   id: number;
   nome: string;
   email: string;
-  senha: string;
-  criadoEm: string;
-}
+  perfil: "ADMINISTRADOR" | "FUNCIONARIO";
+};
