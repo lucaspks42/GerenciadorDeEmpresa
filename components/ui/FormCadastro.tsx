@@ -4,15 +4,19 @@ import { EyeIcon, EyeOffIcon } from "lucide-react";
 
 import { useState } from "react";
 
+type FormCadastroProps = {
+  onCadastroSucesso: () => void;
+};
+
 const campo =
   "w-full rounded-lg bg-neutral-100 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500";
 
 const rotulo = "mb-1 block text-xs text-neutral-600";
 
-export default function FormCadastro() {
+export default function FormCadastro({ onCadastroSucesso }: FormCadastroProps) {
   const [mostraSenha, setMostrarSenha] = useState(false);
   const [erro, setErro] = useState("");
-  const [sucesso, setSucesso] = useState("");
+  const [cadastroEnviado, setCadastroEnviado] = useState(false);
   const [carregando, setCarregando] = useState(false);
 
   const [form, setForm] = useState({
@@ -33,7 +37,6 @@ export default function FormCadastro() {
     e.preventDefault();
 
     setErro("");
-    setSucesso("");
 
     if (form.senha.length < 6) {
       setErro("A senha precisa ter pelo menos 6 caracteres.");
@@ -67,10 +70,7 @@ export default function FormCadastro() {
         return;
       }
 
-      setSucesso(
-        resultado.mensagem ||
-          "Solicitação enviada! Aguarde a aprovação de um administrador.",
-      );
+      onCadastroSucesso();
 
       setForm({
         nome: "",
@@ -168,8 +168,6 @@ export default function FormCadastro() {
       </div>
 
       {erro && <p className="text-sm text-red-600">{erro}</p>}
-
-      {sucesso && <p className="text-sm text-green-600">{sucesso}</p>}
 
       <button
         type="submit"

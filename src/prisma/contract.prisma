@@ -48,6 +48,7 @@ model Usuario {
   id       Int      @id @default(autoincrement())
   nome     String
   email    String   @unique
+  telefone String?
   senha    String
   perfil   PerfilUsuario
   criadoEm DateTime @default(now())

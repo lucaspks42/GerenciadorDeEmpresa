@@ -18,6 +18,7 @@ export async function GET() {
         "id",
         "nome",
         "email",
+        "telefone",
         "perfil"
       FROM "Usuario"
       ORDER BY "id" ASC
@@ -26,6 +27,7 @@ export async function GET() {
         id: db.sql.public.Usuario.columns.id,
         nome: db.sql.public.Usuario.columns.nome,
         email: db.sql.public.Usuario.columns.email,
+        telefone: db.sql.public.Usuario.columns.telefone,
         perfil: db.sql.public.Usuario.columns.perfil,
       })
       .build();
@@ -45,9 +47,9 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const usuarios = await exigirAdministrador();
+    const usuario = await exigirAdministrador();
 
-    if (!usuarios) {
+    if (!usuario) {
       return Response.json({ erro: "Acesso negado" }, { status: 403 });
     }
 
@@ -55,6 +57,7 @@ export async function POST(request: Request) {
 
     const nome = dados.nome?.trim();
     const email = dados.email?.toLowerCase().trim();
+    const telefone = dados.telefone?.trim() || null;
     const senha = dados.senha;
 
     if (!nome || !email || !senha) {
@@ -75,9 +78,8 @@ export async function POST(request: Request) {
       .build();
 
     const usuarioExistente = await runtime.query(cadastrarUsuario);
-    const usuarioEncontrado = usuarioExistente[0];
 
-    if (usuarioEncontrado) {
+    if (usuarioExistente[0]) {
       return Response.json(
         { erro: "Este email já está cadastrado" },
         { status: 409 },
@@ -92,6 +94,7 @@ export async function POST(request: Request) {
       (
         "nome",
         "email",
+        "telefone",
         "senha",
         "perfil"
       )
@@ -99,6 +102,7 @@ export async function POST(request: Request) {
       (
         ${nome},
         ${email},
+        ${telefone},
         ${senhaHash},
         ${param(perfil, {
           codecId: db.sql.public.Usuario.columns.perfil.codecId,
@@ -112,9 +116,9 @@ export async function POST(request: Request) {
       .build();
 
     const usuariosCriados = await runtime.query(inserirPlano);
-    const usuario = usuariosCriados[0];
+    const usuarioCriado = usuariosCriados[0];
 
-    if (!usuario) {
+    if (!usuarioCriado) {
       return Response.json(
         { erro: "Não foi possível criar o funcionário" },
         { status: 500 },
@@ -124,9 +128,10 @@ export async function POST(request: Request) {
     return Response.json(
       {
         mensagem: "Funcionário criado com sucesso",
-        id: usuario.id,
+        id: usuarioCriado.id,
         nome,
         email,
+        telefone,
         perfil,
       },
       { status: 201 },

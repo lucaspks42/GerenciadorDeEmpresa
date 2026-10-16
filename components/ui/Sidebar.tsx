@@ -11,7 +11,11 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
-export default function Sidebar() {
+type SidebarProps = {
+  perfil: "ADMINISTRADOR" | "FUNCIONARIO";
+};
+
+export default function Sidebar({ perfil }: SidebarProps) {
   const pathname = usePathname();
 
   async function sair() {
@@ -45,21 +49,11 @@ export default function Sidebar() {
       <nav className="px-3 mt-6 flex flex-col gap-1">
         <Link
           href="/"
-          className={`
-    p-3
-    rounded-xl
-    flex
-    items-center
-    gap-3
-    text-sm
-    transition-all
-    duration-200
-    ${
-      pathname === "/"
-        ? "bg-sidebar-accent text-white border border-border"
-        : "text-muted-foreground hover:bg-sidebar-accent hover:text-white"
-    }
-  `}
+          className={`p-3 rounded-xl flex items-center gap-3 text-sm transition-all duration-200 ${
+            pathname === "/"
+              ? "bg-sidebar-accent text-white border border-border"
+              : "text-muted-foreground hover:bg-sidebar-accent hover:text-white"
+          }`}
         >
           <LayoutDashboard
             size={19}
@@ -68,110 +62,72 @@ export default function Sidebar() {
           Dashboard
         </Link>
 
-        <a
+        <Link
           href="/tarefas"
-          className={`
-            p-3
-            rounded-xl
-            flex
-            items-center
-            gap-3
-            text-sm
-            transition-all
-            duration-200
-            ${
-              pathname === "/tarefas"
-                ? "bg-sidebar-accent text-white border border-border"
-                : "text-muted-foreground hover:bg-sidebar-accent hover:text-white"
-            }
-          `}
+          className={`p-3 rounded-xl flex items-center gap-3 text-sm transition-all duration-200 ${
+            pathname === "/tarefas"
+              ? "bg-sidebar-accent text-white border border-border"
+              : "text-muted-foreground hover:bg-sidebar-accent hover:text-white"
+          }`}
         >
           <ClipboardList
             size={19}
             className={pathname === "/tarefas" ? "text-primary" : ""}
           />
           Tarefas
-        </a>
+        </Link>
 
-        <a
+        <Link
           href="/clientes"
-          className={`
-            p-3
-            rounded-xl
-            flex
-            items-center
-            gap-3
-            text-sm
-            transition-all
-            duration-200
-            ${
-              pathname === "/clientes"
-                ? "bg-sidebar-accent text-white border border-primary/20"
-                : "text-muted-foreground hover:bg-sidebar-accent hover:text-white"
-            }
-          `}
+          className={`p-3 rounded-xl flex items-center gap-3 text-sm transition-all duration-200 ${
+            pathname === "/clientes"
+              ? "bg-sidebar-accent text-white border border-border"
+              : "text-muted-foreground hover:bg-sidebar-accent hover:text-white"
+          }`}
         >
           <UsersRound
             size={19}
             className={pathname === "/clientes" ? "text-primary" : ""}
           />
           Clientes
-        </a>
+        </Link>
 
-        <a
+        <Link
           href="/pagamentos"
-          className={`
-            p-3
-            rounded-xl
-            flex
-            items-center
-            gap-3
-            text-sm
-            transition-all
-            duration-200
-            ${
-              pathname === "/pagamentos"
-                ? "bg-sidebar-accent text-white border border-primary/20"
-                : "text-muted-foreground hover:bg-sidebar-accent hover:text-white"
-            }
-          `}
+          className={`p-3 rounded-xl flex items-center gap-3 text-sm transition-all duration-200 ${
+            pathname === "/pagamentos"
+              ? "bg-sidebar-accent text-white border border-border"
+              : "text-muted-foreground hover:bg-sidebar-accent hover:text-white"
+          }`}
         >
           <Wallet
             size={19}
             className={pathname === "/pagamentos" ? "text-primary" : ""}
           />
           Pagamentos
-        </a>
+        </Link>
 
-        <div className="border-t py-1">
-          <a
-            href="/administracao"
-            className={`
-    p-3
-    rounded-xl
-    flex
-    items-center
-    gap-3
-    text-sm
-    transition-all
-    duration-200
-    ${
-      pathname === "/administracao"
-        ? "bg-sidebar-accent text-white border border-primary/20"
-        : "text-muted-foreground hover:bg-sidebar-accent hover:text-white"
-    }
-  `}
-          >
-            <Cog
-              size={19}
-              className={pathname === "/administracao" ? "text-primary" : ""}
-            />
-            Painel Administrativo
-          </a>
-        </div>
+        {perfil === "ADMINISTRADOR" && (
+          <div className="border-t py-1">
+            <Link
+              href="/administracao"
+              className={`p-3 rounded-xl flex items-center gap-3 text-sm transition-all duration-200 ${
+                pathname === "/administracao"
+                  ? "bg-sidebar-accent text-white border border-primary/20"
+                  : "text-muted-foreground hover:bg-sidebar-accent hover:text-white"
+              }`}
+            >
+              <Cog
+                size={19}
+                className={pathname === "/administracao" ? "text-primary" : ""}
+              />
+              Painel Administrativo
+            </Link>
+          </div>
+        )}
       </nav>
 
-      <div className="mt-auto px-4 py-5 border-t border-sidebar-border ">
+      <div className="mt-auto px-4 py-5 border-t border-sidebar-border">
         <div className="text-xs text-muted-foreground mb-3">Painel pessoal</div>
 
         <button

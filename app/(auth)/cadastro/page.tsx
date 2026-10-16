@@ -1,5 +1,5 @@
 "use client";
-
+import { CheckCircle2 } from "lucide-react";
 import FormCadastro from "@/components/ui/FormCadastro";
 import FormLogin from "@/components/ui/FormLogin";
 import {
@@ -256,12 +256,45 @@ function Formulario({ children }: { children: ReactNode }) {
   );
 }
 
+function TelaSucesso({ onVoltar }: { onVoltar: () => void }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20, scale: 0.96 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: -15, scale: 0.97 }}
+      transition={{ duration: 0.5, ease: EASE }}
+      className="flex w-full max-w-sm flex-col items-center text-center"
+    >
+      <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-emerald-500/10">
+        <CheckCircle2 size={42} className="text-emerald-400" />
+      </div>
+
+      <h1 className="text-3xl font-bold">Solicitação enviada!</h1>
+
+      <p className="mt-4 text-sm leading-relaxed text-slate-400">
+        Sua solicitação de cadastro foi enviada com sucesso. Aguarde a aprovação
+        de um administrador para acessar o sistema.
+      </p>
+
+      <button
+        type="button"
+        onClick={onVoltar}
+        className="mt-8 w-full rounded-lg bg-violet-800 py-3 text-sm font-semibold text-white transition hover:bg-violet-700"
+      >
+        Voltar para o login
+      </button>
+    </motion.div>
+  );
+}
+
 /* =========================================================
    PÁGINA DE CADASTRO
    ========================================================= */
 
 export default function Cadastro() {
   const [modoLogin, setModoLogin] = useState(false);
+
+  const [cadastroEnviado, setCadastroEnviado] = useState(false);
 
   const reduzir = useReducedMotion() ?? false;
 
@@ -538,24 +571,50 @@ export default function Cadastro() {
                 exit="saida"
                 className="relative flex h-full w-full flex-col items-center justify-center px-12"
               >
-                <Cabecalho
-                  titulo="Criar conta"
-                  subtitulo="Crie sua conta para acessar o sistema"
-                />
+                {!cadastroEnviado && (
+                  <Cabecalho
+                    titulo="Criar conta"
+                    subtitulo="Crie sua conta para acessar o sistema"
+                  />
+                )}
 
-                <Formulario>
-                  <FormCadastro />
-                </Formulario>
+                <AnimatePresence mode="wait" initial={false}>
+                  {!cadastroEnviado ? (
+                    <motion.div
+                      key="formulario"
+                      initial={{ opacity: 0, y: 15 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -15 }}
+                      transition={{ duration: 0.3, ease: EASE }}
+                      className="w-full"
+                    >
+                      <Formulario>
+                        <FormCadastro
+                          onCadastroSucesso={() => setCadastroEnviado(true)}
+                        />
+                      </Formulario>
+                    </motion.div>
+                  ) : (
+                    <TelaSucesso
+                      key="sucesso"
+                      onVoltar={() => setModoLogin(true)}
+                    />
+                  )}
+                </AnimatePresence>
 
-                <motion.button
-                  variants={item}
-                  type="button"
-                  onClick={() => setModoLogin(true)}
-                  className="mt-6 text-sm text-slate-400 transition hover:text-white"
-                >
-                  Já possui uma conta?{" "}
-                  <span className="font-semibold text-violet-400">Entrar</span>
-                </motion.button>
+                {!cadastroEnviado && (
+                  <motion.button
+                    variants={item}
+                    type="button"
+                    onClick={() => setModoLogin(true)}
+                    className="mt-6 text-sm text-slate-400 transition hover:text-white"
+                  >
+                    Já possui uma conta?{" "}
+                    <span className="font-semibold text-violet-400">
+                      Entrar
+                    </span>
+                  </motion.button>
+                )}
               </motion.div>
             </motion.div>
           ) : (

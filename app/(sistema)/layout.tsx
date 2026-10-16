@@ -18,7 +18,7 @@ export default async function SistemaLayout({
   return (
     <SearchProvider>
       <div className="flex min-h-screen bg-background">
-        <Sidebar />
+        <Sidebar perfil={sessao.perfil} />
 
         <main className="flex-1 min-w-0 bg-background">
           <Header />

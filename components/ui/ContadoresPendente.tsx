@@ -16,7 +16,12 @@ export default function ContadoresPendente() {
         const resposta = await fetch("/api/admin/solicitacoes");
 
         if (!resposta.ok) {
-          throw new Error("Erro ao buscar solicitações");
+          const erro = await resposta.json();
+
+          console.error("Status:", resposta.status);
+          console.error("Resposta da API:", erro);
+
+          return;
         }
 
         const dados: SolicitacaoCadastro[] = await resposta.json();

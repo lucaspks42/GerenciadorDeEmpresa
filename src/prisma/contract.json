@@ -515,6 +515,13 @@
                   "codecId": "pg/text@1",
                   "kind": "scalar"
                 }
+              },
+              "telefone": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
               }
             },
             "relations": {
@@ -553,6 +560,9 @@
                 },
                 "senha": {
                   "column": "senha"
+                },
+                "telefone": {
+                  "column": "telefone"
                 }
               },
               "namespaceId": "public",
@@ -936,6 +946,11 @@
                   "codecId": "pg/text@1",
                   "nativeType": "text",
                   "nullable": false
+                },
+                "telefone": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
                 }
               },
               "foreignKeys": [],
@@ -976,7 +991,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "2b4c41ab3b19b3ca7c067cc359e339bf6d131439a7f84a1641b3c1ffc61db5ee"
+    "storageHash": "f72fdcab7182ab1e46ccc43ee951cda61121956fce5648cc7de145767e7dd0b5"
   },
   "capabilities": {
     "postgres": {

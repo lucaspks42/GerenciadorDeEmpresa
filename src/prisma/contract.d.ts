@@ -34,7 +34,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'2b4c41ab3b19b3ca7c067cc359e339bf6d131439a7f84a1641b3c1ffc61db5ee'>;
+  StorageHashBase<'f72fdcab7182ab1e46ccc43ee951cda61121956fce5648cc7de145767e7dd0b5'>;
 export type ExecutionHash = ExecutionHashBase<string>;
 export type ProfileHash =
   ProfileHashBase<'3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2'>;
@@ -295,6 +295,7 @@ export type FieldOutputTypes = {
       readonly nome: CodecTypes['pg/text@1']['output'];
       readonly perfil: 'ADMINISTRADOR' | 'FUNCIONARIO';
       readonly senha: CodecTypes['pg/text@1']['output'];
+      readonly telefone: CodecTypes['pg/text@1']['output'] | null;
     };
   };
 };
@@ -346,6 +347,7 @@ export type FieldInputTypes = {
       readonly nome: CodecTypes['pg/text@1']['input'];
       readonly perfil: 'ADMINISTRADOR' | 'FUNCIONARIO';
       readonly senha: CodecTypes['pg/text@1']['input'];
+      readonly telefone: CodecTypes['pg/text@1']['input'] | null;
     };
   };
 };
@@ -397,6 +399,7 @@ export type StorageColumnTypes = {
       readonly nome: CodecTypes['pg/text@1']['output'];
       readonly perfil: 'ADMINISTRADOR' | 'FUNCIONARIO';
       readonly senha: CodecTypes['pg/text@1']['output'];
+      readonly telefone: CodecTypes['pg/text@1']['output'] | null;
     };
   };
 };
@@ -448,6 +451,7 @@ export type StorageColumnInputTypes = {
       readonly nome: CodecTypes['pg/text@1']['input'];
       readonly perfil: 'ADMINISTRADOR' | 'FUNCIONARIO';
       readonly senha: CodecTypes['pg/text@1']['input'];
+      readonly telefone: CodecTypes['pg/text@1']['input'] | null;
     };
   };
 };
@@ -507,6 +511,7 @@ export namespace Models {
     nome: CodecTypes['pg/text@1']['output'];
     perfil: 'ADMINISTRADOR' | 'FUNCIONARIO';
     senha: CodecTypes['pg/text@1']['output'];
+    telefone: CodecTypes['pg/text@1']['output'] | null;
     sessoes: public_Sessao[];
     readonly [RelationKeys]?: 'sessoes';
   };
@@ -837,6 +842,11 @@ type ContractBase = Omit<
                   readonly codecId: 'pg/text@1';
                   readonly nullable: false;
                 };
+                readonly telefone: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                };
               };
               primaryKey: { readonly columns: readonly ['id'] };
               uniques: readonly [{ readonly columns: readonly ['email'] }];
@@ -1157,6 +1167,10 @@ type ContractBase = Omit<
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
               };
+              readonly telefone: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
             };
             readonly relations: {
               readonly sessoes: {
@@ -1181,6 +1195,7 @@ type ContractBase = Omit<
                 readonly nome: { readonly column: 'nome' };
                 readonly perfil: { readonly column: 'perfil' };
                 readonly senha: { readonly column: 'senha' };
+                readonly telefone: { readonly column: 'telefone' };
               };
             };
           };

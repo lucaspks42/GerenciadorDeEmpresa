@@ -1,6 +1,9 @@
+"use client";
+
 import { X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Input } from "./Input";
+import Toast from "./Toast";
 
 type ModalPermissaoProps = {
   onClose: () => void;
@@ -13,29 +16,59 @@ type Solicitacao = {
   criadoEm: string;
 };
 
+type ToastData = {
+  titulo: string;
+  mensagem: string;
+  tipo: "sucesso" | "erro" | "aviso";
+};
+
 export default function ModalPermissao({ onClose }: ModalPermissaoProps) {
   const [pesquisa, setPesquisa] = useState("");
-
   const [solicitacoes, setSolicitacoes] = useState<Solicitacao[]>([]);
+  const [processando, setProcessando] = useState<number | null>(null);
+  const [toast, setToast] = useState<ToastData | null>(null);
+
+  const fecharToast = useCallback(() => {
+    setToast(null);
+  }, []);
 
   useEffect(() => {
     async function buscarSolicitacoes() {
       try {
         const resposta = await fetch("/api/admin/solicitacoes");
 
-        if (!resposta.ok) {
-          const erro = await resposta.json();
+        const texto = await resposta.text();
 
-          console.error("Erro retornado pela API:", erro);
+        let dados;
 
-          throw new Error(erro.erro || "Erro ao buscar solicitações");
+        try {
+          dados = JSON.parse(texto);
+        } catch {
+          dados = null;
         }
 
-        const solicitacoesDoBanco: Solicitacao[] = await resposta.json();
+        if (!resposta.ok) {
+          console.error("Status HTTP:", resposta.status);
+          console.error("Resposta da API:", texto);
 
-        setSolicitacoes(solicitacoesDoBanco);
+          throw new Error(
+            dados?.erro ||
+              `Erro HTTP ${resposta.status} ao buscar solicitações.`,
+          );
+        }
+
+        setSolicitacoes(dados);
       } catch (erro) {
         console.error("Erro ao buscar solicitações:", erro);
+
+        setToast({
+          titulo: "Erro ao carregar",
+          mensagem:
+            erro instanceof Error
+              ? erro.message
+              : "Não foi possível carregar as solicitações.",
+          tipo: "erro",
+        });
       }
     }
 
@@ -51,10 +84,9 @@ export default function ModalPermissao({ onClose }: ModalPermissaoProps) {
     );
   });
 
-  const [processando, setProcessando] = useState<number | null>(null);
-
   async function aprovarSolicitacao(id: number) {
     setProcessando(id);
+
     try {
       const resposta = await fetch(`/api/admin/solicitacoes/${id}/aprovar`, {
         method: "POST",
@@ -63,26 +95,31 @@ export default function ModalPermissao({ onClose }: ModalPermissaoProps) {
       const dados = await resposta.json();
 
       if (!resposta.ok) {
-        const erro = await resposta.json();
-
-        console.error("Erro retornado pela API:", erro);
-
-        throw new Error(erro.erro || "Erro ao buscar solicitações");
+        throw new Error(dados.erro || "Erro ao aprovar solicitação");
       }
 
       setSolicitacoes((anterior) =>
         anterior.filter((solicitacao) => solicitacao.id !== id),
       );
 
-      alert(dados.mensagem);
+      setToast({
+        titulo: "Funcionário aprovado!",
+        mensagem: dados.mensagem || "O usuário foi aprovado com sucesso.",
+        tipo: "sucesso",
+      });
     } catch (erro) {
       console.error("Erro ao aprovar solicitação:", erro);
 
-      alert(
-        erro instanceof Error
-          ? erro.message
-          : "Erro inesperado ao aprovar solicitação",
-      );
+      setToast({
+        titulo: "Erro ao aprovar",
+        mensagem:
+          erro instanceof Error
+            ? erro.message
+            : "Erro inesperado ao aprovar solicitação.",
+        tipo: "erro",
+      });
+    } finally {
+      setProcessando(null);
     }
   }
 
@@ -97,142 +134,130 @@ export default function ModalPermissao({ onClose }: ModalPermissaoProps) {
       const dados = await resposta.json();
 
       if (!resposta.ok) {
-        const erro = await resposta.json();
-
-        console.error("Erro retornado pela API:", erro);
-
-        throw new Error(erro.erro || "Erro ao buscar solicitações");
+        throw new Error(dados.erro || "Erro ao recusar solicitação");
       }
 
       setSolicitacoes((anterior) =>
         anterior.filter((solicitacao) => solicitacao.id !== id),
       );
 
-      alert(dados.mensagem);
+      setToast({
+        titulo: "Solicitação recusada",
+        mensagem: dados.mensagem || "A solicitação foi recusada.",
+        tipo: "sucesso",
+      });
     } catch (erro) {
       console.error("Erro ao recusar solicitação:", erro);
 
-      alert(
-        erro instanceof Error
-          ? erro.message
-          : "Erro inesperado ao recusar solicitação",
-      );
+      setToast({
+        titulo: "Erro ao recusar",
+        mensagem:
+          erro instanceof Error
+            ? erro.message
+            : "Erro inesperado ao recusar solicitação.",
+        tipo: "erro",
+      });
     } finally {
       setProcessando(null);
     }
   }
 
   return (
-    <main className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-6 backdrop-blur-sm">
-      <div className="flex max-h-[90vh] w-full max-w-6xl flex-col rounded-2xl border border-border bg-card text-card-foreground shadow-2xl">
-        <header className="flex justify-between border-b border-border px-6 py-5">
-          <div>
-            <h2 className="text-xl font-semibold">Solicitações de acesso</h2>
+    <>
+      <main className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-6 backdrop-blur-sm">
+        <div className="flex max-h-[90vh] w-full max-w-6xl flex-col rounded-2xl border border-border bg-card text-card-foreground shadow-2xl">
+          <header className="flex justify-between border-b border-border px-6 py-5">
+            <div>
+              <h2 className="text-xl font-semibold">Solicitações de acesso</h2>
 
-            <p className="mt-1 text-sm text-muted-foreground">
-              Verifique e gerencie as solicitações de acesso à empresa.
-            </p>
-          </div>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Verifique e gerencie as solicitações de acesso à empresa.
+              </p>
+            </div>
 
-          <button
-            onClick={onClose}
-            className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-red-600"
-          >
-            <X size={20} />
-          </button>
-        </header>
-
-        <div className="flex items-center px-10 py-7">
-          <div className="w-full">
-            <Input
-              value={pesquisa}
-              onChange={(e) => setPesquisa(e.target.value)}
-              placeholder="Pesquisar solicitação..."
-            />
-          </div>
-        </div>
-
-        <div className="mx-10 mb-7 overflow-hidden rounded-2xl border border-border bg-card">
-          <div
-            className="
-              grid
-              grid-cols-3
-              px-6
-              py-4
-              border-b
-              border-border
-              text-xs
-              font-semibold
-              uppercase
-              tracking-wide
-              text-muted-foreground
-            "
-          >
-            <div>Solicitante</div>
-
-            <div className="text-center">Email</div>
-
-            <div className="text-center">Data</div>
-          </div>
-
-          {solicitacoesFiltradas.map((solicitacao) => (
-            <div
-              key={solicitacao.id}
-              className="
-                grid
-                grid-cols-3
-                items-center
-                px-6
-                py-5
-                border-b
-                border-border
-                last:border-b-0
-                hover:bg-accent
-                transition-colors
-                gap-2
-              "
+            <button
+              onClick={onClose}
+              className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-red-600"
             >
-              <div className="text-sm font-semibold text-foreground">
-                {solicitacao.nome}
-              </div>
+              <X size={20} />
+            </button>
+          </header>
 
-              <div className="text-center text-sm text-foreground">
-                {solicitacao.email}
-              </div>
-
-              <div className="text-center text-sm text-muted-foreground">
-                {new Date(solicitacao.criadoEm).toLocaleDateString("pt-BR")}
-              </div>
-
-              <div className="col-span-3 flex w-full gap-2 border-t border-border pt-4 ">
-                <button
-                  onClick={() => aprovarSolicitacao(solicitacao.id)}
-                  disabled={processando === solicitacao.id}
-                  className="flex-1 rounded-lg bg-green-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-800 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  {processando === solicitacao.id ? "Aprovando..." : "Aprovar"}
-                </button>
-
-                <button
-                  onClick={() => recusarSolicitacao(solicitacao.id)}
-                  disabled={processando === solicitacao.id}
-                  className="flex-1 rounded-lg bg-red-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-800 "
-                >
-                  {processando === solicitacao.id
-                    ? "Processando..."
-                    : "Recusar"}
-                </button>
-              </div>
+          <div className="flex items-center px-10 py-7">
+            <div className="w-full">
+              <Input
+                value={pesquisa}
+                onChange={(e) => setPesquisa(e.target.value)}
+                placeholder="Pesquisar solicitação..."
+              />
             </div>
-          ))}
+          </div>
 
-          {solicitacoesFiltradas.length === 0 && (
-            <div className="px-6 py-10 text-center text-sm text-muted-foreground">
-              Nenhuma solicitação encontrada.
+          <div className="mx-10 mb-7 overflow-hidden rounded-2xl border border-border bg-card">
+            <div className="grid grid-cols-3 border-b border-border px-6 py-4 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              <div>Solicitante</div>
+              <div className="text-center">Email</div>
+              <div className="text-center">Data</div>
             </div>
-          )}
+
+            {solicitacoesFiltradas.map((solicitacao) => (
+              <div
+                key={solicitacao.id}
+                className="grid grid-cols-3 items-center gap-2 border-b border-border px-6 py-5 last:border-b-0 transition-colors hover:bg-accent"
+              >
+                <div className="text-sm font-semibold text-foreground">
+                  {solicitacao.nome}
+                </div>
+
+                <div className="text-center text-sm text-foreground">
+                  {solicitacao.email}
+                </div>
+
+                <div className="text-center text-sm text-muted-foreground">
+                  {new Date(solicitacao.criadoEm).toLocaleDateString("pt-BR")}
+                </div>
+
+                <div className="col-span-3 flex w-full gap-2 border-t border-border pt-4">
+                  <button
+                    onClick={() => aprovarSolicitacao(solicitacao.id)}
+                    disabled={processando !== null}
+                    className="flex-1 rounded-lg bg-green-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-green-800 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {processando === solicitacao.id
+                      ? "Aprovando..."
+                      : "Aprovar"}
+                  </button>
+
+                  <button
+                    onClick={() => recusarSolicitacao(solicitacao.id)}
+                    disabled={processando !== null}
+                    className="flex-1 rounded-lg bg-red-700 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-800 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {processando === solicitacao.id
+                      ? "Recusando..."
+                      : "Recusar"}
+                  </button>
+                </div>
+              </div>
+            ))}
+
+            {solicitacoesFiltradas.length === 0 && (
+              <div className="px-6 py-10 text-center text-sm text-muted-foreground">
+                Nenhuma solicitação encontrada.
+              </div>
+            )}
+          </div>
         </div>
-      </div>
-    </main>
+      </main>
+
+      {toast && (
+        <Toast
+          titulo={toast.titulo}
+          mensagem={toast.mensagem}
+          tipo={toast.tipo}
+          onClose={fecharToast}
+        />
+      )}
+    </>
   );
 }

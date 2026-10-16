@@ -47,6 +47,9 @@ export async function obterSessao() {
 export async function exigirAdministrador() {
   const usuario = await obterSessao();
 
+  console.log("USUÁRIO DA SESSÃO:", usuario);
+  console.log("PERFIL IDENTIFICADO:", usuario?.perfil);
+
   if (!usuario) {
     return;
   }
