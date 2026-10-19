@@ -19,6 +19,17 @@ export async function GET() {
         "nome",
         "email",
         "telefone",
+        "cpf",
+        "dataNascimento",
+        "cep",
+        "endereco",
+        "numero",
+        "bairro",
+        "cidade",
+        "estado",
+        "cargo",
+        "departamento",
+        "dataAdmissao",
         "perfil"
       FROM "Usuario"
       ORDER BY "id" ASC
@@ -28,6 +39,17 @@ export async function GET() {
         nome: db.sql.public.Usuario.columns.nome,
         email: db.sql.public.Usuario.columns.email,
         telefone: db.sql.public.Usuario.columns.telefone,
+        cpf: db.sql.public.Usuario.columns.cpf,
+        dataNascimento: db.sql.public.Usuario.columns.dataNascimento,
+        cep: db.sql.public.Usuario.columns.cep,
+        endereco: db.sql.public.Usuario.columns.endereco,
+        numero: db.sql.public.Usuario.columns.numero,
+        bairro: db.sql.public.Usuario.columns.bairro,
+        cidade: db.sql.public.Usuario.columns.cidade,
+        estado: db.sql.public.Usuario.columns.estado,
+        cargo: db.sql.public.Usuario.columns.cargo,
+        departamento: db.sql.public.Usuario.columns.departamento,
+        dataAdmissao: db.sql.public.Usuario.columns.dataAdmissao,
         perfil: db.sql.public.Usuario.columns.perfil,
       })
       .build();

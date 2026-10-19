@@ -49,6 +49,17 @@ model Usuario {
   nome     String
   email    String   @unique
   telefone String?
+  cpf String? @unique
+  dataNascimento DateTime?
+  cep String?
+  endereco String?
+  numero String?
+  bairro String?
+  cidade String?
+  estado String?
+  cargo String?
+  departamento   String?
+  dataAdmissao   DateTime?
   senha    String
   perfil   PerfilUsuario
   criadoEm DateTime @default(now())

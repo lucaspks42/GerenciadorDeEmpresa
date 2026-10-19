@@ -468,6 +468,41 @@
           },
           "Usuario": {
             "fields": {
+              "bairro": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "cargo": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "cep": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "cidade": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "cpf": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
               "criadoEm": {
                 "nullable": false,
                 "type": {
@@ -475,8 +510,43 @@
                   "kind": "scalar"
                 }
               },
+              "dataAdmissao": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
+              "dataNascimento": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "kind": "scalar"
+                }
+              },
+              "departamento": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
               "email": {
                 "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "endereco": {
+                "nullable": true,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "estado": {
+                "nullable": true,
                 "type": {
                   "codecId": "pg/text@1",
                   "kind": "scalar"
@@ -491,6 +561,13 @@
               },
               "nome": {
                 "nullable": false,
+                "type": {
+                  "codecId": "pg/text@1",
+                  "kind": "scalar"
+                }
+              },
+              "numero": {
+                "nullable": true,
                 "type": {
                   "codecId": "pg/text@1",
                   "kind": "scalar"
@@ -543,17 +620,50 @@
             },
             "storage": {
               "fields": {
+                "bairro": {
+                  "column": "bairro"
+                },
+                "cargo": {
+                  "column": "cargo"
+                },
+                "cep": {
+                  "column": "cep"
+                },
+                "cidade": {
+                  "column": "cidade"
+                },
+                "cpf": {
+                  "column": "cpf"
+                },
                 "criadoEm": {
                   "column": "criadoEm"
                 },
+                "dataAdmissao": {
+                  "column": "dataAdmissao"
+                },
+                "dataNascimento": {
+                  "column": "dataNascimento"
+                },
+                "departamento": {
+                  "column": "departamento"
+                },
                 "email": {
                   "column": "email"
+                },
+                "endereco": {
+                  "column": "endereco"
+                },
+                "estado": {
+                  "column": "estado"
                 },
                 "id": {
                   "column": "id"
                 },
                 "nome": {
                   "column": "nome"
+                },
+                "numero": {
+                  "column": "numero"
                 },
                 "perfil": {
                   "column": "perfil"
@@ -903,6 +1013,31 @@
                 }
               ],
               "columns": {
+                "bairro": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "cargo": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "cep": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "cidade": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "cpf": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
                 "criadoEm": {
                   "codecId": "pg/timestamptz-temporal@1",
                   "default": {
@@ -912,10 +1047,35 @@
                   "nativeType": "timestamptz",
                   "nullable": false
                 },
+                "dataAdmissao": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "nativeType": "timestamptz",
+                  "nullable": true
+                },
+                "dataNascimento": {
+                  "codecId": "pg/timestamptz-temporal@1",
+                  "nativeType": "timestamptz",
+                  "nullable": true
+                },
+                "departamento": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
                 "email": {
                   "codecId": "pg/text@1",
                   "nativeType": "text",
                   "nullable": false
+                },
+                "endereco": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
+                },
+                "estado": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
                 },
                 "id": {
                   "codecId": "pg/int4@1",
@@ -930,6 +1090,11 @@
                   "codecId": "pg/text@1",
                   "nativeType": "text",
                   "nullable": false
+                },
+                "numero": {
+                  "codecId": "pg/text@1",
+                  "nativeType": "text",
+                  "nullable": true
                 },
                 "perfil": {
                   "codecId": "pg/text@1",
@@ -965,6 +1130,11 @@
                   "columns": [
                     "email"
                   ]
+                },
+                {
+                  "columns": [
+                    "cpf"
+                  ]
                 }
               ]
             }
@@ -991,7 +1161,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "f72fdcab7182ab1e46ccc43ee951cda61121956fce5648cc7de145767e7dd0b5"
+    "storageHash": "1820bf2e34cad36faf8fd257085676696d3f99f455bc5881e9e296f515e9e7a3"
   },
   "capabilities": {
     "postgres": {

@@ -1,0 +1,548 @@
+[
+  {
+    "id": "column.public.Usuario.bairro",
+    "label": "Add column \"bairro\" to \"Usuario\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "bairro",
+        "table": "Usuario"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"bairro\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Usuario",
+          "bairro"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"bairro\"",
+        "sql": "ALTER TABLE \"public\".\"Usuario\" ADD COLUMN \"bairro\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"bairro\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Usuario",
+          "bairro"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.Usuario.cargo",
+    "label": "Add column \"cargo\" to \"Usuario\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "cargo",
+        "table": "Usuario"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"cargo\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Usuario",
+          "cargo"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"cargo\"",
+        "sql": "ALTER TABLE \"public\".\"Usuario\" ADD COLUMN \"cargo\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"cargo\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Usuario",
+          "cargo"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.Usuario.cep",
+    "label": "Add column \"cep\" to \"Usuario\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "cep",
+        "table": "Usuario"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"cep\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Usuario",
+          "cep"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"cep\"",
+        "sql": "ALTER TABLE \"public\".\"Usuario\" ADD COLUMN \"cep\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"cep\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Usuario",
+          "cep"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.Usuario.cidade",
+    "label": "Add column \"cidade\" to \"Usuario\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "cidade",
+        "table": "Usuario"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"cidade\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Usuario",
+          "cidade"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"cidade\"",
+        "sql": "ALTER TABLE \"public\".\"Usuario\" ADD COLUMN \"cidade\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"cidade\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Usuario",
+          "cidade"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.Usuario.cpf",
+    "label": "Add column \"cpf\" to \"Usuario\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "cpf",
+        "table": "Usuario"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"cpf\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Usuario",
+          "cpf"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"cpf\"",
+        "sql": "ALTER TABLE \"public\".\"Usuario\" ADD COLUMN \"cpf\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"cpf\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Usuario",
+          "cpf"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.Usuario.dataAdmissao",
+    "label": "Add column \"dataAdmissao\" to \"Usuario\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "dataAdmissao",
+        "table": "Usuario"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"dataAdmissao\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Usuario",
+          "dataAdmissao"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"dataAdmissao\"",
+        "sql": "ALTER TABLE \"public\".\"Usuario\" ADD COLUMN \"dataAdmissao\" timestamptz"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"dataAdmissao\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Usuario",
+          "dataAdmissao"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.Usuario.dataNascimento",
+    "label": "Add column \"dataNascimento\" to \"Usuario\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "dataNascimento",
+        "table": "Usuario"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"dataNascimento\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Usuario",
+          "dataNascimento"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"dataNascimento\"",
+        "sql": "ALTER TABLE \"public\".\"Usuario\" ADD COLUMN \"dataNascimento\" timestamptz"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"dataNascimento\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Usuario",
+          "dataNascimento"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.Usuario.departamento",
+    "label": "Add column \"departamento\" to \"Usuario\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "departamento",
+        "table": "Usuario"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"departamento\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Usuario",
+          "departamento"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"departamento\"",
+        "sql": "ALTER TABLE \"public\".\"Usuario\" ADD COLUMN \"departamento\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"departamento\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Usuario",
+          "departamento"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.Usuario.endereco",
+    "label": "Add column \"endereco\" to \"Usuario\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "endereco",
+        "table": "Usuario"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"endereco\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Usuario",
+          "endereco"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"endereco\"",
+        "sql": "ALTER TABLE \"public\".\"Usuario\" ADD COLUMN \"endereco\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"endereco\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Usuario",
+          "endereco"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.Usuario.estado",
+    "label": "Add column \"estado\" to \"Usuario\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "estado",
+        "table": "Usuario"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"estado\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Usuario",
+          "estado"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"estado\"",
+        "sql": "ALTER TABLE \"public\".\"Usuario\" ADD COLUMN \"estado\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"estado\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Usuario",
+          "estado"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.Usuario.numero",
+    "label": "Add column \"numero\" to \"Usuario\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "numero",
+        "table": "Usuario"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"numero\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Usuario",
+          "numero"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"numero\"",
+        "sql": "ALTER TABLE \"public\".\"Usuario\" ADD COLUMN \"numero\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"numero\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Usuario",
+          "numero"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.Usuario.telefone",
+    "label": "Add column \"telefone\" to \"Usuario\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "telefone",
+        "table": "Usuario"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"telefone\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Usuario",
+          "telefone"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"telefone\"",
+        "sql": "ALTER TABLE \"public\".\"Usuario\" ADD COLUMN \"telefone\" text"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"telefone\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Usuario",
+          "telefone"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.Usuario.Usuario_cpf_key",
+    "label": "Add unique constraint on \"Usuario\" (cpf)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "Usuario_cpf_key",
+        "table": "Usuario"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"Usuario_cpf_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Usuario_cpf_key",
+          "public",
+          "\"public\".\"Usuario\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"Usuario_cpf_key\"",
+        "sql": "ALTER TABLE \"public\".\"Usuario\" ADD CONSTRAINT \"Usuario_cpf_key\" UNIQUE (\"cpf\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"Usuario_cpf_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Usuario_cpf_key",
+          "public",
+          "\"public\".\"Usuario\""
+        ]
+      }
+    ]
+  }
+]

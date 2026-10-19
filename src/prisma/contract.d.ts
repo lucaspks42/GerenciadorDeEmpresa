@@ -34,7 +34,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'f72fdcab7182ab1e46ccc43ee951cda61121956fce5648cc7de145767e7dd0b5'>;
+  StorageHashBase<'1820bf2e34cad36faf8fd257085676696d3f99f455bc5881e9e296f515e9e7a3'>;
 export type ExecutionHash = ExecutionHashBase<string>;
 export type ProfileHash =
   ProfileHashBase<'3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2'>;
@@ -289,10 +289,21 @@ export type FieldOutputTypes = {
       readonly titulo: CodecTypes['pg/text@1']['output'];
     };
     readonly Usuario: {
+      readonly bairro: CodecTypes['pg/text@1']['output'] | null;
+      readonly cargo: CodecTypes['pg/text@1']['output'] | null;
+      readonly cep: CodecTypes['pg/text@1']['output'] | null;
+      readonly cidade: CodecTypes['pg/text@1']['output'] | null;
+      readonly cpf: CodecTypes['pg/text@1']['output'] | null;
       readonly criadoEm: CodecTypes['pg/timestamptz-temporal@1']['output'];
+      readonly dataAdmissao: CodecTypes['pg/timestamptz-temporal@1']['output'] | null;
+      readonly dataNascimento: CodecTypes['pg/timestamptz-temporal@1']['output'] | null;
+      readonly departamento: CodecTypes['pg/text@1']['output'] | null;
       readonly email: CodecTypes['pg/text@1']['output'];
+      readonly endereco: CodecTypes['pg/text@1']['output'] | null;
+      readonly estado: CodecTypes['pg/text@1']['output'] | null;
       readonly id: CodecTypes['pg/int4@1']['output'];
       readonly nome: CodecTypes['pg/text@1']['output'];
+      readonly numero: CodecTypes['pg/text@1']['output'] | null;
       readonly perfil: 'ADMINISTRADOR' | 'FUNCIONARIO';
       readonly senha: CodecTypes['pg/text@1']['output'];
       readonly telefone: CodecTypes['pg/text@1']['output'] | null;
@@ -341,10 +352,21 @@ export type FieldInputTypes = {
       readonly titulo: CodecTypes['pg/text@1']['input'];
     };
     readonly Usuario: {
+      readonly bairro: CodecTypes['pg/text@1']['input'] | null;
+      readonly cargo: CodecTypes['pg/text@1']['input'] | null;
+      readonly cep: CodecTypes['pg/text@1']['input'] | null;
+      readonly cidade: CodecTypes['pg/text@1']['input'] | null;
+      readonly cpf: CodecTypes['pg/text@1']['input'] | null;
       readonly criadoEm: CodecTypes['pg/timestamptz-temporal@1']['input'];
+      readonly dataAdmissao: CodecTypes['pg/timestamptz-temporal@1']['input'] | null;
+      readonly dataNascimento: CodecTypes['pg/timestamptz-temporal@1']['input'] | null;
+      readonly departamento: CodecTypes['pg/text@1']['input'] | null;
       readonly email: CodecTypes['pg/text@1']['input'];
+      readonly endereco: CodecTypes['pg/text@1']['input'] | null;
+      readonly estado: CodecTypes['pg/text@1']['input'] | null;
       readonly id: CodecTypes['pg/int4@1']['input'];
       readonly nome: CodecTypes['pg/text@1']['input'];
+      readonly numero: CodecTypes['pg/text@1']['input'] | null;
       readonly perfil: 'ADMINISTRADOR' | 'FUNCIONARIO';
       readonly senha: CodecTypes['pg/text@1']['input'];
       readonly telefone: CodecTypes['pg/text@1']['input'] | null;
@@ -393,10 +415,21 @@ export type StorageColumnTypes = {
       readonly titulo: CodecTypes['pg/text@1']['output'];
     };
     readonly Usuario: {
+      readonly bairro: CodecTypes['pg/text@1']['output'] | null;
+      readonly cargo: CodecTypes['pg/text@1']['output'] | null;
+      readonly cep: CodecTypes['pg/text@1']['output'] | null;
+      readonly cidade: CodecTypes['pg/text@1']['output'] | null;
+      readonly cpf: CodecTypes['pg/text@1']['output'] | null;
       readonly criadoEm: CodecTypes['pg/timestamptz-temporal@1']['output'];
+      readonly dataAdmissao: CodecTypes['pg/timestamptz-temporal@1']['output'] | null;
+      readonly dataNascimento: CodecTypes['pg/timestamptz-temporal@1']['output'] | null;
+      readonly departamento: CodecTypes['pg/text@1']['output'] | null;
       readonly email: CodecTypes['pg/text@1']['output'];
+      readonly endereco: CodecTypes['pg/text@1']['output'] | null;
+      readonly estado: CodecTypes['pg/text@1']['output'] | null;
       readonly id: CodecTypes['pg/int4@1']['output'];
       readonly nome: CodecTypes['pg/text@1']['output'];
+      readonly numero: CodecTypes['pg/text@1']['output'] | null;
       readonly perfil: 'ADMINISTRADOR' | 'FUNCIONARIO';
       readonly senha: CodecTypes['pg/text@1']['output'];
       readonly telefone: CodecTypes['pg/text@1']['output'] | null;
@@ -445,10 +478,21 @@ export type StorageColumnInputTypes = {
       readonly titulo: CodecTypes['pg/text@1']['input'];
     };
     readonly Usuario: {
+      readonly bairro: CodecTypes['pg/text@1']['input'] | null;
+      readonly cargo: CodecTypes['pg/text@1']['input'] | null;
+      readonly cep: CodecTypes['pg/text@1']['input'] | null;
+      readonly cidade: CodecTypes['pg/text@1']['input'] | null;
+      readonly cpf: CodecTypes['pg/text@1']['input'] | null;
       readonly criadoEm: CodecTypes['pg/timestamptz-temporal@1']['input'];
+      readonly dataAdmissao: CodecTypes['pg/timestamptz-temporal@1']['input'] | null;
+      readonly dataNascimento: CodecTypes['pg/timestamptz-temporal@1']['input'] | null;
+      readonly departamento: CodecTypes['pg/text@1']['input'] | null;
       readonly email: CodecTypes['pg/text@1']['input'];
+      readonly endereco: CodecTypes['pg/text@1']['input'] | null;
+      readonly estado: CodecTypes['pg/text@1']['input'] | null;
       readonly id: CodecTypes['pg/int4@1']['input'];
       readonly nome: CodecTypes['pg/text@1']['input'];
+      readonly numero: CodecTypes['pg/text@1']['input'] | null;
       readonly perfil: 'ADMINISTRADOR' | 'FUNCIONARIO';
       readonly senha: CodecTypes['pg/text@1']['input'];
       readonly telefone: CodecTypes['pg/text@1']['input'] | null;
@@ -505,10 +549,21 @@ export namespace Models {
     readonly [RelationKeys]?: never;
   };
   export type public_Usuario = {
+    bairro: CodecTypes['pg/text@1']['output'] | null;
+    cargo: CodecTypes['pg/text@1']['output'] | null;
+    cep: CodecTypes['pg/text@1']['output'] | null;
+    cidade: CodecTypes['pg/text@1']['output'] | null;
+    cpf: CodecTypes['pg/text@1']['output'] | null;
     criadoEm: CodecTypes['pg/timestamptz-temporal@1']['output'];
+    dataAdmissao: CodecTypes['pg/timestamptz-temporal@1']['output'] | null;
+    dataNascimento: CodecTypes['pg/timestamptz-temporal@1']['output'] | null;
+    departamento: CodecTypes['pg/text@1']['output'] | null;
     email: CodecTypes['pg/text@1']['output'];
+    endereco: CodecTypes['pg/text@1']['output'] | null;
+    estado: CodecTypes['pg/text@1']['output'] | null;
     id: CodecTypes['pg/int4@1']['output'];
     nome: CodecTypes['pg/text@1']['output'];
+    numero: CodecTypes['pg/text@1']['output'] | null;
     perfil: 'ADMINISTRADOR' | 'FUNCIONARIO';
     senha: CodecTypes['pg/text@1']['output'];
     telefone: CodecTypes['pg/text@1']['output'] | null;
@@ -807,16 +862,66 @@ type ContractBase = Omit<
             };
             readonly Usuario: {
               columns: {
+                readonly bairro: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                };
+                readonly cargo: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                };
+                readonly cep: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                };
+                readonly cidade: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                };
+                readonly cpf: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                };
                 readonly criadoEm: {
                   readonly nativeType: 'timestamptz';
                   readonly codecId: 'pg/timestamptz-temporal@1';
                   readonly nullable: false;
                   readonly default: { readonly kind: 'function'; readonly expression: 'now()' };
                 };
+                readonly dataAdmissao: {
+                  readonly nativeType: 'timestamptz';
+                  readonly codecId: 'pg/timestamptz-temporal@1';
+                  readonly nullable: true;
+                };
+                readonly dataNascimento: {
+                  readonly nativeType: 'timestamptz';
+                  readonly codecId: 'pg/timestamptz-temporal@1';
+                  readonly nullable: true;
+                };
+                readonly departamento: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                };
                 readonly email: {
                   readonly nativeType: 'text';
                   readonly codecId: 'pg/text@1';
                   readonly nullable: false;
+                };
+                readonly endereco: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
+                };
+                readonly estado: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
                 };
                 readonly id: {
                   readonly nativeType: 'int4';
@@ -831,6 +936,11 @@ type ContractBase = Omit<
                   readonly nativeType: 'text';
                   readonly codecId: 'pg/text@1';
                   readonly nullable: false;
+                };
+                readonly numero: {
+                  readonly nativeType: 'text';
+                  readonly codecId: 'pg/text@1';
+                  readonly nullable: true;
                 };
                 readonly perfil: {
                   readonly nativeType: 'text';
@@ -849,7 +959,10 @@ type ContractBase = Omit<
                 };
               };
               primaryKey: { readonly columns: readonly ['id'] };
-              uniques: readonly [{ readonly columns: readonly ['email'] }];
+              uniques: readonly [
+                { readonly columns: readonly ['email'] },
+                { readonly columns: readonly ['cpf'] },
+              ];
               indexes: readonly [];
               foreignKeys: readonly [];
             };
@@ -1140,6 +1253,26 @@ type ContractBase = Omit<
           };
           readonly Usuario: {
             readonly fields: {
+              readonly bairro: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly cargo: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly cep: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly cidade: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly cpf: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
               readonly criadoEm: {
                 readonly nullable: false;
                 readonly type: {
@@ -1147,8 +1280,34 @@ type ContractBase = Omit<
                   readonly codecId: 'pg/timestamptz-temporal@1';
                 };
               };
+              readonly dataAdmissao: {
+                readonly nullable: true;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-temporal@1';
+                };
+              };
+              readonly dataNascimento: {
+                readonly nullable: true;
+                readonly type: {
+                  readonly kind: 'scalar';
+                  readonly codecId: 'pg/timestamptz-temporal@1';
+                };
+              };
+              readonly departamento: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
               readonly email: {
                 readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly endereco: {
+                readonly nullable: true;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly estado: {
+                readonly nullable: true;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
               };
               readonly id: {
@@ -1157,6 +1316,10 @@ type ContractBase = Omit<
               };
               readonly nome: {
                 readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
+              };
+              readonly numero: {
+                readonly nullable: true;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
               };
               readonly perfil: {
@@ -1189,10 +1352,21 @@ type ContractBase = Omit<
               readonly table: 'Usuario';
               readonly namespaceId: 'public';
               readonly fields: {
+                readonly bairro: { readonly column: 'bairro' };
+                readonly cargo: { readonly column: 'cargo' };
+                readonly cep: { readonly column: 'cep' };
+                readonly cidade: { readonly column: 'cidade' };
+                readonly cpf: { readonly column: 'cpf' };
                 readonly criadoEm: { readonly column: 'criadoEm' };
+                readonly dataAdmissao: { readonly column: 'dataAdmissao' };
+                readonly dataNascimento: { readonly column: 'dataNascimento' };
+                readonly departamento: { readonly column: 'departamento' };
                 readonly email: { readonly column: 'email' };
+                readonly endereco: { readonly column: 'endereco' };
+                readonly estado: { readonly column: 'estado' };
                 readonly id: { readonly column: 'id' };
                 readonly nome: { readonly column: 'nome' };
+                readonly numero: { readonly column: 'numero' };
                 readonly perfil: { readonly column: 'perfil' };
                 readonly senha: { readonly column: 'senha' };
                 readonly telefone: { readonly column: 'telefone' };

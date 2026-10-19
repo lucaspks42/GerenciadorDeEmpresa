@@ -3,5 +3,16 @@ export type Usuario = {
   nome: string;
   email: string;
   telefone: string | null;
+  cpf: string | null;
+  dataNascimento: string | null;
+  cep: string | null;
+  endereco: string | null;
+  numero: string | null;
+  bairro: string | null;
+  cidade: string | null;
+  estado: string | null;
+  cargo: string | null;
+  departamento: string | null;
+  dataAdmissao: string | null;
   perfil: "ADMINISTRADOR" | "FUNCIONARIO";
 };
