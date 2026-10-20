@@ -1,6 +1,16 @@
 "use client";
 
-import { X, Pen } from "lucide-react";
+import {
+  X,
+  Pen,
+  UserRound,
+  Building,
+  Mail,
+  Phone,
+  CalendarDays,
+  Wallet,
+  Save,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { FaWhatsapp } from "react-icons/fa";
 
@@ -28,11 +38,9 @@ export default function InfoCliente({
   const [email, setEmail] = useState(cliente.email);
 
   const [valorProduto, setValorProduto] = useState(cliente.valorProduto);
-
   const [valorMensalidade, setValorMensalidade] = useState(
     cliente.valorMensalidade,
   );
-
   const [diaVencimento, setDiaVencimento] = useState(cliente.diaVencimento);
 
   const [editando, setEditando] = useState(false);
@@ -114,8 +122,13 @@ export default function InfoCliente({
     }
   }
 
+  const classeInput =
+    "w-full rounded-xl border border-white/[0.08] bg-[#0d0d19] px-4 py-3 text-sm text-white outline-none transition-all placeholder:text-slate-600 focus:border-blue-400/50 focus:ring-2 focus:ring-blue-500/10 disabled:cursor-default disabled:border-white/[0.05] disabled:bg-white/[0.02] disabled:text-slate-300";
+
+  const classeLabel = "text-xs font-medium text-slate-500";
+
   return (
-    <main className="fixed inset-0 flex items-center justify-center z-50 bg-black/80 backdrop-blur-sm p-6">
+    <main className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm sm:p-6">
       {pagamentoSelecionado && (
         <ConcluirPagamentos
           pagamento={pagamentoSelecionado}
@@ -132,212 +145,312 @@ export default function InfoCliente({
         />
       )}
 
-      <div className="w-full max-w-6xl max-h-[90vh] bg-card text-card-foreground border border-border rounded-2xl flex flex-col shadow-2xl">
-        <header className="border-b border-border px-6 py-5 flex items-center justify-between">
-          <div>
-            <h2 className="text-xl font-semibold">{cliente.nome}</h2>
+      <div className="flex max-h-[92dvh] w-full max-w-6xl flex-col overflow-hidden rounded-2xl border border-white/[0.09] bg-[#11111f] text-white shadow-2xl shadow-black/40">
+        <header className="flex shrink-0 items-center justify-between border-b border-white/[0.07] px-6 py-5">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-blue-400/15 bg-blue-500/[0.09] text-blue-300">
+              <UserRound size={20} />
+            </div>
 
-            <p className="text-sm text-muted-foreground mt-1">
-              Informações do cliente
-            </p>
+            <div className="min-w-0">
+              <h2 className="truncate text-lg font-semibold text-white">
+                {cliente.nome}
+              </h2>
+
+              <p className="mt-1 text-xs text-slate-500">
+                Informações do cliente
+              </p>
+            </div>
           </div>
 
-          <div className="flex flex-row">
+          <div className="flex shrink-0 items-center gap-2">
             <button
-              onClick={() => setEditando(true)}
-              className="
-                p-2
-                rounded-lg
-                text-muted-foreground
-                hover:text-green-600
-                hover:bg-accent
-                transition-colors
-              "
+              type="button"
+              onClick={() => setEditando(!editando)}
+              title={editando ? "Modo de edição ativo" : "Editar cliente"}
+              className={`flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg transition-colors ${
+                editando
+                  ? "bg-blue-500/10 text-blue-300"
+                  : "text-slate-500 hover:bg-blue-500/10 hover:text-blue-300"
+              }`}
             >
-              <Pen size={20} />
+              <Pen size={18} />
             </button>
 
             <button
+              type="button"
               onClick={fecharModal}
-              className="
-                p-2
-                rounded-lg
-                text-muted-foreground
-                hover:text-red-600
-                hover:bg-accent
-                transition-colors
-              "
+              className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-red-500/10 hover:text-red-400"
             >
-              <X size={20} />
+              <X size={19} />
             </button>
           </div>
         </header>
 
-        <div className="p-8 gap-5 grid grid-cols-3 overflow-y-auto">
-          <div className="flex flex-col gap-2">
-            <label className="text-xs text-muted-foreground">Nome</label>
+        <div className="flex-1 overflow-y-auto p-6 sm:p-8">
+          <div className="mb-6 flex items-center justify-between">
+            <div>
+              <h3 className="text-sm font-semibold text-slate-200">
+                Dados cadastrais
+              </h3>
 
-            <input
-              value={nome}
-              disabled={!editando}
-              onChange={(e) => setNome(e.target.value)}
-              className="border border-border bg-background text-foreground rounded-xl p-3 outline-none"
-            />
+              <p className="mt-1 text-xs text-slate-500">
+                Informações e dados de contato do cliente.
+              </p>
+            </div>
+
+            {editando && (
+              <span className="rounded-lg border border-blue-400/15 bg-blue-500/[0.08] px-3 py-1.5 text-[11px] font-semibold text-blue-300">
+                Editando informações
+              </span>
+            )}
           </div>
 
-          <div className="flex flex-col gap-2">
-            <label className="text-xs text-muted-foreground">Empresa</label>
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="flex flex-col gap-2">
+              <label className={classeLabel}>Nome</label>
 
-            <input
-              value={empresa}
-              disabled={!editando}
-              onChange={(e) => setEmpresa(e.target.value)}
-              className="border border-border bg-background text-foreground rounded-xl p-3 outline-none"
-            />
-          </div>
+              <div className="relative">
+                <UserRound
+                  size={16}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600"
+                />
 
-          <div className="flex flex-col gap-2">
-            <label className="text-xs text-muted-foreground">Email</label>
+                <input
+                  value={nome}
+                  disabled={!editando}
+                  onChange={(e) => setNome(e.target.value)}
+                  className={`${classeInput} pl-11`}
+                />
+              </div>
+            </div>
 
-            <input
-              value={email}
-              disabled={!editando}
-              onChange={(e) => setEmail(e.target.value)}
-              className="border border-border bg-background text-foreground rounded-xl p-3 outline-none"
-            />
-          </div>
+            <div className="flex flex-col gap-2">
+              <label className={classeLabel}>Empresa</label>
 
-          <div className="flex flex-col gap-2">
-            <label className="text-xs text-muted-foreground">Telefone</label>
+              <div className="relative">
+                <Building
+                  size={16}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600"
+                />
 
-            <div className="flex items-center gap-3">
-              <input
-                value={telefone}
-                disabled={!editando}
-                onChange={(e) => setTelefone(e.target.value)}
-                className="flex-1 border border-border bg-background text-foreground rounded-xl p-3 outline-none focus:border-green-500 transition-colors"
-              />
+                <input
+                  value={empresa}
+                  disabled={!editando}
+                  onChange={(e) => setEmpresa(e.target.value)}
+                  className={`${classeInput} pl-11`}
+                />
+              </div>
+            </div>
 
-              <button
-                type="button"
-                onClick={() => {
-                  const numero = telefone.replace(/\D/g, "");
+            <div className="flex flex-col gap-2">
+              <label className={classeLabel}>E-mail</label>
 
-                  if (!numero) return;
+              <div className="relative">
+                <Mail
+                  size={16}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600"
+                />
 
-                  window.open(`https://wa.me/55${numero}`, "_blank");
-                }}
-                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-border text-white shadow-sm transition-all hover:scale-105 hover:bg-green-600 hover:shadow-md active:scale-95"
-                title="Abrir WhatsApp"
-              >
-                <FaWhatsapp size={24} />
-              </button>
+                <input
+                  value={email}
+                  disabled={!editando}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className={`${classeInput} pl-11`}
+                />
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <label className={classeLabel}>Telefone</label>
+
+              <div className="flex items-center gap-2">
+                <div className="relative min-w-0 flex-1">
+                  <Phone
+                    size={16}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600"
+                  />
+
+                  <input
+                    value={telefone}
+                    disabled={!editando}
+                    onChange={(e) => setTelefone(e.target.value)}
+                    className={`${classeInput} pl-11`}
+                  />
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    const numero = telefone.replace(/\D/g, "");
+
+                    if (!numero) return;
+
+                    window.open(`https://wa.me/55${numero}`, "_blank");
+                  }}
+                  className="flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-emerald-400/15 bg-emerald-500/[0.08] text-emerald-400 transition-all hover:bg-emerald-500/15 hover:text-emerald-300"
+                  title="Abrir WhatsApp"
+                >
+                  <FaWhatsapp size={21} />
+                </button>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <label className={classeLabel}>Pagamento</label>
+
+              <div className="relative">
+                <Wallet
+                  size={16}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600"
+                />
+
+                <input
+                  type="number"
+                  value={valorProduto}
+                  disabled={!editando}
+                  onChange={(e) => setValorProduto(Number(e.target.value))}
+                  className={`${classeInput} pl-11`}
+                />
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <label className={classeLabel}>Mensalidade</label>
+
+              <div className="relative">
+                <Wallet
+                  size={16}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600"
+                />
+
+                <input
+                  type="number"
+                  value={valorMensalidade}
+                  disabled={!editando}
+                  onChange={(e) => setValorMensalidade(Number(e.target.value))}
+                  className={`${classeInput} pl-11`}
+                />
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-2">
+              <label className={classeLabel}>Dia de vencimento</label>
+
+              <div className="relative">
+                <CalendarDays
+                  size={16}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-600"
+                />
+
+                <input
+                  type="number"
+                  value={diaVencimento}
+                  disabled={!editando}
+                  onChange={(e) => setDiaVencimento(Number(e.target.value))}
+                  className={`${classeInput} pl-11`}
+                />
+              </div>
             </div>
           </div>
 
-          <div className="flex flex-col gap-2">
-            <label className="text-xs text-muted-foreground">Pagamento</label>
-
-            <input
-              type="number"
-              value={valorProduto}
-              disabled={!editando}
-              onChange={(e) => setValorProduto(Number(e.target.value))}
-              className="border border-border bg-background text-foreground rounded-xl p-3 outline-none"
-            />
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <label className="text-xs text-muted-foreground">Mensalidade</label>
-
-            <input
-              type="number"
-              value={valorMensalidade}
-              disabled={!editando}
-              onChange={(e) => setValorMensalidade(Number(e.target.value))}
-              className="border border-border bg-background text-foreground rounded-xl p-3 outline-none"
-            />
-          </div>
-
-          <div className="flex flex-col gap-2">
-            <label className="text-xs text-muted-foreground">
-              Dia de vencimento
-            </label>
-
-            <input
-              type="number"
-              value={diaVencimento}
-              disabled={!editando}
-              onChange={(e) => setDiaVencimento(Number(e.target.value))}
-              className="border border-border bg-background text-foreground rounded-xl p-3 outline-none"
-            />
-          </div>
-
           {editando && (
-            <div className="col-start-3 flex justify-end mt-6 gap-2">
+            <div className="mt-6 flex justify-end gap-3 border-b border-white/[0.07] pb-6">
               <button
-                className="bg-primary text-primary-foreground hover:bg-primary/85 rounded-xl px-5 h-12.5"
-                onClick={salvarAlterações}
+                type="button"
+                onClick={() => {
+                  setNome(cliente.nome);
+                  setEmpresa(cliente.empresa);
+                  setTelefone(cliente.telefone);
+                  setEmail(cliente.email);
+                  setValorProduto(cliente.valorProduto);
+                  setValorMensalidade(cliente.valorMensalidade);
+                  setDiaVencimento(cliente.diaVencimento);
+                  setEditando(false);
+                }}
+                className="cursor-pointer rounded-xl border border-white/[0.09] bg-white/[0.03] px-5 py-2.5 text-sm font-medium text-slate-400 transition-colors hover:bg-white/[0.07] hover:text-white"
               >
-                Salvar
+                Cancelar
               </button>
 
               <button
-                className="border border-border rounded-xl px-3 h-12.5"
-                onClick={() => setEditando(false)}
+                type="button"
+                onClick={salvarAlterações}
+                className="flex cursor-pointer items-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-500"
               >
-                Cancelar
+                <Save size={16} />
+                Salvar alterações
               </button>
             </div>
           )}
 
-          <div className="col-span-3 border border-border bg-background/50 rounded-2xl p-6 mt-2">
-            {pagamentos.length === 0 ? (
-              <div className="text-sm text-muted-foreground">
-                Esse cliente não possui pagamentos
-              </div>
-            ) : (
-              <>
-                <div className="flex items-center justify-between mb-5">
-                  <div>
-                    <h2 className="text-lg font-semibold">
-                      Próximos pagamentos
-                    </h2>
-
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Histórico e próximos vencimentos
-                    </p>
-                  </div>
+          <div className="mt-8 rounded-2xl border border-white/[0.07] bg-[#0d0d19]/60 p-5 sm:p-6">
+            <div className="mb-5 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-blue-400/15 bg-blue-500/[0.09] text-blue-300">
+                  <CalendarDays size={19} />
                 </div>
 
-                <div className="flex flex-col gap-2 max-h-64 overflow-y-auto pr-2">
-                  {pagamentos.map((pagamento) => {
-                    const [ano, mes, dia] =
-                      pagamento.data_vencimento.split("-");
+                <div>
+                  <h2 className="text-sm font-semibold text-white">
+                    Próximos pagamentos
+                  </h2>
 
-                    return (
-                      <div
-                        key={pagamento.id}
-                        onClick={() => setPagamentoSelecionado(pagamento)}
-                        className="
-                          border
-                          border-border
-                          bg-card
-                          rounded-xl
-                          p-4
-                          flex
-                          items-center
-                          justify-between
-                          hover:border-primary/40
-                          transition-colors
-                          cursor-pointer
-                        "
-                      >
-                        <span className="text-sm text-muted-foreground">
-                          {dia}/{mes}/{ano}
-                        </span>
+                  <p className="mt-1 text-xs text-slate-500">
+                    Histórico e próximos vencimentos.
+                  </p>
+                </div>
+              </div>
 
-                        <span className="text-sm font-semibold">
+              <span className="rounded-lg border border-white/[0.07] bg-white/[0.03] px-3 py-1.5 text-xs font-medium text-slate-400">
+                {pagamentos.length} registros
+              </span>
+            </div>
+
+            {pagamentos.length === 0 ? (
+              <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-white/[0.08] px-5 py-10 text-center">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/[0.07] bg-white/[0.03] text-slate-500">
+                  <CalendarDays size={20} />
+                </div>
+
+                <p className="mt-4 text-sm font-medium text-slate-300">
+                  Nenhum pagamento cadastrado
+                </p>
+
+                <p className="mt-1 text-xs text-slate-500">
+                  Os pagamentos deste cliente aparecerão aqui.
+                </p>
+              </div>
+            ) : (
+              <div className="flex max-h-72 flex-col gap-3 overflow-y-auto pr-1">
+                {pagamentos.map((pagamento) => {
+                  const [ano, mes, dia] = pagamento.data_vencimento.split("-");
+
+                  return (
+                    <button
+                      type="button"
+                      key={pagamento.id}
+                      onClick={() => setPagamentoSelecionado(pagamento)}
+                      className="flex w-full cursor-pointer flex-col gap-3 rounded-xl border border-white/[0.07] bg-[#11111f] p-4 text-left transition-all hover:border-blue-400/25 hover:bg-white/[0.025] sm:flex-row sm:items-center sm:justify-between"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-blue-400/10 bg-blue-500/[0.07] text-blue-300">
+                          <CalendarDays size={17} />
+                        </div>
+
+                        <div>
+                          <p className="text-sm font-medium text-slate-200">
+                            Vencimento
+                          </p>
+
+                          <p className="mt-1 text-xs text-slate-500">
+                            {dia}/{mes}/{ano}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between gap-3 sm:justify-end">
+                        <span className="text-sm font-semibold text-white">
                           {pagamento.valor.toLocaleString("pt-BR", {
                             style: "currency",
                             currency: "BRL",
@@ -347,17 +460,17 @@ export default function InfoCliente({
                         <span
                           className={
                             pagamento.status === "Pago"
-                              ? "text-xs font-medium text-green-500 bg-green-500/10 px-3 py-1 rounded-full"
-                              : "text-xs font-medium text-yellow-400 bg-yellow-400/10 px-3 py-1 rounded-full"
+                              ? "rounded-full border border-emerald-400/15 bg-emerald-500/[0.08] px-3 py-1 text-[11px] font-semibold text-emerald-300"
+                              : "rounded-full border border-amber-400/15 bg-amber-500/[0.08] px-3 py-1 text-[11px] font-semibold text-amber-300"
                           }
                         >
                           {pagamento.status}
                         </span>
                       </div>
-                    );
-                  })}
-                </div>
-              </>
+                    </button>
+                  );
+                })}
+              </div>
             )}
           </div>
         </div>

@@ -1,8 +1,16 @@
 "use client";
 
 import { Usuario } from "@/types/Usuario";
-import { X } from "lucide-react";
-import { useEffect, useState } from "react";
+import {
+  X,
+  Users,
+  UserRound,
+  Mail,
+  ShieldCheck,
+  LoaderCircle,
+  Inbox,
+} from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
 import { useSearch } from "../context/SearchContext";
 import Toast from "./Toast";
 import InfoUsuario from "./InfoUsuario";
@@ -23,41 +31,54 @@ export default function ModalUsuario({ onClose }: ModalUsuariosProps) {
     null,
   );
 
+  const [carregando, setCarregando] = useState(true);
   const [toast, setToast] = useState<ToastData | null>(null);
 
   const { buscar } = useSearch();
+
+  const fecharToast = useCallback(() => {
+    setToast(null);
+  }, []);
 
   useEffect(() => {
     async function buscarFuncionarios() {
       try {
         const resposta = await fetch("/api/admin/usuarios");
 
-        if (!resposta.ok) {
-          const erro = await resposta.json();
+        const texto = await resposta.text();
 
-          console.error("STATUS HTTP:", resposta.status);
-          console.error("ERRO DA API:", erro);
+        let dados;
 
-          setToast({
-            titulo: "Erro",
-            mensagem: "Não foi possível carregar os funcionários.",
-            tipo: "erro",
-          });
-
-          return;
+        try {
+          dados = JSON.parse(texto);
+        } catch {
+          dados = null;
         }
 
-        const funcionariosDoBanco: Usuario[] = await resposta.json();
+        if (!resposta.ok) {
+          console.error("Status HTTP:", resposta.status);
+          console.error("Resposta da API:", texto);
 
-        setFuncionarios(funcionariosDoBanco);
+          throw new Error(
+            dados?.erro ||
+              `Erro HTTP ${resposta.status} ao buscar funcionários.`,
+          );
+        }
+
+        setFuncionarios(dados);
       } catch (erro) {
         console.error("Erro ao buscar funcionários:", erro);
 
         setToast({
-          titulo: "Erro",
-          mensagem: "Não foi possível carregar os funcionários.",
+          titulo: "Erro ao carregar",
+          mensagem:
+            erro instanceof Error
+              ? erro.message
+              : "Não foi possível carregar os funcionários.",
           tipo: "erro",
         });
+      } finally {
+        setCarregando(false);
       }
     }
 
@@ -66,10 +87,6 @@ export default function ModalUsuario({ onClose }: ModalUsuariosProps) {
 
   const itemsFiltrados = funcionarios.filter((funcionario) => {
     const pesquisa = buscar.toLowerCase().trim();
-
-    if (!pesquisa) {
-      return true;
-    }
 
     return (
       funcionario.nome.toLowerCase().includes(pesquisa) ||
@@ -87,8 +104,6 @@ export default function ModalUsuario({ onClose }: ModalUsuariosProps) {
     setUsuarioSelecionado(usuarioAtualizado);
   }
 
-  // Se um funcionário estiver selecionado,
-  // mostra somente o componente de informações.
   if (usuarioSelecionado) {
     return (
       <>
@@ -103,7 +118,7 @@ export default function ModalUsuario({ onClose }: ModalUsuariosProps) {
             titulo={toast.titulo}
             mensagem={toast.mensagem}
             tipo={toast.tipo}
-            onClose={() => setToast(null)}
+            onClose={fecharToast}
           />
         )}
       </>
@@ -112,95 +127,152 @@ export default function ModalUsuario({ onClose }: ModalUsuariosProps) {
 
   return (
     <>
-      <main className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-6 backdrop-blur-sm">
-        <div className="flex max-h-[90vh] w-full max-w-6xl flex-col rounded-2xl border border-border bg-card text-card-foreground shadow-2xl">
-          <header className="flex justify-between border-b border-border px-6 py-5">
-            <div>
-              <h2 className="text-xl font-semibold">Painel de Funcionários</h2>
+      <main className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-md sm:p-6">
+        <div className="flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl border border-white/[0.09] bg-[#11111f] text-white shadow-[0_25px_100px_rgba(0,0,0,0.55)]">
+          {/* Cabeçalho */}
+          <header className="relative flex items-center justify-between gap-4 overflow-hidden border-b border-white/[0.07] px-6 py-5 sm:px-8">
+            <div className="pointer-events-none absolute -right-12 -top-24 h-48 w-48 rounded-full bg-blue-600/10 blur-3xl" />
 
-              <p className="mt-1 text-sm text-muted-foreground">
-                Verifique e gerencie os funcionários
-              </p>
+            <div className="relative flex min-w-0 items-center gap-4">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-blue-400/20 bg-gradient-to-br from-blue-500/20 to-indigo-500/10 text-blue-300">
+                <Users size={22} />
+              </div>
+
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h2 className="text-lg font-semibold tracking-tight text-white">
+                    Painel de Funcionários
+                  </h2>
+
+                  <span className="rounded-full border border-blue-400/20 bg-blue-500/10 px-2.5 py-1 text-[11px] font-semibold text-blue-300">
+                    {funcionarios.length} usuários
+                  </span>
+                </div>
+
+                <p className="mt-1 text-xs text-slate-400">
+                  Verifique e gerencie os funcionários da empresa.
+                </p>
+              </div>
             </div>
 
             <button
               type="button"
               onClick={onClose}
-              className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-red-600"
+              aria-label="Fechar"
+              className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/[0.07] text-slate-400 transition-all hover:border-red-500/20 hover:bg-red-500/10 hover:text-red-400"
             >
-              <X size={20} />
+              <X size={18} />
             </button>
           </header>
 
-          <div className="overflow-y-auto px-10 py-8">
-            {funcionarios.length === 0 ? (
-              <div className="flex h-100 flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-card/50">
-                <div className="text-lg font-semibold">
-                  Nenhum usuário cadastrado
-                </div>
+          {/* Conteúdo */}
+          <div className="overflow-y-auto px-6 py-8 sm:px-8">
+            <div className="overflow-hidden rounded-2xl border border-white/[0.07] bg-[#0d0d19]/60">
+              {/* Cabeçalho da tabela */}
+              <div className="hidden grid-cols-[1.5fr_1.5fr_0.8fr] items-center gap-4 border-b border-white/[0.07] bg-white/[0.02] px-6 py-4 md:grid">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                  Funcionário
+                </span>
 
-                <div className="mt-2 text-center text-sm text-muted-foreground">
-                  Os usuários cadastrados no sistema aparecerão aqui.
-                </div>
-              </div>
-            ) : itemsFiltrados.length === 0 ? (
-              <div className="flex h-60 flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-card/50">
-                <div className="text-lg font-semibold">
-                  Nenhum funcionário encontrado
-                </div>
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                  E-mail
+                </span>
 
-                <p className="mt-2 text-sm text-muted-foreground">
-                  Nenhum resultado para {buscar}.
-                </p>
+                <span className="text-center text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                  Cargo
+                </span>
               </div>
-            ) : (
-              <div className="overflow-hidden rounded-2xl border border-border bg-card">
-                <div className="max-h-[400px] overflow-y-auto">
-                  <div
-                    className="
-                      sticky top-0 z-10
-                      grid grid-cols-[2fr_2fr_1fr]
-                      items-center border-b border-border
-                      bg-card px-6 py-4
-                      text-xs font-semibold uppercase
-                      tracking-wide text-muted-foreground
-                    "
+
+              {carregando ? (
+                <div className="flex flex-col items-center justify-center gap-3 px-6 py-16">
+                  <LoaderCircle
+                    size={28}
+                    className="animate-spin text-blue-400"
+                  />
+
+                  <p className="text-sm text-slate-400">
+                    Carregando funcionários...
+                  </p>
+                </div>
+              ) : itemsFiltrados.length > 0 ? (
+                itemsFiltrados.map((usuario) => (
+                  <button
+                    type="button"
+                    key={usuario.id}
+                    onClick={() => setUsuarioSelecionado(usuario)}
+                    className="grid w-full grid-cols-1 gap-5 border-b border-white/[0.06] px-5 py-5 text-left transition-colors last:border-b-0 hover:bg-white/[0.025] md:grid-cols-[1.5fr_1.5fr_0.8fr] md:items-center md:gap-4 md:px-6"
                   >
-                    <div>Funcionário</div>
-                    <div>Email</div>
-                    <div>Cargo</div>
+                    {/* Funcionário */}
+                    <div className="flex min-w-0 items-center gap-3">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-blue-400/15 bg-blue-500/[0.08] text-blue-300">
+                        <UserRound size={18} />
+                      </div>
+
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-semibold text-white">
+                          {usuario.nome}
+                        </p>
+
+                        <p className="mt-1 text-[11px] text-slate-500">
+                          Funcionário cadastrado
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* E-mail */}
+                    <div className="flex min-w-0 items-center gap-2 text-sm text-slate-400">
+                      <Mail size={15} className="shrink-0 text-slate-500" />
+
+                      <span className="truncate">{usuario.email}</span>
+                    </div>
+
+                    {/* Cargo */}
+                    <div className="flex items-center gap-2 text-sm text-slate-400 md:justify-center">
+                      <ShieldCheck
+                        size={15}
+                        className="shrink-0 text-blue-400"
+                      />
+
+                      <span>{usuario.perfil}</span>
+                    </div>
+                  </button>
+                ))
+              ) : (
+                <div className="flex flex-col items-center justify-center px-6 py-16 text-center">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl border border-white/[0.07] bg-white/[0.03] text-slate-500">
+                    <Inbox size={25} />
                   </div>
 
-                  {itemsFiltrados.map((usuario) => (
-                    <button
-                      type="button"
-                      key={usuario.id}
-                      onClick={() => setUsuarioSelecionado(usuario)}
-                      className="
-                        w-full grid grid-cols-[2fr_2fr_1fr]
-                        items-center border-b border-border
-                        px-6 py-5 text-left
-                        last:border-b-0
-                        transition-colors hover:bg-accent
-                      "
-                    >
-                      <div className="truncate text-sm font-semibold text-foreground">
-                        {usuario.nome}
-                      </div>
+                  <h3 className="mt-4 text-sm font-semibold text-slate-300">
+                    {buscar.trim()
+                      ? "Nenhum funcionário encontrado"
+                      : "Nenhum usuário cadastrado"}
+                  </h3>
 
-                      <div className="truncate text-sm text-foreground">
-                        {usuario.email}
-                      </div>
-
-                      <div className="text-sm text-foreground">
-                        {usuario.perfil}
-                      </div>
-                    </button>
-                  ))}
+                  <p className="mt-1 max-w-xs text-xs leading-relaxed text-slate-500">
+                    {buscar.trim()
+                      ? "Tente pesquisar utilizando outro nome ou endereço de e-mail."
+                      : "Os usuários cadastrados no sistema aparecerão aqui."}
+                  </p>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
+
+          {/* Rodapé */}
+          <footer className="flex items-center justify-between border-t border-white/[0.07] bg-[#0d0d19]/70 px-6 py-4 sm:px-8">
+            <p className="hidden text-xs text-slate-500 sm:block">
+              Gerencie os funcionários e suas permissões de acesso.
+            </p>
+
+            <button
+              type="button"
+              onClick={onClose}
+              className="ml-auto h-10 rounded-xl border border-white/[0.09] px-5 text-sm font-medium text-slate-300 transition-all hover:bg-white/[0.05] hover:text-white"
+            >
+              Fechar
+            </button>
+          </footer>
         </div>
       </main>
 
@@ -209,7 +281,7 @@ export default function ModalUsuario({ onClose }: ModalUsuariosProps) {
           titulo={toast.titulo}
           mensagem={toast.mensagem}
           tipo={toast.tipo}
-          onClose={() => setToast(null)}
+          onClose={fecharToast}
         />
       )}
     </>
