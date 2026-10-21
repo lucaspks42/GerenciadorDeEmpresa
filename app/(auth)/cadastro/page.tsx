@@ -1,7 +1,7 @@
 "use client";
 import { CheckCircle2 } from "lucide-react";
-import FormCadastro from "@/components/ui/FormCadastro";
-import FormLogin from "@/components/ui/FormLogin";
+import FormCadastro from "@/components/ui/formularios/FormCadastro";
+import FormLogin from "@/components/ui/formularios/FormLogin";
 import {
   AnimatePresence,
   MotionConfig,

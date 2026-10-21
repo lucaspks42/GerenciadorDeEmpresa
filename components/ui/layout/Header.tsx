@@ -1,8 +1,8 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { useSearch } from "../context/SearchContext";
-import { Input } from "./Input";
+import { useSearch } from "../../context/SearchContext";
+import { Input } from "../buttons/input";
 
 export default function Header() {
   const pathname = usePathname();

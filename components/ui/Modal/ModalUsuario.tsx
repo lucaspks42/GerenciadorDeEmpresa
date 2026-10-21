@@ -11,9 +11,9 @@ import {
   Inbox,
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
-import { useSearch } from "../context/SearchContext";
-import Toast from "./Toast";
-import InfoUsuario from "./InfoUsuario";
+import { useSearch } from "../../context/SearchContext";
+import Toast from "../Toast";
+import InfoUsuario from "../Informações/InfoUsuario";
 
 type ModalUsuariosProps = {
   onClose: () => void;

@@ -2,8 +2,8 @@
 
 import type { Cliente } from "@/types/Cliente";
 
-import InfoCliente from "@/components/ui/InfoCliente";
-import ModalCliente from "@/components/ui/ModalCliente";
+import InfoCliente from "@/components/ui/Informações/InfoCliente";
+import ModalCliente from "@/components/ui/Modal/ModalCliente";
 import { useSearch } from "@/components/context/SearchContext";
 
 import { Building, Trash, Users, Search, Plus } from "lucide-react";

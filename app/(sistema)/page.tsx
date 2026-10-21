@@ -1,8 +1,8 @@
 "use client";
 
-import ContadoresClientes from "@/components/ui/ContadoresClientes";
-import ContadoresTarefas from "../../components/ui/ContadoresTarefas";
-import ContadoresPagamentos from "@/components/ui/ContadoresPagamentos";
+import ContadoresClientes from "@/components/ui/contadores/ContadoresClientes";
+import ContadoresTarefas from "../../components/ui/contadores/ContadoresTarefas";
+import ContadoresPagamentos from "@/components/ui/contadores/ContadoresPagamentos";
 import ReceitaMensal from "@/components/ui/ReceitaMensal";
 import { useSearch } from "@/components/context/SearchContext";
 
@@ -23,7 +23,7 @@ import {
 
 import { useEffect, useState } from "react";
 
-import InfoCliente from "@/components/ui/InfoCliente";
+import InfoCliente from "@/components/ui/Informações/InfoCliente";
 
 export default function Home() {
   const [clientes, setClientes] = useState<Cliente[]>([]);

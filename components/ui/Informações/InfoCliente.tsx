@@ -17,7 +17,7 @@ import { FaWhatsapp } from "react-icons/fa";
 import type { Cliente } from "@/types/Cliente";
 import type { Pagamento } from "@/types/Pagamentos";
 
-import ConcluirPagamentos from "./ConcluirPagamento";
+import ConcluirPagamentos from "../Modal/ConcluirPagamento";
 
 export type InfoClienteProps = {
   fecharModal: () => void;

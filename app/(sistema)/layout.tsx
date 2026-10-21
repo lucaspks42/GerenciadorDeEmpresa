@@ -1,6 +1,6 @@
 import { SearchProvider } from "@/components/context/SearchContext";
-import Header from "@/components/ui/Header";
-import Sidebar from "@/components/ui/Sidebar";
+import Header from "@/components/ui/layout/Header";
+import Sidebar from "@/components/ui/layout/Sidebar";
 import { redirect } from "next/navigation";
 import { obterSessao } from "@/lib/auth";
 

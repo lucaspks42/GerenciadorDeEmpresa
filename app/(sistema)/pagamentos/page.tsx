@@ -1,6 +1,6 @@
 "use client";
 
-import ConcluirPagamentos from "@/components/ui/ConcluirPagamento";
+import ConcluirPagamentos from "@/components/ui/Modal/ConcluirPagamento";
 import { useSearch } from "@/components/context/SearchContext";
 import type { Pagamento } from "@/types/Pagamentos";
 import { useEffect, useState } from "react";
