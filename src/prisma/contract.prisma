@@ -63,6 +63,8 @@ model Usuario {
   senha    String
   perfil   PerfilUsuario
   criadoEm DateTime @default(now())
+  administradorPrincipal Boolean @default(false)
+  status Boolean @default(true)
 
   sessoes  Sessao[]
 }

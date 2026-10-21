@@ -30,7 +30,9 @@ export async function GET() {
         "cargo",
         "departamento",
         "dataAdmissao",
-        "perfil"
+        "perfil",
+        "status",
+        "administradorPrincipal"
       FROM "Usuario"
       ORDER BY "id" ASC
     `
@@ -51,6 +53,9 @@ export async function GET() {
         departamento: db.sql.public.Usuario.columns.departamento,
         dataAdmissao: db.sql.public.Usuario.columns.dataAdmissao,
         perfil: db.sql.public.Usuario.columns.perfil,
+        status: db.sql.public.Usuario.columns.status,
+        administradorPrincipal:
+          db.sql.public.Usuario.columns.administradorPrincipal,
       })
       .build();
 
@@ -112,26 +117,30 @@ export async function POST(request: Request) {
     const perfil = "FUNCIONARIO";
 
     const inserirPlano = db.raw.sql`
-      INSERT INTO "Usuario"
-      (
-        "nome",
-        "email",
-        "telefone",
-        "senha",
-        "perfil"
-      )
-      VALUES
-      (
-        ${nome},
-        ${email},
-        ${telefone},
-        ${senhaHash},
-        ${param(perfil, {
-          codecId: db.sql.public.Usuario.columns.perfil.codecId,
-        })}
-      )
-      RETURNING "id"
-    `
+  INSERT INTO "Usuario"
+  (
+    "nome",
+    "email",
+    "telefone",
+    "senha",
+    "perfil",
+    "status"
+  )
+  VALUES
+  (
+    ${nome},
+    ${email},
+    ${telefone},
+    ${senhaHash},
+    ${param(perfil, {
+      codecId: db.sql.public.Usuario.columns.perfil.codecId,
+    })},
+    ${param(true, {
+      codecId: db.sql.public.Usuario.columns.status.codecId,
+    })}
+  )
+  RETURNING "id"
+`
       .returnsRow({
         id: db.sql.public.Usuario.columns.id,
       })
@@ -155,6 +164,7 @@ export async function POST(request: Request) {
         email,
         telefone,
         perfil,
+        status: true,
       },
       { status: 201 },
     );

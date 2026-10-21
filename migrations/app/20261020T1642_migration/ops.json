@@ -1,0 +1,44 @@
+[
+  {
+    "id": "column.public.Usuario.administradorPrincipal",
+    "label": "Add column \"administradorPrincipal\" to \"Usuario\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "administradorPrincipal",
+        "table": "Usuario"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"administradorPrincipal\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Usuario",
+          "administradorPrincipal"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"administradorPrincipal\"",
+        "sql": "ALTER TABLE \"public\".\"Usuario\" ADD COLUMN \"administradorPrincipal\" bool DEFAULT false NOT NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"administradorPrincipal\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Usuario",
+          "administradorPrincipal"
+        ]
+      }
+    ]
+  }
+]

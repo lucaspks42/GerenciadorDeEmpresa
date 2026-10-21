@@ -15,4 +15,6 @@ export type Usuario = {
   departamento: string | null;
   dataAdmissao: string | null;
   perfil: "ADMINISTRADOR" | "FUNCIONARIO";
+  administradorPrincipal: boolean;
+  status: boolean;
 };

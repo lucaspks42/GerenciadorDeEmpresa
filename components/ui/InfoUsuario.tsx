@@ -8,6 +8,8 @@ import {
   BriefcaseBusiness,
   LoaderCircle,
   Save,
+  ShieldCheck,
+  Trash,
 } from "lucide-react";
 import { ReactNode, useState } from "react";
 
@@ -15,19 +17,20 @@ export type InfoUsuarioProps = {
   fecharModal: () => void;
   usuario: Usuario;
   atualizarUsuario: (usuario: Usuario) => void;
+  removerUsuario: (id: number) => void;
 };
 
 const inputClass =
   "w-full h-11 rounded-xl border border-white/[0.08] bg-[#0d0d19]/80 px-4 text-sm text-white outline-none transition-all duration-200 placeholder:text-slate-500 hover:border-blue-400/30 focus:border-blue-500/70 focus:ring-2 focus:ring-blue-500/15";
 
-type CampoProps = {
+type FieldProps = {
   id: string;
   label: string;
   className?: string;
   children: ReactNode;
 };
 
-function Campo({ id, label, className = "", children }: CampoProps) {
+function Field({ id, label, className = "", children }: FieldProps) {
   return (
     <div className={`flex min-w-0 flex-col gap-2 ${className}`}>
       <label
@@ -41,14 +44,14 @@ function Campo({ id, label, className = "", children }: CampoProps) {
   );
 }
 
-type SecaoProps = {
+type SectionProps = {
   titulo: string;
   descricao: string;
   icone: ReactNode;
   children: ReactNode;
 };
 
-function Secao({ titulo, descricao, icone, children }: SecaoProps) {
+function Section({ titulo, descricao, icone, children }: SectionProps) {
   return (
     <section className="grid grid-cols-1 gap-6 border-b border-white/[0.07] py-8 first:pt-0 last:border-b-0 last:pb-0 lg:grid-cols-[210px_minmax(0,1fr)] lg:gap-10">
       <div className="flex gap-3">
@@ -77,6 +80,7 @@ export default function InfoUsuario({
   fecharModal,
   usuario,
   atualizarUsuario,
+  removerUsuario,
 }: InfoUsuarioProps) {
   const [nome, setNome] = useState(usuario.nome);
   const [email, setEmail] = useState(usuario.email);
@@ -93,6 +97,7 @@ export default function InfoUsuario({
   const [bairro, setBairro] = useState(usuario.bairro ?? "");
   const [cidade, setCidade] = useState(usuario.cidade ?? "");
   const [estado, setEstado] = useState(usuario.estado ?? "");
+  const [status, setStatus] = useState(usuario.status);
 
   const [cargo, setCargo] = useState(usuario.cargo ?? "");
   const [departamento, setDepartamento] = useState(usuario.departamento ?? "");
@@ -100,6 +105,10 @@ export default function InfoUsuario({
   const [dataAdmissao, setDataAdmissao] = useState(
     dataParaInput(usuario.dataAdmissao),
   );
+
+  const [excluindo, setExcluindo] = useState(false);
+
+  const [perfil, setPerfil] = useState<Usuario["perfil"]>(usuario.perfil);
 
   const [carregandoCep, setCarregandoCep] = useState(false);
   const [erroCep, setErroCep] = useState("");
@@ -167,6 +176,15 @@ export default function InfoUsuario({
     return `(${numeros.slice(0, 2)}) ${numeros.slice(2, 7)}-${numeros.slice(7)}`;
   }
 
+  function formatarCPF(valor: string) {
+    const numeros = valor.replace(/\D/g, "").slice(0, 11);
+
+    return numeros
+      .replace(/(\d{3})(\d)/, "$1.$2")
+      .replace(/(\d{3})(\d)/, "$1.$2")
+      .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+  }
+
   async function salvarAlteracoes() {
     if (salvando) return;
 
@@ -193,6 +211,8 @@ export default function InfoUsuario({
           cargo: cargo.trim() || null,
           departamento: departamento.trim() || null,
           dataAdmissao: dataAdmissao || null,
+          perfil,
+          status,
         }),
       });
 
@@ -221,6 +241,8 @@ export default function InfoUsuario({
         cargo: cargo.trim() || null,
         departamento: departamento.trim() || null,
         dataAdmissao: dataAdmissao || null,
+        perfil,
+        status,
       });
 
       fecharModal();
@@ -233,13 +255,71 @@ export default function InfoUsuario({
     }
   }
 
+  async function deletarUsuario(id: number) {
+    if (excluindo) return;
+
+    if (usuario.administradorPrincipal) {
+      alert("Não é possível excluir o administrador principal.");
+      return;
+    }
+
+    const confirmar = window.confirm(
+      `Tem certeza que deseja excluir o usuário "${usuario.nome}"? Essa ação não poderá ser desfeita.`,
+    );
+
+    if (!confirmar) return;
+
+    setExcluindo(true);
+
+    try {
+      const resposta = await fetch(`/api/admin/usuarios/${id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      const texto = await resposta.text();
+
+      let resultado: { erro?: string; mensagem?: string } = {};
+
+      try {
+        resultado = texto ? JSON.parse(texto) : {};
+      } catch {
+        throw new Error("O servidor retornou uma resposta inválida.");
+      }
+
+      if (!resposta.ok) {
+        throw new Error(
+          resultado.erro ||
+            resultado.mensagem ||
+            `Erro ao excluir usuário. Código: ${resposta.status}`,
+        );
+      }
+
+      removerUsuario(id);
+      fecharModal();
+
+      alert(resultado.mensagem || "Usuário excluído com sucesso!");
+    } catch (erro) {
+      console.error("Erro ao deletar usuário:", erro);
+
+      alert(
+        erro instanceof Error
+          ? erro.message
+          : "Não foi possível excluir o usuário.",
+      );
+    } finally {
+      setExcluindo(false);
+    }
+  }
+
   return (
     <main className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-md sm:p-6">
       <div className="flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl border border-white/[0.09] bg-[#11111f] text-white shadow-[0_25px_100px_rgba(0,0,0,0.55)]">
         {/* Cabeçalho */}
         <header className="relative flex items-center justify-between gap-4 overflow-hidden border-b border-white/[0.07] px-6 py-5 sm:px-8">
           <div className="pointer-events-none absolute -right-12 -top-24 h-48 w-48 rounded-full bg-blue-600/10 blur-3xl" />
-
           <div className="relative flex min-w-0 items-center gap-4">
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-blue-400/20 bg-gradient-to-br from-blue-500/20 to-indigo-500/10 text-sm font-bold text-blue-300 shadow-inner">
               {iniciais}
@@ -256,24 +336,44 @@ export default function InfoUsuario({
             </div>
           </div>
 
-          <button
-            onClick={fecharModal}
-            aria-label="Fechar"
-            className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/[0.07] text-slate-400 transition-all hover:border-red-500/20 hover:bg-red-500/10 hover:text-red-400"
-          >
-            <X size={18} />
-          </button>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => deletarUsuario(usuario.id)}
+              disabled={excluindo || usuario.administradorPrincipal}
+              title={
+                usuario.administradorPrincipal
+                  ? "O administrador principal não pode ser excluído."
+                  : "Excluir usuário"
+              }
+              aria-label="Excluir usuário"
+              className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/[0.07] text-slate-400 transition-all hover:border-red-500/20 hover:bg-red-500/10 hover:text-red-400 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              {excluindo ? (
+                <LoaderCircle size={18} className="animate-spin" />
+              ) : (
+                <Trash size={18} />
+              )}
+            </button>
+            <button
+              onClick={fecharModal}
+              aria-label="Fechar"
+              className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/[0.07] text-slate-400 transition-all hover:border-red-500/20 hover:bg-red-500/10 hover:text-red-400"
+            >
+              <X size={18} />
+            </button>
+          </div>
         </header>
 
         {/* Conteúdo */}
         <div className="overflow-y-auto px-6 py-8 sm:px-8">
-          <Secao
+          <Section
             titulo="Dados pessoais"
             descricao="Informações de identificação e contato do funcionário."
             icone={<UserRound size={19} />}
           >
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-              <Campo id="usuario-nome" label="Nome completo">
+              <Field id="usuario-nome" label="Nome completo">
                 <input
                   id="usuario-nome"
                   value={nome}
@@ -281,9 +381,9 @@ export default function InfoUsuario({
                   placeholder="Nome do funcionário"
                   className={inputClass}
                 />
-              </Campo>
+              </Field>
 
-              <Campo id="usuario-email" label="E-mail">
+              <Field id="usuario-email" label="E-mail">
                 <input
                   id="usuario-email"
                   type="email"
@@ -292,9 +392,9 @@ export default function InfoUsuario({
                   placeholder="email@empresa.com"
                   className={inputClass}
                 />
-              </Campo>
+              </Field>
 
-              <Campo id="usuario-telefone" label="Telefone">
+              <Field id="usuario-telefone" label="Telefone">
                 <input
                   id="usuario-telefone"
                   type="tel"
@@ -305,20 +405,20 @@ export default function InfoUsuario({
                   }
                   className={inputClass}
                 />
-              </Campo>
+              </Field>
 
-              <Campo id="usuario-cpf" label="CPF">
+              <Field id="usuario-cpf" label="CPF">
                 <input
                   id="usuario-cpf"
                   type="text"
                   placeholder="000.000.000-00"
                   value={cpf}
-                  onChange={(e) => setCpf(e.target.value)}
+                  onChange={(e) => setCpf(formatarCPF(e.target.value))}
                   className={inputClass}
                 />
-              </Campo>
+              </Field>
 
-              <Campo id="usuario-nascimento" label="Data de nascimento">
+              <Field id="usuario-nascimento" label="Data de nascimento">
                 <input
                   id="usuario-nascimento"
                   type="date"
@@ -326,17 +426,29 @@ export default function InfoUsuario({
                   onChange={(e) => setDataNascimento(e.target.value)}
                   className={inputClass}
                 />
-              </Campo>
-            </div>
-          </Secao>
+              </Field>
 
-          <Secao
+              <Field id="usuario-status" label="Status do usuário">
+                <select
+                  id="usuario-status"
+                  value={status ? "true" : "false"}
+                  onChange={(e) => setStatus(e.target.value === "true")}
+                  className={inputClass}
+                >
+                  <option value="true">Ativo</option>
+                  <option value="false">Inativo</option>
+                </select>
+              </Field>
+            </div>
+          </Section>
+
+          <Section
             titulo="Endereço"
             descricao="Localização e informações de residência do funcionário."
             icone={<MapPin size={19} />}
           >
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-6">
-              <Campo id="usuario-cep" label="CEP" className="sm:col-span-2">
+              <Field id="usuario-cep" label="CEP" className="sm:col-span-2">
                 <input
                   id="usuario-cep"
                   type="text"
@@ -358,9 +470,9 @@ export default function InfoUsuario({
                 )}
 
                 {erroCep && <p className="text-xs text-red-400">{erroCep}</p>}
-              </Campo>
+              </Field>
 
-              <Campo
+              <Field
                 id="usuario-endereco"
                 label="Endereço"
                 className="sm:col-span-4"
@@ -373,9 +485,9 @@ export default function InfoUsuario({
                   onChange={(e) => setEndereco(e.target.value)}
                   className={inputClass}
                 />
-              </Campo>
+              </Field>
 
-              <Campo
+              <Field
                 id="usuario-numero"
                 label="Número"
                 className="sm:col-span-2"
@@ -388,9 +500,9 @@ export default function InfoUsuario({
                   onChange={(e) => setNumero(e.target.value)}
                   className={inputClass}
                 />
-              </Campo>
+              </Field>
 
-              <Campo
+              <Field
                 id="usuario-bairro"
                 label="Bairro"
                 className="sm:col-span-4"
@@ -403,9 +515,9 @@ export default function InfoUsuario({
                   onChange={(e) => setBairro(e.target.value)}
                   className={inputClass}
                 />
-              </Campo>
+              </Field>
 
-              <Campo
+              <Field
                 id="usuario-cidade"
                 label="Cidade"
                 className="sm:col-span-4"
@@ -418,9 +530,9 @@ export default function InfoUsuario({
                   onChange={(e) => setCidade(e.target.value)}
                   className={inputClass}
                 />
-              </Campo>
+              </Field>
 
-              <Campo
+              <Field
                 id="usuario-estado"
                 label="Estado"
                 className="sm:col-span-2"
@@ -434,17 +546,17 @@ export default function InfoUsuario({
                   onChange={(e) => setEstado(e.target.value.toUpperCase())}
                   className={inputClass}
                 />
-              </Campo>
+              </Field>
             </div>
-          </Secao>
+          </Section>
 
-          <Secao
+          <Section
             titulo="Informações profissionais"
             descricao="Dados relacionados à função e ao vínculo com a empresa."
             icone={<BriefcaseBusiness size={19} />}
           >
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-              <Campo id="usuario-cargo" label="Cargo">
+              <Field id="usuario-cargo" label="Cargo">
                 <input
                   id="usuario-cargo"
                   type="text"
@@ -453,9 +565,9 @@ export default function InfoUsuario({
                   onChange={(e) => setCargo(e.target.value)}
                   className={inputClass}
                 />
-              </Campo>
+              </Field>
 
-              <Campo id="usuario-departamento" label="Departamento">
+              <Field id="usuario-departamento" label="Departamento">
                 <input
                   id="usuario-departamento"
                   type="text"
@@ -464,9 +576,9 @@ export default function InfoUsuario({
                   onChange={(e) => setDepartamento(e.target.value)}
                   className={inputClass}
                 />
-              </Campo>
+              </Field>
 
-              <Campo id="usuario-admissao" label="Data de admissão">
+              <Field id="usuario-admissao" label="Data de admissão">
                 <input
                   id="usuario-admissao"
                   type="date"
@@ -474,9 +586,45 @@ export default function InfoUsuario({
                   onChange={(e) => setDataAdmissao(e.target.value)}
                   className={inputClass}
                 />
-              </Campo>
+              </Field>
             </div>
-          </Secao>
+          </Section>
+
+          {/* Permissões de acesso */}
+          <Section
+            titulo="Permissões de acesso"
+            descricao="Define quais áreas e funcionalidades o usuário poderá administrar."
+            icone={<ShieldCheck size={19} />}
+          >
+            <div className="space-y-3">
+              <Field id="usuario-perfil" label="Perfil do usuário">
+                <select
+                  id="usuario-perfil"
+                  value={perfil}
+                  onChange={(e) =>
+                    setPerfil(e.target.value as Usuario["perfil"])
+                  }
+                  disabled={usuario.administradorPrincipal}
+                  className={`${inputClass} disabled:cursor-not-allowed disabled:opacity-50`}
+                >
+                  <option value="FUNCIONARIO">Funcionário</option>
+                  <option value="ADMINISTRADOR">Administrador</option>
+                </select>
+              </Field>
+
+              {usuario.administradorPrincipal ? (
+                <p className="text-xs leading-relaxed text-amber-400">
+                  Este é o administrador principal da empresa. Seu nível de
+                  acesso não pode ser alterado.
+                </p>
+              ) : (
+                <p className="text-xs leading-relaxed text-slate-500">
+                  Administradores têm acesso ao painel administrativo.
+                  Funcionários possuem acesso limitado às permissões concedidas.
+                </p>
+              )}
+            </div>
+          </Section>
         </div>
 
         {/* Rodapé */}

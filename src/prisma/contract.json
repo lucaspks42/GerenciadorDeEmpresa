@@ -468,6 +468,13 @@
           },
           "Usuario": {
             "fields": {
+              "administradorPrincipal": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
               "bairro": {
                 "nullable": true,
                 "type": {
@@ -593,6 +600,13 @@
                   "kind": "scalar"
                 }
               },
+              "status": {
+                "nullable": false,
+                "type": {
+                  "codecId": "pg/bool@1",
+                  "kind": "scalar"
+                }
+              },
               "telefone": {
                 "nullable": true,
                 "type": {
@@ -620,6 +634,9 @@
             },
             "storage": {
               "fields": {
+                "administradorPrincipal": {
+                  "column": "administradorPrincipal"
+                },
                 "bairro": {
                   "column": "bairro"
                 },
@@ -670,6 +687,9 @@
                 },
                 "senha": {
                   "column": "senha"
+                },
+                "status": {
+                  "column": "status"
                 },
                 "telefone": {
                   "column": "telefone"
@@ -1013,6 +1033,15 @@
                 }
               ],
               "columns": {
+                "administradorPrincipal": {
+                  "codecId": "pg/bool@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": false
+                  },
+                  "nativeType": "bool",
+                  "nullable": false
+                },
                 "bairro": {
                   "codecId": "pg/text@1",
                   "nativeType": "text",
@@ -1112,6 +1141,15 @@
                   "nativeType": "text",
                   "nullable": false
                 },
+                "status": {
+                  "codecId": "pg/bool@1",
+                  "default": {
+                    "kind": "literal",
+                    "value": true
+                  },
+                  "nativeType": "bool",
+                  "nullable": false
+                },
                 "telefone": {
                   "codecId": "pg/text@1",
                   "nativeType": "text",
@@ -1161,7 +1199,7 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "1820bf2e34cad36faf8fd257085676696d3f99f455bc5881e9e296f515e9e7a3"
+    "storageHash": "06a0a4b956aafea6f0c2dd6339faf5c31801411fd3e776a741dc215a8893c84e"
   },
   "capabilities": {
     "postgres": {

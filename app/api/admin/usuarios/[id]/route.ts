@@ -5,24 +5,13 @@ import { Temporal } from "@js-temporal/polyfill";
 
 const runtime = db.runtime();
 
-function converterData(valor: unknown): Temporal.Instant | null | undefined {
-  if (valor === undefined) return undefined;
-  if (valor === null || valor === "") return null;
-
-  if (typeof valor !== "string") return undefined;
-
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(valor)) return undefined;
+function converterData(valor: string | null | undefined) {
+  if (!valor) return null;
 
   try {
-    const data = Temporal.Instant.from(`${valor}T00:00:00Z`);
-
-    if (data.toString().slice(0, 10) !== valor) {
-      return undefined;
-    }
-
-    return data;
+    return Temporal.Instant.from(`${valor}T00:00:00Z`);
   } catch {
-    return undefined;
+    throw new Error("Data inválida");
   }
 }
 
@@ -35,6 +24,13 @@ export async function PATCH(
 
     if (!usuario) {
       return Response.json({ erro: "Acesso negado" }, { status: 403 });
+    }
+
+    const { id } = await params;
+    const usuarioId = Number(id);
+
+    if (!Number.isInteger(usuarioId) || usuarioId <= 0) {
+      return Response.json({ erro: "ID de usuário inválido" }, { status: 400 });
     }
 
     const dados = await request.json();
@@ -54,121 +50,109 @@ export async function PATCH(
       cargo,
       departamento,
       dataAdmissao,
+      perfil,
+      status,
     } = dados;
 
-    const { id } = await params;
-    const usuarioId = Number(id);
-
-    if (!Number.isInteger(usuarioId) || usuarioId <= 0) {
-      return Response.json({ erro: "ID inválido" }, { status: 400 });
+    if (status !== undefined && typeof status !== "boolean") {
+      return Response.json(
+        { erro: "Status de usuário inválido" },
+        { status: 400 },
+      );
     }
 
-    // Validação dos campos obrigatórios
     if (
       typeof nome !== "string" ||
-      typeof email !== "string" ||
       !nome.trim() ||
+      typeof email !== "string" ||
       !email.trim()
     ) {
       return Response.json(
-        { erro: "Nome e email precisam estar preenchidos" },
+        { erro: "Nome e e-mail são obrigatórios" },
         { status: 400 },
       );
     }
-
-    // Validação dos campos de texto opcionais
-    const camposTexto = [
-      telefone,
-      cpf,
-      cep,
-      endereco,
-      numero,
-      bairro,
-      cidade,
-      estado,
-      cargo,
-      departamento,
-    ];
 
     if (
-      camposTexto.some(
-        (campo) =>
-          campo !== null && campo !== undefined && typeof campo !== "string",
-      )
+      perfil !== undefined &&
+      perfil !== "ADMINISTRADOR" &&
+      perfil !== "FUNCIONARIO"
     ) {
       return Response.json(
-        { erro: "Um ou mais campos possuem formato inválido" },
+        { erro: "Perfil de usuário inválido" },
         { status: 400 },
       );
     }
 
-    // Limpeza dos dados
-    const nomeLimpo = nome.trim();
-    const emailLimpo = email.trim().toLowerCase();
-    const telefoneLimpo = telefone?.trim() || null;
-
-    const cpfLimpo = cpf?.replace(/\D/g, "") || null;
-    const cepLimpo = cep?.replace(/\D/g, "") || null;
-
-    const enderecoLimpo = endereco?.trim() || null;
-    const numeroLimpo = numero?.trim() || null;
-    const bairroLimpo = bairro?.trim() || null;
-    const cidadeLimpa = cidade?.trim() || null;
-    const estadoLimpo = estado?.trim().toUpperCase() || null;
-    const cargoLimpo = cargo?.trim() || null;
-    const departamentoLimpo = departamento?.trim() || null;
-
-    // Validação do CPF e CEP
-    if (cpfLimpo !== null && cpfLimpo.length !== 11) {
-      return Response.json(
-        { erro: "O CPF precisa conter 11 números" },
-        { status: 400 },
-      );
-    }
-
-    if (cepLimpo !== null && cepLimpo.length !== 8) {
-      return Response.json(
-        { erro: "O CEP precisa conter 8 números" },
-        { status: 400 },
-      );
-    }
-
-    // Conversão das datas
-    const nascimentoConvertido = converterData(dataNascimento);
-    const admissaoConvertida = converterData(dataAdmissao);
-
-    if (
-      nascimentoConvertido === undefined ||
-      admissaoConvertida === undefined
-    ) {
-      return Response.json(
-        { erro: "Uma ou mais datas são inválidas" },
-        { status: 400 },
-      );
-    }
-
-    // Verifica se o usuário existe
-    const consultaUsuario = db.raw.sql`
-      SELECT "id"
+    // Busca o usuário que será atualizado.
+    const usuarioEncontradoPlano = db.raw.sql`
+      SELECT
+        "id",
+        "email",
+        "perfil",
+        "administradorPrincipal"
       FROM "Usuario"
       WHERE "id" = ${usuarioId}
     `
       .returnsRow({
         id: db.sql.public.Usuario.columns.id,
+        email: db.sql.public.Usuario.columns.email,
+        perfil: db.sql.public.Usuario.columns.perfil,
+        administradorPrincipal:
+          db.sql.public.Usuario.columns.administradorPrincipal,
       })
       .build();
 
-    const [usuarioEncontrado] = await runtime.query(consultaUsuario);
+    const usuariosEncontrados = await runtime.query(usuarioEncontradoPlano);
 
-    if (!usuarioEncontrado) {
+    const usuarioAtual = usuariosEncontrados[0];
+
+    if (!usuarioAtual) {
       return Response.json({ erro: "Usuário não encontrado" }, { status: 404 });
     }
 
-    // Verifica se outro usuário utiliza o mesmo email
-    const consultaEmail = db.raw.sql`
+    // Protege o administrador principal.
+    if (usuarioAtual.administradorPrincipal && perfil === "FUNCIONARIO") {
+      return Response.json(
+        { erro: "O administrador principal não pode ser rebaixado" },
+        { status: 403 },
+      );
+    }
+
+    // Impede que o administrador rebaixe a própria conta.
+    if (
+      usuario.email?.toLowerCase() === usuarioAtual.email.toLowerCase() &&
+      perfil === "FUNCIONARIO"
+    ) {
+      return Response.json(
+        { erro: "Você não pode rebaixar seu próprio perfil" },
+        { status: 403 },
+      );
+    }
+
+    // Protege os dados do administrador principal.
+    if (
+      usuarioAtual.administradorPrincipal &&
+      usuario.email?.toLowerCase() !== usuarioAtual.email.toLowerCase()
+    ) {
+      return Response.json(
+        {
+          erro: "Apenas o próprio administrador principal pode editar seus dados",
+        },
+        { status: 403 },
+      );
+    }
+
+    const emailNormalizado = email.trim().toLowerCase();
+    const cpfNormalizado = cpf?.replace(/\D/g, "") || null;
+    const telefoneNormalizado = telefone?.trim() || null;
+    const cepNormalizado = cep?.replace(/\D/g, "") || null;
+
+    // Verifica e-mail duplicado.
+    const emailDuplicadoPlano = db.raw.sql`
       SELECT "id"
       FROM "Usuario"
-      WHERE LOWER("email") = ${emailLimpo}
+      WHERE "email" = ${emailNormalizado}
       AND "id" != ${usuarioId}
     `
       .returnsRow({
@@ -176,21 +160,21 @@ export async function PATCH(
       })
       .build();
 
-    const [emailExistente] = await runtime.query(consultaEmail);
+    const emailsEncontrados = await runtime.query(emailDuplicadoPlano);
 
-    if (emailExistente) {
+    if (emailsEncontrados[0]) {
       return Response.json(
-        { erro: "Este email já está sendo utilizado por outro usuário" },
+        { erro: "Este e-mail já está cadastrado" },
         { status: 409 },
       );
     }
 
-    // Verifica se outro usuário utiliza o mesmo CPF
-    if (cpfLimpo) {
-      const consultaCpf = db.raw.sql`
+    // Verifica CPF duplicado.
+    if (cpfNormalizado) {
+      const cpfDuplicadoPlano = db.raw.sql`
         SELECT "id"
         FROM "Usuario"
-        WHERE "cpf" = ${cpfLimpo}
+        WHERE "cpf" = ${cpfNormalizado}
         AND "id" != ${usuarioId}
       `
         .returnsRow({
@@ -198,101 +182,253 @@ export async function PATCH(
         })
         .build();
 
-      const [cpfExistente] = await runtime.query(consultaCpf);
+      const cpfsEncontrados = await runtime.query(cpfDuplicadoPlano);
 
-      if (cpfExistente) {
+      if (cpfsEncontrados[0]) {
         return Response.json(
-          { erro: "Este CPF já está cadastrado para outro usuário" },
+          { erro: "Este CPF já está cadastrado" },
           { status: 409 },
         );
       }
     }
 
-    // Parâmetros das datas usando os codecs das colunas
-    const nascimentoParametro = param(nascimentoConvertido, {
-      codecId: db.sql.public.Usuario.columns.dataNascimento.codecId,
+    // Parâmetros tipados.
+    const nomeParametro = param(nome.trim(), {
+      codecId: db.sql.public.Usuario.columns.nome.codecId,
     });
 
-    const admissaoParametro = param(admissaoConvertida, {
-      codecId: db.sql.public.Usuario.columns.dataAdmissao.codecId,
+    const emailParametro = param(emailNormalizado, {
+      codecId: db.sql.public.Usuario.columns.email.codecId,
     });
 
-    const telefoneParametro = param(telefoneLimpo, {
+    const telefoneParametro = param(telefoneNormalizado, {
       codecId: db.sql.public.Usuario.columns.telefone.codecId,
     });
 
-    const cpfParametro = param(cpfLimpo, {
+    const cpfParametro = param(cpfNormalizado, {
       codecId: db.sql.public.Usuario.columns.cpf.codecId,
     });
 
-    const cepParametro = param(cepLimpo, {
+    const dataNascimentoParametro = param(converterData(dataNascimento), {
+      codecId: db.sql.public.Usuario.columns.dataNascimento.codecId,
+    });
+
+    const cepParametro = param(cepNormalizado, {
       codecId: db.sql.public.Usuario.columns.cep.codecId,
     });
 
-    const enderecoParametro = param(enderecoLimpo, {
+    const enderecoParametro = param(endereco?.trim() || null, {
       codecId: db.sql.public.Usuario.columns.endereco.codecId,
     });
 
-    const numeroParametro = param(numeroLimpo, {
+    const numeroParametro = param(numero?.trim() || null, {
       codecId: db.sql.public.Usuario.columns.numero.codecId,
     });
 
-    const bairroParametro = param(bairroLimpo, {
+    const bairroParametro = param(bairro?.trim() || null, {
       codecId: db.sql.public.Usuario.columns.bairro.codecId,
     });
 
-    const cidadeParametro = param(cidadeLimpa, {
+    const cidadeParametro = param(cidade?.trim() || null, {
       codecId: db.sql.public.Usuario.columns.cidade.codecId,
     });
 
-    const estadoParametro = param(estadoLimpo, {
+    const estadoParametro = param(estado?.trim() || null, {
       codecId: db.sql.public.Usuario.columns.estado.codecId,
     });
 
-    const cargoParametro = param(cargoLimpo, {
+    const cargoParametro = param(cargo?.trim() || null, {
       codecId: db.sql.public.Usuario.columns.cargo.codecId,
     });
 
-    const departamentoParametro = param(departamentoLimpo, {
+    const departamentoParametro = param(departamento?.trim() || null, {
       codecId: db.sql.public.Usuario.columns.departamento.codecId,
     });
 
-    // Atualiza os dados do usuário
-    const plano = db.raw.sql`
-  UPDATE "Usuario"
-  SET
-    "nome" = ${nomeLimpo},
-    "email" = ${emailLimpo},
-    "telefone" = ${telefoneParametro},
-    "cpf" = ${cpfParametro},
-    "dataNascimento" = ${nascimentoParametro},
-    "cep" = ${cepParametro},
-    "endereco" = ${enderecoParametro},
-    "numero" = ${numeroParametro},
-    "bairro" = ${bairroParametro},
-    "cidade" = ${cidadeParametro},
-    "estado" = ${estadoParametro},
-    "cargo" = ${cargoParametro},
-    "departamento" = ${departamentoParametro},
-    "dataAdmissao" = ${admissaoParametro}
-  WHERE "id" = ${usuarioId}
-`
-      .affectedCount()
+    const dataAdmissaoParametro = param(converterData(dataAdmissao), {
+      codecId: db.sql.public.Usuario.columns.dataAdmissao.codecId,
+    });
+
+    const perfilParametro = param(perfil ?? null, {
+      codecId: db.sql.public.Usuario.columns.perfil.codecId,
+    });
+
+    const statusParametro = param(status ?? null, {
+      codecId: db.sql.public.Usuario.columns.status.codecId,
+    });
+
+    // Atualiza os dados do usuário.
+    const atualizarUsuarioPlano = db.raw.sql`
+      UPDATE "Usuario"
+      SET
+        "nome" = ${nomeParametro},
+        "email" = ${emailParametro},
+        "telefone" = ${telefoneParametro},
+        "cpf" = ${cpfParametro},
+        "dataNascimento" = ${dataNascimentoParametro},
+        "cep" = ${cepParametro},
+        "endereco" = ${enderecoParametro},
+        "numero" = ${numeroParametro},
+        "bairro" = ${bairroParametro},
+        "cidade" = ${cidadeParametro},
+        "estado" = ${estadoParametro},
+        "cargo" = ${cargoParametro},
+        "departamento" = ${departamentoParametro},
+        "dataAdmissao" = ${dataAdmissaoParametro},
+        "perfil" = COALESCE(${perfilParametro}, "perfil"),
+        "status" = ${statusParametro}
+      WHERE "id" = ${usuarioId}
+      RETURNING "id"
+    `
+      .returnsRow({
+        id: db.sql.public.Usuario.columns.id,
+      })
       .build();
 
-    await runtime.execute(plano);
+    const usuarioAtualizado = await runtime.query(atualizarUsuarioPlano);
 
-    return Response.json(
-      {
-        mensagem: "Usuário atualizado com sucesso",
-      },
-      { status: 200 },
-    );
+    if (!usuarioAtualizado[0]) {
+      return Response.json(
+        { erro: "Não foi possível atualizar o usuário" },
+        { status: 500 },
+      );
+    }
+
+    return Response.json({
+      mensagem: "Usuário atualizado com sucesso",
+    });
   } catch (erro) {
-    console.error("ERRO NO PATCH DO USUARIO:", erro);
+    console.error("ERRO AO ATUALIZAR USUÁRIO:", erro);
+
+    if (erro instanceof Error && erro.message === "Data inválida") {
+      return Response.json(
+        { erro: "Uma das datas informadas é inválida" },
+        { status: 400 },
+      );
+    }
 
     return Response.json(
-      { erro: "Erro ao atualizar usuário" },
+      { erro: "Erro interno ao atualizar usuário" },
+      { status: 500 },
+    );
+  }
+}
+
+export async function DELETE(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  try {
+    const usuarioLogado = await exigirAdministrador();
+
+    if (!usuarioLogado) {
+      return Response.json({ erro: "Acesso negado." }, { status: 403 });
+    }
+
+    const { id } = await params;
+    const usuarioId = Number(id);
+
+    if (!Number.isInteger(usuarioId) || usuarioId <= 0) {
+      return Response.json(
+        { erro: "ID de usuário inválido." },
+        { status: 400 },
+      );
+    }
+
+    // Busca o usuário que será excluído.
+    const buscarUsuarioPlano = db.raw.sql`
+      SELECT
+        "id",
+        "email",
+        "administradorPrincipal"
+      FROM "Usuario"
+      WHERE "id" = ${usuarioId}
+    `
+      .returnsRow({
+        id: db.sql.public.Usuario.columns.id,
+        email: db.sql.public.Usuario.columns.email,
+        administradorPrincipal:
+          db.sql.public.Usuario.columns.administradorPrincipal,
+      })
+      .build();
+
+    const usuariosEncontrados = await runtime.query(buscarUsuarioPlano);
+
+    const usuarioEncontrado = usuariosEncontrados[0];
+
+    if (!usuarioEncontrado) {
+      return Response.json(
+        { erro: "Usuário não encontrado." },
+        { status: 404 },
+      );
+    }
+
+    // Impede a exclusão do administrador principal.
+    if (usuarioEncontrado.administradorPrincipal) {
+      return Response.json(
+        {
+          erro: "O administrador principal não pode ser excluído.",
+        },
+        { status: 403 },
+      );
+    }
+
+    // Impede que o administrador exclua a própria conta.
+    if (
+      usuarioLogado.email?.toLowerCase() ===
+      usuarioEncontrado.email?.toLowerCase()
+    ) {
+      return Response.json(
+        {
+          erro: "Você não pode excluir sua própria conta.",
+        },
+        { status: 403 },
+      );
+    }
+
+    // Primeiro, exclui as sessões vinculadas ao usuário.
+    const excluirSessoesPlano = db.raw.sql`
+  DELETE FROM "Sessao"
+  WHERE "usuarioId" = ${usuarioId}
+  RETURNING "usuarioId"
+`
+      .returnsRow({
+        usuarioId: db.sql.public.Sessao.columns.usuarioId,
+      })
+      .build();
+
+    await runtime.query(excluirSessoesPlano);
+
+    // Depois, exclui o usuário.
+    const excluirUsuarioPlano = db.raw.sql`
+      DELETE FROM "Usuario"
+      WHERE "id" = ${usuarioId}
+      AND "administradorPrincipal" IS NOT TRUE
+      RETURNING "id"
+    `
+      .returnsRow({
+        id: db.sql.public.Usuario.columns.id,
+      })
+      .build();
+
+    const usuarioExcluido = await runtime.query(excluirUsuarioPlano);
+
+    if (!usuarioExcluido[0]) {
+      return Response.json(
+        { erro: "Não foi possível excluir o usuário." },
+        { status: 404 },
+      );
+    }
+
+    return Response.json({
+      mensagem: "Usuário excluído com sucesso.",
+      id: usuarioExcluido[0].id,
+    });
+  } catch (erro) {
+    console.error("ERRO AO DELETAR USUÁRIO:", erro);
+
+    return Response.json(
+      { erro: "Erro interno ao excluir usuário." },
       { status: 500 },
     );
   }

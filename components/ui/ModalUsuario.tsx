@@ -44,7 +44,6 @@ export default function ModalUsuario({ onClose }: ModalUsuariosProps) {
     async function buscarFuncionarios() {
       try {
         const resposta = await fetch("/api/admin/usuarios");
-
         const texto = await resposta.text();
 
         let dados;
@@ -56,13 +55,14 @@ export default function ModalUsuario({ onClose }: ModalUsuariosProps) {
         }
 
         if (!resposta.ok) {
-          console.error("Status HTTP:", resposta.status);
-          console.error("Resposta da API:", texto);
-
           throw new Error(
             dados?.erro ||
               `Erro HTTP ${resposta.status} ao buscar funcionários.`,
           );
+        }
+
+        if (!Array.isArray(dados)) {
+          throw new Error("A API retornou uma lista de usuários inválida.");
         }
 
         setFuncionarios(dados);
@@ -94,6 +94,7 @@ export default function ModalUsuario({ onClose }: ModalUsuariosProps) {
     );
   });
 
+  // Atualiza o usuário na lista.
   function atualizarUsuario(usuarioAtualizado: Usuario) {
     setFuncionarios((usuariosAtuais) =>
       usuariosAtuais.map((usuario) =>
@@ -104,6 +105,15 @@ export default function ModalUsuario({ onClose }: ModalUsuariosProps) {
     setUsuarioSelecionado(usuarioAtualizado);
   }
 
+  // Remove o usuário da lista que realmente é exibida.
+  function removerUsuario(id: number) {
+    setFuncionarios((usuariosAtuais) =>
+      usuariosAtuais.filter((usuario) => usuario.id !== id),
+    );
+
+    setUsuarioSelecionado(null);
+  }
+
   if (usuarioSelecionado) {
     return (
       <>
@@ -111,6 +121,7 @@ export default function ModalUsuario({ onClose }: ModalUsuariosProps) {
           fecharModal={() => setUsuarioSelecionado(null)}
           usuario={usuarioSelecionado}
           atualizarUsuario={atualizarUsuario}
+          removerUsuario={removerUsuario}
         />
 
         {toast && (
@@ -129,7 +140,6 @@ export default function ModalUsuario({ onClose }: ModalUsuariosProps) {
     <>
       <main className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-md sm:p-6">
         <div className="flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl border border-white/[0.09] bg-[#11111f] text-white shadow-[0_25px_100px_rgba(0,0,0,0.55)]">
-          {/* Cabeçalho */}
           <header className="relative flex items-center justify-between gap-4 overflow-hidden border-b border-white/[0.07] px-6 py-5 sm:px-8">
             <div className="pointer-events-none absolute -right-12 -top-24 h-48 w-48 rounded-full bg-blue-600/10 blur-3xl" />
 
@@ -165,11 +175,9 @@ export default function ModalUsuario({ onClose }: ModalUsuariosProps) {
             </button>
           </header>
 
-          {/* Conteúdo */}
           <div className="overflow-y-auto px-6 py-8 sm:px-8">
             <div className="overflow-hidden rounded-2xl border border-white/[0.07] bg-[#0d0d19]/60">
-              {/* Cabeçalho da tabela */}
-              <div className="hidden grid-cols-[1.5fr_1.5fr_0.8fr] items-center gap-4 border-b border-white/[0.07] bg-white/[0.02] px-6 py-4 md:grid">
+              <div className="hidden grid-cols-[1.5fr_1.5fr_0.8fr_0.8fr] items-center gap-4 border-b border-white/[0.07] bg-white/[0.02] px-6 py-4 md:grid">
                 <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
                   Funcionário
                 </span>
@@ -180,6 +188,10 @@ export default function ModalUsuario({ onClose }: ModalUsuariosProps) {
 
                 <span className="text-center text-[11px] font-semibold uppercase tracking-wider text-slate-500">
                   Cargo
+                </span>
+
+                <span className="text-center text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                  Status
                 </span>
               </div>
 
@@ -200,9 +212,8 @@ export default function ModalUsuario({ onClose }: ModalUsuariosProps) {
                     type="button"
                     key={usuario.id}
                     onClick={() => setUsuarioSelecionado(usuario)}
-                    className="grid w-full grid-cols-1 gap-5 border-b border-white/[0.06] px-5 py-5 text-left transition-colors last:border-b-0 hover:bg-white/[0.025] md:grid-cols-[1.5fr_1.5fr_0.8fr] md:items-center md:gap-4 md:px-6"
+                    className="grid w-full grid-cols-1 gap-4 border-b border-white/[0.06] px-5 py-5 text-left transition-colors last:border-b-0 hover:bg-white/[0.025] md:grid-cols-[1.5fr_1.5fr_0.8fr_0.8fr] md:items-center md:gap-4 md:px-6"
                   >
-                    {/* Funcionário */}
                     <div className="flex min-w-0 items-center gap-3">
                       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-blue-400/15 bg-blue-500/[0.08] text-blue-300">
                         <UserRound size={18} />
@@ -219,21 +230,29 @@ export default function ModalUsuario({ onClose }: ModalUsuariosProps) {
                       </div>
                     </div>
 
-                    {/* E-mail */}
                     <div className="flex min-w-0 items-center gap-2 text-sm text-slate-400">
                       <Mail size={15} className="shrink-0 text-slate-500" />
-
                       <span className="truncate">{usuario.email}</span>
                     </div>
 
-                    {/* Cargo */}
                     <div className="flex items-center gap-2 text-sm text-slate-400 md:justify-center">
                       <ShieldCheck
                         size={15}
                         className="shrink-0 text-blue-400"
                       />
-
                       <span>{usuario.perfil}</span>
+                    </div>
+
+                    <div className="flex items-center gap-2 text-sm md:justify-center">
+                      <span
+                        className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                          usuario.status
+                            ? "border border-emerald-400/20 bg-emerald-500/10 text-emerald-400"
+                            : "border border-red-400/20 bg-red-500/10 text-red-400"
+                        }`}
+                      >
+                        {usuario.status ? "Ativo" : "Inativo"}
+                      </span>
                     </div>
                   </button>
                 ))
@@ -259,7 +278,6 @@ export default function ModalUsuario({ onClose }: ModalUsuariosProps) {
             </div>
           </div>
 
-          {/* Rodapé */}
           <footer className="flex items-center justify-between border-t border-white/[0.07] bg-[#0d0d19]/70 px-6 py-4 sm:px-8">
             <p className="hidden text-xs text-slate-500 sm:block">
               Gerencie os funcionários e suas permissões de acesso.

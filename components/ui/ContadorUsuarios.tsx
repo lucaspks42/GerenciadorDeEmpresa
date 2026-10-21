@@ -16,7 +16,7 @@ export default function ContadorFuncionarios() {
           throw new Error("Erro ao buscar funcionários");
         }
 
-        const dados = await resposta.json();
+        const dados: Usuario[] = await resposta.json();
 
         setFuncionarios(dados);
       } catch (erro) {
@@ -27,14 +27,18 @@ export default function ContadorFuncionarios() {
     buscarFuncionario();
   }, []);
 
+  const totalFuncionarios = funcionarios.filter(
+    (usuario) => usuario.perfil === "FUNCIONARIO",
+  ).length;
+
   return (
     <div className="flex items-center justify-between gap-4">
       <div>
         <p className="text-xl font-semibold text-white">Funcionários</p>
 
         <p className="mt-2 text-sm text-slate-400">
-          {funcionarios.length}{" "}
-          {funcionarios.length === 1
+          {totalFuncionarios}{" "}
+          {totalFuncionarios === 1
             ? "funcionário cadastrado"
             : "funcionários cadastrados"}
         </p>

@@ -34,7 +34,7 @@ import type {
 } from '@prisma/orm-postgres/contract/types';
 
 export type StorageHash =
-  StorageHashBase<'1820bf2e34cad36faf8fd257085676696d3f99f455bc5881e9e296f515e9e7a3'>;
+  StorageHashBase<'06a0a4b956aafea6f0c2dd6339faf5c31801411fd3e776a741dc215a8893c84e'>;
 export type ExecutionHash = ExecutionHashBase<string>;
 export type ProfileHash =
   ProfileHashBase<'3916f444a8a17ad749191acf9e08dad97d1a327b88c2f1d45d12f240296aa8b2'>;
@@ -289,6 +289,7 @@ export type FieldOutputTypes = {
       readonly titulo: CodecTypes['pg/text@1']['output'];
     };
     readonly Usuario: {
+      readonly administradorPrincipal: CodecTypes['pg/bool@1']['output'];
       readonly bairro: CodecTypes['pg/text@1']['output'] | null;
       readonly cargo: CodecTypes['pg/text@1']['output'] | null;
       readonly cep: CodecTypes['pg/text@1']['output'] | null;
@@ -306,6 +307,7 @@ export type FieldOutputTypes = {
       readonly numero: CodecTypes['pg/text@1']['output'] | null;
       readonly perfil: 'ADMINISTRADOR' | 'FUNCIONARIO';
       readonly senha: CodecTypes['pg/text@1']['output'];
+      readonly status: CodecTypes['pg/bool@1']['output'];
       readonly telefone: CodecTypes['pg/text@1']['output'] | null;
     };
   };
@@ -352,6 +354,7 @@ export type FieldInputTypes = {
       readonly titulo: CodecTypes['pg/text@1']['input'];
     };
     readonly Usuario: {
+      readonly administradorPrincipal: CodecTypes['pg/bool@1']['input'];
       readonly bairro: CodecTypes['pg/text@1']['input'] | null;
       readonly cargo: CodecTypes['pg/text@1']['input'] | null;
       readonly cep: CodecTypes['pg/text@1']['input'] | null;
@@ -369,6 +372,7 @@ export type FieldInputTypes = {
       readonly numero: CodecTypes['pg/text@1']['input'] | null;
       readonly perfil: 'ADMINISTRADOR' | 'FUNCIONARIO';
       readonly senha: CodecTypes['pg/text@1']['input'];
+      readonly status: CodecTypes['pg/bool@1']['input'];
       readonly telefone: CodecTypes['pg/text@1']['input'] | null;
     };
   };
@@ -415,6 +419,7 @@ export type StorageColumnTypes = {
       readonly titulo: CodecTypes['pg/text@1']['output'];
     };
     readonly Usuario: {
+      readonly administradorPrincipal: CodecTypes['pg/bool@1']['output'];
       readonly bairro: CodecTypes['pg/text@1']['output'] | null;
       readonly cargo: CodecTypes['pg/text@1']['output'] | null;
       readonly cep: CodecTypes['pg/text@1']['output'] | null;
@@ -432,6 +437,7 @@ export type StorageColumnTypes = {
       readonly numero: CodecTypes['pg/text@1']['output'] | null;
       readonly perfil: 'ADMINISTRADOR' | 'FUNCIONARIO';
       readonly senha: CodecTypes['pg/text@1']['output'];
+      readonly status: CodecTypes['pg/bool@1']['output'];
       readonly telefone: CodecTypes['pg/text@1']['output'] | null;
     };
   };
@@ -478,6 +484,7 @@ export type StorageColumnInputTypes = {
       readonly titulo: CodecTypes['pg/text@1']['input'];
     };
     readonly Usuario: {
+      readonly administradorPrincipal: CodecTypes['pg/bool@1']['input'];
       readonly bairro: CodecTypes['pg/text@1']['input'] | null;
       readonly cargo: CodecTypes['pg/text@1']['input'] | null;
       readonly cep: CodecTypes['pg/text@1']['input'] | null;
@@ -495,6 +502,7 @@ export type StorageColumnInputTypes = {
       readonly numero: CodecTypes['pg/text@1']['input'] | null;
       readonly perfil: 'ADMINISTRADOR' | 'FUNCIONARIO';
       readonly senha: CodecTypes['pg/text@1']['input'];
+      readonly status: CodecTypes['pg/bool@1']['input'];
       readonly telefone: CodecTypes['pg/text@1']['input'] | null;
     };
   };
@@ -549,6 +557,7 @@ export namespace Models {
     readonly [RelationKeys]?: never;
   };
   export type public_Usuario = {
+    administradorPrincipal: CodecTypes['pg/bool@1']['output'];
     bairro: CodecTypes['pg/text@1']['output'] | null;
     cargo: CodecTypes['pg/text@1']['output'] | null;
     cep: CodecTypes['pg/text@1']['output'] | null;
@@ -566,6 +575,7 @@ export namespace Models {
     numero: CodecTypes['pg/text@1']['output'] | null;
     perfil: 'ADMINISTRADOR' | 'FUNCIONARIO';
     senha: CodecTypes['pg/text@1']['output'];
+    status: CodecTypes['pg/bool@1']['output'];
     telefone: CodecTypes['pg/text@1']['output'] | null;
     sessoes: public_Sessao[];
     readonly [RelationKeys]?: 'sessoes';
@@ -862,6 +872,15 @@ type ContractBase = Omit<
             };
             readonly Usuario: {
               columns: {
+                readonly administradorPrincipal: {
+                  readonly nativeType: 'bool';
+                  readonly codecId: 'pg/bool@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/bool@1', false>;
+                  };
+                };
                 readonly bairro: {
                   readonly nativeType: 'text';
                   readonly codecId: 'pg/text@1';
@@ -951,6 +970,15 @@ type ContractBase = Omit<
                   readonly nativeType: 'text';
                   readonly codecId: 'pg/text@1';
                   readonly nullable: false;
+                };
+                readonly status: {
+                  readonly nativeType: 'bool';
+                  readonly codecId: 'pg/bool@1';
+                  readonly nullable: false;
+                  readonly default: {
+                    readonly kind: 'literal';
+                    readonly value: DefaultLiteralValue<'pg/bool@1', true>;
+                  };
                 };
                 readonly telefone: {
                   readonly nativeType: 'text';
@@ -1253,6 +1281,10 @@ type ContractBase = Omit<
           };
           readonly Usuario: {
             readonly fields: {
+              readonly administradorPrincipal: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/bool@1' };
+              };
               readonly bairro: {
                 readonly nullable: true;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
@@ -1330,6 +1362,10 @@ type ContractBase = Omit<
                 readonly nullable: false;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
               };
+              readonly status: {
+                readonly nullable: false;
+                readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/bool@1' };
+              };
               readonly telefone: {
                 readonly nullable: true;
                 readonly type: { readonly kind: 'scalar'; readonly codecId: 'pg/text@1' };
@@ -1352,6 +1388,7 @@ type ContractBase = Omit<
               readonly table: 'Usuario';
               readonly namespaceId: 'public';
               readonly fields: {
+                readonly administradorPrincipal: { readonly column: 'administradorPrincipal' };
                 readonly bairro: { readonly column: 'bairro' };
                 readonly cargo: { readonly column: 'cargo' };
                 readonly cep: { readonly column: 'cep' };
@@ -1369,6 +1406,7 @@ type ContractBase = Omit<
                 readonly numero: { readonly column: 'numero' };
                 readonly perfil: { readonly column: 'perfil' };
                 readonly senha: { readonly column: 'senha' };
+                readonly status: { readonly column: 'status' };
                 readonly telefone: { readonly column: 'telefone' };
               };
             };
