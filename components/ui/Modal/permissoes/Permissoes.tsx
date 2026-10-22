@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import { Users, ShieldCheck, X } from "lucide-react";
-import Gerenciamen
+
+import PerfisAcesso from "./PerfisAcesso";
+import GerenciarPermissoes from "./GerenciarPermissoes";
 
 type PermissoesProps = {
   onClose: () => void;
@@ -20,6 +22,7 @@ export default function Permissoes({ onClose }: PermissoesProps) {
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-lg font-semibold">Perfis de acesso</h2>
+
               <p className="mt-1 text-xs text-slate-400">
                 Gerencie perfis, módulos e permissões.
               </p>
