@@ -59,7 +59,9 @@ export default function InfoCliente({
 
         const pagamentosDoBanco: Pagamento[] = await resposta.json();
 
-        setPagamentos(pagamentosDoBanco);
+        setPagamentos(
+          Array.isArray(pagamentosDoBanco) ? pagamentosDoBanco : [],
+        );
       } catch (erro) {
         console.error("Erro ao buscar pagamentos:", erro);
       }
@@ -115,7 +117,9 @@ export default function InfoCliente({
         const pagamentosAtualizados: Pagamento[] =
           await respostaPagamentos.json();
 
-        setPagamentos(pagamentosAtualizados);
+        setPagamentos(
+          Array.isArray(pagamentosAtualizados) ? pagamentosAtualizados : [],
+        );
       }
     } catch (erro) {
       console.error("Erro ao salvar alterações:", erro);
@@ -126,6 +130,33 @@ export default function InfoCliente({
     "w-full rounded-xl border border-white/[0.08] bg-[#0d0d19] px-4 py-3 text-sm text-white outline-none transition-all placeholder:text-slate-600 focus:border-blue-400/50 focus:ring-2 focus:ring-blue-500/10 disabled:cursor-default disabled:border-white/[0.05] disabled:bg-white/[0.02] disabled:text-slate-300";
 
   const classeLabel = "text-xs font-medium text-slate-500";
+
+  function formatarData(data: string | null | undefined) {
+    if (!data || typeof data !== "string") {
+      return "Data não informada";
+    }
+
+    const partes = data.split("-");
+
+    if (partes.length !== 3 || !partes[0] || !partes[1] || !partes[2]) {
+      return "Data não informada";
+    }
+
+    const [ano, mes, dia] = partes;
+
+    const dataValida = new Date(Number(ano), Number(mes) - 1, Number(dia));
+
+    if (
+      Number.isNaN(dataValida.getTime()) ||
+      dataValida.getFullYear() !== Number(ano) ||
+      dataValida.getMonth() !== Number(mes) - 1 ||
+      dataValida.getDate() !== Number(dia)
+    ) {
+      return "Data não informada";
+    }
+
+    return `${dia}/${mes}/${ano}`;
+  }
 
   return (
     <main className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm sm:p-6">
@@ -424,7 +455,9 @@ export default function InfoCliente({
             ) : (
               <div className="flex max-h-72 flex-col gap-3 overflow-y-auto pr-1">
                 {pagamentos.map((pagamento) => {
-                  const [ano, mes, dia] = pagamento.data_vencimento.split("-");
+                  const dataFormatada = formatarData(pagamento.data_vencimento);
+
+                  const valor = Number(pagamento.valor ?? 0);
 
                   return (
                     <button
@@ -444,14 +477,14 @@ export default function InfoCliente({
                           </p>
 
                           <p className="mt-1 text-xs text-slate-500">
-                            {dia}/{mes}/{ano}
+                            {dataFormatada}
                           </p>
                         </div>
                       </div>
 
                       <div className="flex items-center justify-between gap-3 sm:justify-end">
                         <span className="text-sm font-semibold text-white">
-                          {pagamento.valor.toLocaleString("pt-BR", {
+                          {valor.toLocaleString("pt-BR", {
                             style: "currency",
                             currency: "BRL",
                           })}
@@ -464,7 +497,7 @@ export default function InfoCliente({
                               : "rounded-full border border-amber-400/15 bg-amber-500/[0.08] px-3 py-1 text-[11px] font-semibold text-amber-300"
                           }
                         >
-                          {pagamento.status}
+                          {pagamento.status || "Pendente"}
                         </span>
                       </div>
                     </button>
