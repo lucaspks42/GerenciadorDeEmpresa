@@ -118,8 +118,9 @@ export default function ModalUsuario({ onClose }: ModalUsuariosProps) {
     return (
       <>
         <InfoUsuario
-          fecharModal={() => setUsuarioSelecionado(null)}
+          key={`${usuarioSelecionado.id}-${usuarioSelecionado.perfilAcessoId ?? ""}`}
           usuario={usuarioSelecionado}
+          fecharModal={onClose}
           atualizarUsuario={atualizarUsuario}
           removerUsuario={removerUsuario}
         />
@@ -240,7 +241,9 @@ export default function ModalUsuario({ onClose }: ModalUsuariosProps) {
                         size={15}
                         className="shrink-0 text-blue-400"
                       />
-                      <span>{usuario.perfil}</span>
+                      <span className="truncate">
+                        {usuario.cargo || "Cargo não informado"}
+                      </span>
                     </div>
 
                     <div className="flex items-center gap-2 text-sm md:justify-center">

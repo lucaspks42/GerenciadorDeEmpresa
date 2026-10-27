@@ -5,6 +5,10 @@ import { param } from "@prisma/orm-postgres/relational-core";
 
 const runtime = db.runtime();
 
+// ==========================================
+// GET - LISTAR USUÁRIOS
+// ==========================================
+
 export async function GET() {
   try {
     const usuario = await exigirAdministrador();
@@ -31,6 +35,7 @@ export async function GET() {
         "departamento",
         "dataAdmissao",
         "perfil",
+        "perfilAcessoId",
         "status",
         "administradorPrincipal"
       FROM "Usuario"
@@ -53,6 +58,7 @@ export async function GET() {
         departamento: db.sql.public.Usuario.columns.departamento,
         dataAdmissao: db.sql.public.Usuario.columns.dataAdmissao,
         perfil: db.sql.public.Usuario.columns.perfil,
+        perfilAcessoId: db.sql.public.Usuario.columns.perfilAcessoId,
         status: db.sql.public.Usuario.columns.status,
         administradorPrincipal:
           db.sql.public.Usuario.columns.administradorPrincipal,
@@ -71,6 +77,10 @@ export async function GET() {
     );
   }
 }
+
+// ==========================================
+// POST - CADASTRAR USUÁRIO
+// ==========================================
 
 export async function POST(request: Request) {
   try {
@@ -117,30 +127,30 @@ export async function POST(request: Request) {
     const perfil = "FUNCIONARIO";
 
     const inserirPlano = db.raw.sql`
-  INSERT INTO "Usuario"
-  (
-    "nome",
-    "email",
-    "telefone",
-    "senha",
-    "perfil",
-    "status"
-  )
-  VALUES
-  (
-    ${nome},
-    ${email},
-    ${telefone},
-    ${senhaHash},
-    ${param(perfil, {
-      codecId: db.sql.public.Usuario.columns.perfil.codecId,
-    })},
-    ${param(true, {
-      codecId: db.sql.public.Usuario.columns.status.codecId,
-    })}
-  )
-  RETURNING "id"
-`
+      INSERT INTO "Usuario"
+      (
+        "nome",
+        "email",
+        "telefone",
+        "senha",
+        "perfil",
+        "status"
+      )
+      VALUES
+      (
+        ${nome},
+        ${email},
+        ${telefone},
+        ${senhaHash},
+        ${param(perfil, {
+          codecId: db.sql.public.Usuario.columns.perfil.codecId,
+        })},
+        ${param(true, {
+          codecId: db.sql.public.Usuario.columns.status.codecId,
+        })}
+      )
+      RETURNING "id"
+    `
       .returnsRow({
         id: db.sql.public.Usuario.columns.id,
       })
@@ -164,6 +174,7 @@ export async function POST(request: Request) {
         email,
         telefone,
         perfil,
+        perfilAcessoId: null,
         status: true,
       },
       { status: 201 },

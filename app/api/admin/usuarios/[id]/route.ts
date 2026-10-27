@@ -20,9 +20,9 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const usuario = await exigirAdministrador();
+    const usuarioLogado = await exigirAdministrador();
 
-    if (!usuario) {
+    if (!usuarioLogado) {
       return Response.json({ erro: "Acesso negado" }, { status: 403 });
     }
 
@@ -51,9 +51,32 @@ export async function PATCH(
       departamento,
       dataAdmissao,
       perfil,
+      perfilAcessoId,
       status,
     } = dados;
 
+    // Verifica se o campo perfilAcessoId foi enviado.
+    const perfilAcessoFoiEnviado = Object.prototype.hasOwnProperty.call(
+      dados,
+      "perfilAcessoId",
+    );
+
+    // Valida o ID do perfil de acesso.
+    if (
+      perfilAcessoFoiEnviado &&
+      perfilAcessoId !== null &&
+      (typeof perfilAcessoId !== "string" ||
+        !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+          perfilAcessoId,
+        ))
+    ) {
+      return Response.json(
+        { erro: "ID do perfil de acesso inválido" },
+        { status: 400 },
+      );
+    }
+
+    // Valida o status.
     if (status !== undefined && typeof status !== "boolean") {
       return Response.json(
         { erro: "Status de usuário inválido" },
@@ -61,6 +84,19 @@ export async function PATCH(
       );
     }
 
+    // Valida o perfil de usuário.
+    if (
+      perfil !== undefined &&
+      perfil !== "ADMINISTRADOR" &&
+      perfil !== "FUNCIONARIO"
+    ) {
+      return Response.json(
+        { erro: "Perfil de usuário inválido" },
+        { status: 400 },
+      );
+    }
+
+    // Nome e e-mail são obrigatórios.
     if (
       typeof nome !== "string" ||
       !nome.trim() ||
@@ -69,17 +105,6 @@ export async function PATCH(
     ) {
       return Response.json(
         { erro: "Nome e e-mail são obrigatórios" },
-        { status: 400 },
-      );
-    }
-
-    if (
-      perfil !== undefined &&
-      perfil !== "ADMINISTRADOR" &&
-      perfil !== "FUNCIONARIO"
-    ) {
-      return Response.json(
-        { erro: "Perfil de usuário inválido" },
         { status: 400 },
       );
     }
@@ -114,18 +139,22 @@ export async function PATCH(
     // Protege o administrador principal.
     if (usuarioAtual.administradorPrincipal && perfil === "FUNCIONARIO") {
       return Response.json(
-        { erro: "O administrador principal não pode ser rebaixado" },
+        {
+          erro: "O administrador principal não pode ser rebaixado",
+        },
         { status: 403 },
       );
     }
 
     // Impede que o administrador rebaixe a própria conta.
     if (
-      usuario.email?.toLowerCase() === usuarioAtual.email.toLowerCase() &&
+      usuarioLogado.email?.toLowerCase() === usuarioAtual.email.toLowerCase() &&
       perfil === "FUNCIONARIO"
     ) {
       return Response.json(
-        { erro: "Você não pode rebaixar seu próprio perfil" },
+        {
+          erro: "Você não pode rebaixar seu próprio perfil",
+        },
         { status: 403 },
       );
     }
@@ -133,7 +162,7 @@ export async function PATCH(
     // Protege os dados do administrador principal.
     if (
       usuarioAtual.administradorPrincipal &&
-      usuario.email?.toLowerCase() !== usuarioAtual.email.toLowerCase()
+      usuarioLogado.email?.toLowerCase() !== usuarioAtual.email.toLowerCase()
     ) {
       return Response.json(
         {
@@ -143,6 +172,32 @@ export async function PATCH(
       );
     }
 
+    // Verifica se o perfil de acesso existe e está ativo.
+    if (perfilAcessoFoiEnviado && perfilAcessoId) {
+      const buscarPerfilPlano = db.raw.sql`
+        SELECT "id"
+        FROM "PerfilAcesso"
+        WHERE "id" = ${perfilAcessoId}
+          AND "ativo" = true
+      `
+        .returnsRow({
+          id: db.sql.public.PerfilAcesso.columns.id,
+        })
+        .build();
+
+      const perfilEncontrado = await runtime.query(buscarPerfilPlano);
+
+      if (!perfilEncontrado[0]) {
+        return Response.json(
+          {
+            erro: "Perfil de acesso não encontrado ou inativo",
+          },
+          { status: 400 },
+        );
+      }
+    }
+
+    // Normaliza os dados.
     const emailNormalizado = email.trim().toLowerCase();
     const cpfNormalizado = cpf?.replace(/\D/g, "") || null;
     const telefoneNormalizado = telefone?.trim() || null;
@@ -153,7 +208,7 @@ export async function PATCH(
       SELECT "id"
       FROM "Usuario"
       WHERE "email" = ${emailNormalizado}
-      AND "id" != ${usuarioId}
+        AND "id" != ${usuarioId}
     `
       .returnsRow({
         id: db.sql.public.Usuario.columns.id,
@@ -175,7 +230,7 @@ export async function PATCH(
         SELECT "id"
         FROM "Usuario"
         WHERE "cpf" = ${cpfNormalizado}
-        AND "id" != ${usuarioId}
+          AND "id" != ${usuarioId}
       `
         .returnsRow({
           id: db.sql.public.Usuario.columns.id,
@@ -257,7 +312,17 @@ export async function PATCH(
       codecId: db.sql.public.Usuario.columns.status.codecId,
     });
 
-    // Atualiza os dados do usuário.
+    // Parâmetro do perfil de acesso.
+    const perfilAcessoIdParametro = param(perfilAcessoId ?? null, {
+      codecId: db.sql.public.Usuario.columns.perfilAcessoId.codecId,
+    });
+
+    // Informa se o campo foi enviado na requisição.
+    const perfilAcessoFoiEnviadoParametro = param(perfilAcessoFoiEnviado, {
+      codecId: db.sql.public.Usuario.columns.status.codecId,
+    });
+
+    // Atualiza os dados do usuário, incluindo o perfil de acesso.
     const atualizarUsuarioPlano = db.raw.sql`
       UPDATE "Usuario"
       SET
@@ -275,13 +340,32 @@ export async function PATCH(
         "cargo" = ${cargoParametro},
         "departamento" = ${departamentoParametro},
         "dataAdmissao" = ${dataAdmissaoParametro},
-        "perfil" = COALESCE(${perfilParametro}, "perfil"),
-        "status" = ${statusParametro}
+
+        "perfil" = COALESCE(
+          ${perfilParametro},
+          "perfil"
+        ),
+
+        "perfilAcessoId" = CASE
+          WHEN ${perfilAcessoFoiEnviadoParametro}
+          THEN ${perfilAcessoIdParametro}
+          ELSE "perfilAcessoId"
+        END,
+
+        "status" = COALESCE(
+          ${statusParametro},
+          "status"
+        )
+
       WHERE "id" = ${usuarioId}
-      RETURNING "id"
+
+      RETURNING
+        "id",
+        "perfilAcessoId"
     `
       .returnsRow({
         id: db.sql.public.Usuario.columns.id,
+        perfilAcessoId: db.sql.public.Usuario.columns.perfilAcessoId,
       })
       .build();
 
@@ -296,6 +380,10 @@ export async function PATCH(
 
     return Response.json({
       mensagem: "Usuário atualizado com sucesso",
+      usuario: {
+        id: usuarioAtualizado[0].id,
+        perfilAcessoId: usuarioAtualizado[0].perfilAcessoId,
+      },
     });
   } catch (erro) {
     console.error("ERRO AO ATUALIZAR USUÁRIO:", erro);
@@ -388,10 +476,10 @@ export async function DELETE(
 
     // Primeiro, exclui as sessões vinculadas ao usuário.
     const excluirSessoesPlano = db.raw.sql`
-  DELETE FROM "Sessao"
-  WHERE "usuarioId" = ${usuarioId}
-  RETURNING "usuarioId"
-`
+      DELETE FROM "Sessao"
+      WHERE "usuarioId" = ${usuarioId}
+      RETURNING "usuarioId"
+    `
       .returnsRow({
         usuarioId: db.sql.public.Sessao.columns.usuarioId,
       })
@@ -403,7 +491,7 @@ export async function DELETE(
     const excluirUsuarioPlano = db.raw.sql`
       DELETE FROM "Usuario"
       WHERE "id" = ${usuarioId}
-      AND "administradorPrincipal" IS NOT TRUE
+        AND "administradorPrincipal" IS NOT TRUE
       RETURNING "id"
     `
       .returnsRow({

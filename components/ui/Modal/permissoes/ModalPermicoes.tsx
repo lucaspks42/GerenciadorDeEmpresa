@@ -13,9 +13,7 @@ import {
   LoaderCircle,
   Inbox,
 } from "lucide-react";
-
-import { Input } from "../buttons/input";
-import Toast from "../Toast";
+import Toast from "../../Toast";
 
 type ModalPermissaoProps = {
   onClose: () => void;

@@ -14,7 +14,13 @@ export type Usuario = {
   cargo: string | null;
   departamento: string | null;
   dataAdmissao: string | null;
+
+  // Tipo básico da conta.
   perfil: "ADMINISTRADOR" | "FUNCIONARIO";
+
+  // Perfil personalizado de acesso.
+  perfilAcessoId: string | null;
+
   administradorPrincipal: boolean;
   status: boolean;
 };

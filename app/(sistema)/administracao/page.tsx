@@ -1,7 +1,6 @@
 "use client";
 
 import ContadoresPendente from "@/components/ui/contadores/ContadoresPendente";
-import ModalPermissao from "@/components/ui/Modal/ModalPermicoes";
 import ModalUsuario from "@/components/ui/Modal/ModalUsuario";
 
 import { useState } from "react";
@@ -21,15 +20,19 @@ import {
 import ContadorFuncionarios from "@/components/ui/contadores/ContadorUsuarios";
 import ContadorAtivo from "@/components/ui/contadores/ContadorAtivo";
 import Permissoes from "@/components/ui/Modal/permissoes/Permissoes";
+import ModalPermissao from "@/components/ui/Modal/permissoes/ModalPermicoes";
+import ModalEmpresa from "@/components/ui/Modal/empresa/ModalEmpresa";
 
 export default function Administracao() {
   const [modalAberto, setModalAberto] = useState(false);
   const [usuario, setUsuario] = useState(false);
   const [permissoes, setPermissoes] = useState(false);
+  const [empresa, setEmpresa] = useState(false);
 
   const fecharModal = () => setModalAberto(false);
   const fecharUsuario = () => setUsuario(false);
   const fecharPermissoes = () => setPermissoes(false);
+  const fecharEmpresa = () => setEmpresa(false);
 
   const estiloBotao =
     "group flex min-h-36 w-full items-center gap-4 rounded-2xl border border-white/[0.07] bg-[#11111f] p-5 text-left transition-all duration-300 hover:-translate-y-1 hover:border-blue-400/25 hover:bg-[#151526] hover:shadow-[0_10px_30px_rgba(37,99,235,0.06)] sm:p-6";
@@ -42,6 +45,7 @@ export default function Administracao() {
       {modalAberto && <ModalPermissao onClose={fecharModal} />}
       {usuario && <ModalUsuario onClose={fecharUsuario} />}
       {permissoes && <Permissoes onClose={fecharPermissoes} />}
+      {empresa && <ModalEmpresa onClose={fecharEmpresa} />}
 
       <div className="mx-auto max-w-7xl px-6 py-4 sm:px-10 lg:px-12">
         <div className="relative mb-9">
@@ -185,7 +189,11 @@ export default function Administracao() {
               />
             </button>
 
-            <button type="button" className={estiloBotao}>
+            <button
+              type="button"
+              className={estiloBotao}
+              onClick={() => setEmpresa(true)}
+            >
               <div className={estiloIcone}>
                 <Building2 size={23} />
               </div>

@@ -1,3 +1,4 @@
+
 // use prisma-next
 
 enum PerfilUsuario {
@@ -11,9 +12,12 @@ enum StatusSolicitacao {
   RECUSADO
 }
 
+// ==========================================
+// CLIENTES
+// ==========================================
 
 model Cliente {
-  id               Int         @id @default(autoincrement())
+  id               Int       @id @default(autoincrement())
   nome             String
   empresa          String?
   telefone         String?
@@ -24,6 +28,10 @@ model Cliente {
 
   pagamentos       Pagamento[]
 }
+
+// ==========================================
+// PAGAMENTOS
+// ==========================================
 
 model Pagamento {
   id             Int       @id @default(autoincrement())
@@ -36,6 +44,10 @@ model Pagamento {
   cliente        Cliente   @relation(fields: [clienteId], references: [id])
 }
 
+// ==========================================
+// TAREFAS
+// ==========================================
+
 model Tarefa {
   id        Int      @id @default(autoincrement())
   titulo    String
@@ -44,39 +56,161 @@ model Tarefa {
   criadoEm  DateTime @default(now())
 }
 
-model Usuario {
-  id       Int      @id @default(autoincrement())
-  nome     String
-  email    String   @unique
-  telefone String?
-  cpf String? @unique
-  dataNascimento DateTime?
-  cep String?
-  endereco String?
-  numero String?
-  bairro String?
-  cidade String?
-  estado String?
-  cargo String?
-  departamento   String?
-  dataAdmissao   DateTime?
-  senha    String
-  perfil   PerfilUsuario
-  criadoEm DateTime @default(now())
-  administradorPrincipal Boolean @default(false)
-  status Boolean @default(true)
+// ==========================================
+// USUÁRIOS
+// ==========================================
 
-  sessoes  Sessao[]
+model Usuario {
+  id                     Int      @id @default(autoincrement())
+  nome                   String
+  email                  String   @unique
+  telefone               String?
+  cpf                    String?  @unique
+  dataNascimento         DateTime?
+  cep                    String?
+  endereco               String?
+  numero                 String?
+  bairro                 String?
+  cidade                 String?
+  estado                 String?
+  cargo                  String?
+  departamento           String?
+  dataAdmissao           DateTime?
+  senha                  String
+  perfil                 PerfilUsuario
+  criadoEm               DateTime @default(now())
+  administradorPrincipal Boolean  @default(false)
+  status                 Boolean  @default(true)
+
+  perfilAcessoId         Uuid?
+  perfilAcesso           PerfilAcesso? @relation(fields: [perfilAcessoId], references: [id], onDelete: SetNull)
+
+  sessoes                Sessao[]
+
+  @@index([perfilAcessoId])
 }
 
+// ==========================================
+// PERFIS DE ACESSO
+// ==========================================
+
+model PerfilAcesso {
+  id                     Uuid         @id @default(uuid())
+  nome                   VarChar(100) @unique
+  descricao              VarChar(500)?
+  ativo                  Boolean      @default(true)
+  permissoesVizualizacao VarChar(30)  @default("todos")
+  observacoes            VarChar(300)?
+
+  usuarios               Usuario[]
+  permissoes             PerfilPermissao[]
+
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime
+
+  @@map("PerfilAcesso")
+}
+
+// ==========================================
+// MÓDULOS DO SISTEMA
+// ==========================================
+
+model Modulo {
+  id          Uuid         @id @default(uuid())
+  nome        VarChar(100)
+  slug        VarChar(100) @unique
+  descricao   String?
+  ativo       Boolean      @default(true)
+
+  permissoes  Permissao[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime
+
+  @@map("Modulo")
+}
+
+// ==========================================
+// PERMISSÕES
+// ==========================================
+
+model Permissao {
+  id          Uuid         @id @default(uuid())
+  chave       VarChar(150) @unique
+  nome        VarChar(100)
+  descricao   String?
+
+  moduloId    Uuid
+  modulo      Modulo       @relation(fields: [moduloId], references: [id], onDelete: Cascade)
+
+  perfis      PerfilPermissao[]
+
+  createdAt   DateTime @default(now())
+
+  @@index([moduloId])
+  @@map("Permissao")
+}
+
+// ==========================================
+// RELAÇÃO ENTRE PERFIS E PERMISSÕES
+// ==========================================
+
+model PerfilPermissao {
+  id             Uuid @id @default(uuid())
+
+  perfilAcessoId Uuid
+  permissaoId    Uuid
+
+  perfilAcesso   PerfilAcesso @relation(fields: [perfilAcessoId], references: [id], onDelete: Cascade)
+  permissao      Permissao    @relation(fields: [permissaoId], references: [id], onDelete: Cascade)
+
+  createdAt      DateTime @default(now())
+
+  @@unique([perfilAcessoId, permissaoId])
+  @@index([permissaoId])
+  @@map("PerfilPermissao")
+}
+
+// ==========================================
+// HISTÓRICO DE ALTERAÇÕES DOS PERFIS
+// ==========================================
+
+model HistoricoPerfil {
+  id              Int      @id @default(autoincrement())
+
+  perfilAcessoId  Uuid?
+  usuarioId       Int?
+
+  acao            VarChar(50)
+  descricao       String
+  dadosAnteriores Json?
+  dadosNovos      Json?
+
+  criadoEm        DateTime @default(now())
+
+  @@index([perfilAcessoId])
+  @@index([usuarioId])
+  @@index([criadoEm])
+
+  @@map("HistoricoPerfil")
+}
+
+// ==========================================
+// SOLICITAÇÕES DE CADASTRO
+// ==========================================
+
 model SolicitacaoCadastro {
-  id       Int                @id @default(autoincrement())
+  id       Int               @id @default(autoincrement())
   nome     String
   email    String
   senha    String
-  status   StatusSolicitacao  @default(PENDENTE)
-  criadoEm DateTime           @default(now())
+  status   StatusSolicitacao @default(PENDENTE)
+  criadoEm DateTime          @default(now())
 }
+
+// ==========================================
+// SESSÕES
+// ==========================================
 
 model Sessao {
   id        Int      @id @default(autoincrement())

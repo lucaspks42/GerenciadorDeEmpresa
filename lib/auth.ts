@@ -5,7 +5,6 @@ const runtime = db.runtime();
 
 export async function obterSessao() {
   const cookieStore = await cookies();
-
   const token = cookieStore.get("sessao")?.value;
 
   if (!token) {
@@ -18,12 +17,15 @@ export async function obterSessao() {
       "Usuario"."id" AS "usuarioId",
       "Usuario"."nome",
       "Usuario"."email",
-      "Usuario"."perfil"
+      "Usuario"."perfil",
+      "Usuario"."status",
+      "Usuario"."administradorPrincipal"
     FROM "Sessao"
     JOIN "Usuario"
       ON "Usuario"."id" = "Sessao"."usuarioId"
     WHERE "Sessao"."token" = ${token}
       AND "Sessao"."expiraEm" > NOW()
+      AND "Usuario"."status" = true
   `
     .returnsRow({
       sessaoId: db.sql.public.Sessao.columns.id,
@@ -31,31 +33,26 @@ export async function obterSessao() {
       nome: db.sql.public.Usuario.columns.nome,
       email: db.sql.public.Usuario.columns.email,
       perfil: db.sql.public.Usuario.columns.perfil,
+      status: db.sql.public.Usuario.columns.status,
+      administradorPrincipal:
+        db.sql.public.Usuario.columns.administradorPrincipal,
     })
     .build();
 
   const sessoes = await runtime.query(sessaoPlano);
-  const sessao = sessoes[0];
 
-  if (!sessao) {
-    return null;
-  }
-
-  return sessao;
+  return sessoes[0] ?? null;
 }
 
 export async function exigirAdministrador() {
   const usuario = await obterSessao();
 
-  console.log("USUÁRIO DA SESSÃO:", usuario);
-  console.log("PERFIL IDENTIFICADO:", usuario?.perfil);
-
   if (!usuario) {
-    return;
+    return null;
   }
 
   if (usuario.perfil !== "ADMINISTRADOR") {
-    return;
+    return null;
   }
 
   return usuario;

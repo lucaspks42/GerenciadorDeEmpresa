@@ -1,0 +1,890 @@
+[
+  {
+    "id": "table.HistoricoPerfil",
+    "label": "Create table \"HistoricoPerfil\"",
+    "summary": "Creates table \"HistoricoPerfil\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "HistoricoPerfil"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"HistoricoPerfil\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"HistoricoPerfil\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"HistoricoPerfil\"",
+        "sql": "CREATE TABLE \"public\".\"HistoricoPerfil\" (\n  \"acao\" character varying(50) NOT NULL,\n  \"criadoEm\" timestamptz DEFAULT (now()) NOT NULL,\n  \"dadosAnteriores\" json,\n  \"dadosNovos\" json,\n  \"descricao\" text NOT NULL,\n  \"id\" SERIAL NOT NULL,\n  \"perfilAcessoId\" uuid,\n  \"usuarioId\" int4,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"HistoricoPerfil\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"HistoricoPerfil\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.Modulo",
+    "label": "Create table \"Modulo\"",
+    "summary": "Creates table \"Modulo\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "Modulo"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"Modulo\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Modulo\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"Modulo\"",
+        "sql": "CREATE TABLE \"public\".\"Modulo\" (\n  \"ativo\" bool DEFAULT true NOT NULL,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"descricao\" text,\n  \"id\" uuid NOT NULL,\n  \"nome\" character varying(100) NOT NULL,\n  \"slug\" character varying(100) NOT NULL,\n  \"updatedAt\" timestamptz NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"Modulo\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Modulo\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.PerfilAcesso",
+    "label": "Create table \"PerfilAcesso\"",
+    "summary": "Creates table \"PerfilAcesso\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "PerfilAcesso"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"PerfilAcesso\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"PerfilAcesso\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"PerfilAcesso\"",
+        "sql": "CREATE TABLE \"public\".\"PerfilAcesso\" (\n  \"ativo\" bool DEFAULT true NOT NULL,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"descricao\" character varying(500),\n  \"id\" uuid NOT NULL,\n  \"nome\" character varying(100) NOT NULL,\n  \"observacoes\" character varying(300),\n  \"permissoesVizualizacao\" character varying(30) DEFAULT 'todos' NOT NULL,\n  \"updatedAt\" timestamptz NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"PerfilAcesso\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"PerfilAcesso\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.PerfilPermissao",
+    "label": "Create table \"PerfilPermissao\"",
+    "summary": "Creates table \"PerfilPermissao\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "PerfilPermissao"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"PerfilPermissao\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"PerfilPermissao\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"PerfilPermissao\"",
+        "sql": "CREATE TABLE \"public\".\"PerfilPermissao\" (\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"perfilAcessoId\" uuid NOT NULL,\n  \"permissaoId\" uuid NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"PerfilPermissao\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"PerfilPermissao\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.Permissao",
+    "label": "Create table \"Permissao\"",
+    "summary": "Creates table \"Permissao\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "Permissao"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"Permissao\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Permissao\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"Permissao\"",
+        "sql": "CREATE TABLE \"public\".\"Permissao\" (\n  \"chave\" character varying(150) NOT NULL,\n  \"createdAt\" timestamptz DEFAULT (now()) NOT NULL,\n  \"descricao\" text,\n  \"id\" uuid NOT NULL,\n  \"moduloId\" uuid NOT NULL,\n  \"nome\" character varying(100) NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"Permissao\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Permissao\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.Usuario.perfilAcessoId",
+    "label": "Add column \"perfilAcessoId\" to \"Usuario\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "perfilAcessoId",
+        "table": "Usuario"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"perfilAcessoId\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Usuario",
+          "perfilAcessoId"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"perfilAcessoId\"",
+        "sql": "ALTER TABLE \"public\".\"Usuario\" ADD COLUMN \"perfilAcessoId\" uuid"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"perfilAcessoId\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Usuario",
+          "perfilAcessoId"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "column.public.Usuario.status",
+    "label": "Add column \"status\" to \"Usuario\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "column",
+        "name": "status",
+        "table": "Usuario"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure column \"status\" is missing",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Usuario",
+          "status"
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add column \"status\"",
+        "sql": "ALTER TABLE \"public\".\"Usuario\" ADD COLUMN \"status\" bool DEFAULT true NOT NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify column \"status\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"information_schema\".\"columns\" WHERE (\"table_schema\" = $1 AND \"table_name\" = $2 AND \"column_name\" = $3)) AS \"result\"",
+        "params": [
+          "public",
+          "Usuario",
+          "status"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.Modulo.Modulo_slug_key",
+    "label": "Add unique constraint on \"Modulo\" (slug)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "Modulo_slug_key",
+        "table": "Modulo"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"Modulo_slug_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Modulo_slug_key",
+          "public",
+          "\"public\".\"Modulo\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"Modulo_slug_key\"",
+        "sql": "ALTER TABLE \"public\".\"Modulo\" ADD CONSTRAINT \"Modulo_slug_key\" UNIQUE (\"slug\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"Modulo_slug_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Modulo_slug_key",
+          "public",
+          "\"public\".\"Modulo\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.PerfilAcesso.PerfilAcesso_nome_key",
+    "label": "Add unique constraint on \"PerfilAcesso\" (nome)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "PerfilAcesso_nome_key",
+        "table": "PerfilAcesso"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"PerfilAcesso_nome_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "PerfilAcesso_nome_key",
+          "public",
+          "\"public\".\"PerfilAcesso\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"PerfilAcesso_nome_key\"",
+        "sql": "ALTER TABLE \"public\".\"PerfilAcesso\" ADD CONSTRAINT \"PerfilAcesso_nome_key\" UNIQUE (\"nome\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"PerfilAcesso_nome_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "PerfilAcesso_nome_key",
+          "public",
+          "\"public\".\"PerfilAcesso\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.PerfilPermissao.PerfilPermissao_perfilAcessoId_permissaoId_key",
+    "label": "Add unique constraint on \"PerfilPermissao\" (perfilAcessoId, permissaoId)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "PerfilPermissao_perfilAcessoId_permissaoId_key",
+        "table": "PerfilPermissao"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"PerfilPermissao_perfilAcessoId_permissaoId_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "PerfilPermissao_perfilAcessoId_permissaoId_key",
+          "public",
+          "\"public\".\"PerfilPermissao\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"PerfilPermissao_perfilAcessoId_permissaoId_key\"",
+        "sql": "ALTER TABLE \"public\".\"PerfilPermissao\" ADD CONSTRAINT \"PerfilPermissao_perfilAcessoId_permissaoId_key\" UNIQUE (\"perfilAcessoId\", \"permissaoId\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"PerfilPermissao_perfilAcessoId_permissaoId_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "PerfilPermissao_perfilAcessoId_permissaoId_key",
+          "public",
+          "\"public\".\"PerfilPermissao\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.Permissao.Permissao_chave_key",
+    "label": "Add unique constraint on \"Permissao\" (chave)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "Permissao_chave_key",
+        "table": "Permissao"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"Permissao_chave_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Permissao_chave_key",
+          "public",
+          "\"public\".\"Permissao\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"Permissao_chave_key\"",
+        "sql": "ALTER TABLE \"public\".\"Permissao\" ADD CONSTRAINT \"Permissao_chave_key\" UNIQUE (\"chave\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"Permissao_chave_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Permissao_chave_key",
+          "public",
+          "\"public\".\"Permissao\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.HistoricoPerfil.HistoricoPerfil_criadoEm_idx_f1f7cf71",
+    "label": "Create index \"HistoricoPerfil_criadoEm_idx_f1f7cf71\" on \"HistoricoPerfil\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "HistoricoPerfil_criadoEm_idx_f1f7cf71",
+        "table": "HistoricoPerfil"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"HistoricoPerfil_criadoEm_idx_f1f7cf71\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"HistoricoPerfil_criadoEm_idx_f1f7cf71\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"HistoricoPerfil_criadoEm_idx_f1f7cf71\"",
+        "sql": "CREATE INDEX \"HistoricoPerfil_criadoEm_idx_f1f7cf71\" ON \"public\".\"HistoricoPerfil\" (\"criadoEm\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"HistoricoPerfil_criadoEm_idx_f1f7cf71\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"HistoricoPerfil_criadoEm_idx_f1f7cf71\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.HistoricoPerfil.HistoricoPerfil_perfilAcessoId_idx_66e1fefe",
+    "label": "Create index \"HistoricoPerfil_perfilAcessoId_idx_66e1fefe\" on \"HistoricoPerfil\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "HistoricoPerfil_perfilAcessoId_idx_66e1fefe",
+        "table": "HistoricoPerfil"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"HistoricoPerfil_perfilAcessoId_idx_66e1fefe\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"HistoricoPerfil_perfilAcessoId_idx_66e1fefe\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"HistoricoPerfil_perfilAcessoId_idx_66e1fefe\"",
+        "sql": "CREATE INDEX \"HistoricoPerfil_perfilAcessoId_idx_66e1fefe\" ON \"public\".\"HistoricoPerfil\" (\"perfilAcessoId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"HistoricoPerfil_perfilAcessoId_idx_66e1fefe\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"HistoricoPerfil_perfilAcessoId_idx_66e1fefe\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.HistoricoPerfil.HistoricoPerfil_usuarioId_idx_5f01c7d6",
+    "label": "Create index \"HistoricoPerfil_usuarioId_idx_5f01c7d6\" on \"HistoricoPerfil\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "HistoricoPerfil_usuarioId_idx_5f01c7d6",
+        "table": "HistoricoPerfil"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"HistoricoPerfil_usuarioId_idx_5f01c7d6\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"HistoricoPerfil_usuarioId_idx_5f01c7d6\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"HistoricoPerfil_usuarioId_idx_5f01c7d6\"",
+        "sql": "CREATE INDEX \"HistoricoPerfil_usuarioId_idx_5f01c7d6\" ON \"public\".\"HistoricoPerfil\" (\"usuarioId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"HistoricoPerfil_usuarioId_idx_5f01c7d6\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"HistoricoPerfil_usuarioId_idx_5f01c7d6\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.PerfilPermissao.PerfilPermissao_perfilAcessoId_idx_66e1fefe",
+    "label": "Create index \"PerfilPermissao_perfilAcessoId_idx_66e1fefe\" on \"PerfilPermissao\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "PerfilPermissao_perfilAcessoId_idx_66e1fefe",
+        "table": "PerfilPermissao"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"PerfilPermissao_perfilAcessoId_idx_66e1fefe\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"PerfilPermissao_perfilAcessoId_idx_66e1fefe\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"PerfilPermissao_perfilAcessoId_idx_66e1fefe\"",
+        "sql": "CREATE INDEX \"PerfilPermissao_perfilAcessoId_idx_66e1fefe\" ON \"public\".\"PerfilPermissao\" (\"perfilAcessoId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"PerfilPermissao_perfilAcessoId_idx_66e1fefe\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"PerfilPermissao_perfilAcessoId_idx_66e1fefe\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.PerfilPermissao.PerfilPermissao_permissaoId_idx_32efd59e",
+    "label": "Create index \"PerfilPermissao_permissaoId_idx_32efd59e\" on \"PerfilPermissao\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "PerfilPermissao_permissaoId_idx_32efd59e",
+        "table": "PerfilPermissao"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"PerfilPermissao_permissaoId_idx_32efd59e\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"PerfilPermissao_permissaoId_idx_32efd59e\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"PerfilPermissao_permissaoId_idx_32efd59e\"",
+        "sql": "CREATE INDEX \"PerfilPermissao_permissaoId_idx_32efd59e\" ON \"public\".\"PerfilPermissao\" (\"permissaoId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"PerfilPermissao_permissaoId_idx_32efd59e\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"PerfilPermissao_permissaoId_idx_32efd59e\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Permissao.Permissao_moduloId_idx_d014a124",
+    "label": "Create index \"Permissao_moduloId_idx_d014a124\" on \"Permissao\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Permissao_moduloId_idx_d014a124",
+        "table": "Permissao"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Permissao_moduloId_idx_d014a124\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Permissao_moduloId_idx_d014a124\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Permissao_moduloId_idx_d014a124\"",
+        "sql": "CREATE INDEX \"Permissao_moduloId_idx_d014a124\" ON \"public\".\"Permissao\" (\"moduloId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Permissao_moduloId_idx_d014a124\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Permissao_moduloId_idx_d014a124\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.Usuario.Usuario_perfilAcessoId_idx_66e1fefe",
+    "label": "Create index \"Usuario_perfilAcessoId_idx_66e1fefe\" on \"Usuario\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "Usuario_perfilAcessoId_idx_66e1fefe",
+        "table": "Usuario"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"Usuario_perfilAcessoId_idx_66e1fefe\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Usuario_perfilAcessoId_idx_66e1fefe\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"Usuario_perfilAcessoId_idx_66e1fefe\"",
+        "sql": "CREATE INDEX \"Usuario_perfilAcessoId_idx_66e1fefe\" ON \"public\".\"Usuario\" (\"perfilAcessoId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"Usuario_perfilAcessoId_idx_66e1fefe\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Usuario_perfilAcessoId_idx_66e1fefe\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.PerfilPermissao.PerfilPermissao_perfilAcessoId_fkey",
+    "label": "Add foreign key \"PerfilPermissao_perfilAcessoId_fkey\" on \"PerfilPermissao\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "PerfilPermissao_perfilAcessoId_fkey",
+        "table": "PerfilPermissao"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"PerfilPermissao_perfilAcessoId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "PerfilPermissao_perfilAcessoId_fkey",
+          "public",
+          "\"public\".\"PerfilPermissao\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"PerfilPermissao_perfilAcessoId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"PerfilPermissao\"\nADD CONSTRAINT \"PerfilPermissao_perfilAcessoId_fkey\"\nFOREIGN KEY (\"perfilAcessoId\")\nREFERENCES \"public\".\"PerfilAcesso\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"PerfilPermissao_perfilAcessoId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "PerfilPermissao_perfilAcessoId_fkey",
+          "public",
+          "\"public\".\"PerfilPermissao\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.PerfilPermissao.PerfilPermissao_permissaoId_fkey",
+    "label": "Add foreign key \"PerfilPermissao_permissaoId_fkey\" on \"PerfilPermissao\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "PerfilPermissao_permissaoId_fkey",
+        "table": "PerfilPermissao"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"PerfilPermissao_permissaoId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "PerfilPermissao_permissaoId_fkey",
+          "public",
+          "\"public\".\"PerfilPermissao\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"PerfilPermissao_permissaoId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"PerfilPermissao\"\nADD CONSTRAINT \"PerfilPermissao_permissaoId_fkey\"\nFOREIGN KEY (\"permissaoId\")\nREFERENCES \"public\".\"Permissao\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"PerfilPermissao_permissaoId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "PerfilPermissao_permissaoId_fkey",
+          "public",
+          "\"public\".\"PerfilPermissao\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.Permissao.Permissao_moduloId_fkey",
+    "label": "Add foreign key \"Permissao_moduloId_fkey\" on \"Permissao\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "Permissao_moduloId_fkey",
+        "table": "Permissao"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"Permissao_moduloId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Permissao_moduloId_fkey",
+          "public",
+          "\"public\".\"Permissao\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"Permissao_moduloId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"Permissao\"\nADD CONSTRAINT \"Permissao_moduloId_fkey\"\nFOREIGN KEY (\"moduloId\")\nREFERENCES \"public\".\"Modulo\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"Permissao_moduloId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Permissao_moduloId_fkey",
+          "public",
+          "\"public\".\"Permissao\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.Usuario.Usuario_perfilAcessoId_fkey",
+    "label": "Add foreign key \"Usuario_perfilAcessoId_fkey\" on \"Usuario\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "Usuario_perfilAcessoId_fkey",
+        "table": "Usuario"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"Usuario_perfilAcessoId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Usuario_perfilAcessoId_fkey",
+          "public",
+          "\"public\".\"Usuario\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"Usuario_perfilAcessoId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"Usuario\"\nADD CONSTRAINT \"Usuario_perfilAcessoId_fkey\"\nFOREIGN KEY (\"perfilAcessoId\")\nREFERENCES \"public\".\"PerfilAcesso\" (\"id\")\nON DELETE SET NULL"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"Usuario_perfilAcessoId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Usuario_perfilAcessoId_fkey",
+          "public",
+          "\"public\".\"Usuario\""
+        ]
+      }
+    ]
+  }
+]
