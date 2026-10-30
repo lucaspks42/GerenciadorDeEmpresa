@@ -2,12 +2,9 @@ import { db } from "@/src/prisma/db";
 import { exigirAdministrador } from "@/lib/auth";
 import bcrypt from "bcryptjs";
 import { param } from "@prisma/orm-postgres/relational-core";
+import { registrarHistorico } from "@/lib/historico";
 
 const runtime = db.runtime();
-
-// ==========================================
-// GET - LISTAR USUÁRIOS
-// ==========================================
 
 export async function GET() {
   try {
@@ -77,10 +74,6 @@ export async function GET() {
     );
   }
 }
-
-// ==========================================
-// POST - CADASTRAR USUÁRIO
-// ==========================================
 
 export async function POST(request: Request) {
   try {
@@ -165,6 +158,27 @@ export async function POST(request: Request) {
         { status: 500 },
       );
     }
+
+    // REGISTRAR ATIVIDADE
+    await registrarHistorico({
+      usuario: {
+        id: usuario.usuarioId,
+        nome: usuario.nome,
+      },
+      request,
+      modulo: "USUARIOS",
+      acao: "CADASTRO",
+      descricao: `Cadastrou o funcionário ${nome}`,
+      entidade: "Usuario",
+      entidadeId: String(usuarioCriado.id),
+      dadosNovos: {
+        nome,
+        email,
+        telefone,
+        perfil,
+        status: true,
+      },
+    });
 
     return Response.json(
       {

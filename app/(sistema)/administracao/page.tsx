@@ -1,9 +1,17 @@
 "use client";
 
-import ContadoresPendente from "@/components/ui/contadores/ContadoresPendente";
-import ModalUsuario from "@/components/ui/Modal/ModalUsuario";
-
 import { useState } from "react";
+
+import ContadoresPendente from "@/components/ui/contadores/ContadoresPendente";
+import ContadorFuncionarios from "@/components/ui/contadores/ContadorUsuarios";
+import ContadorAtivo from "@/components/ui/contadores/ContadorAtivo";
+
+import ModalUsuario from "@/components/ui/Modal/ModalUsuario";
+import Permissoes from "@/components/ui/Modal/permissoes/Permissoes";
+import ModalPermissao from "@/components/ui/Modal/permissoes/ModalPermicoes";
+import ModalEmpresa from "@/components/ui/Modal/empresa/ModalEmpresa";
+import HistoricoAtividades from "@/components/ui/Modal/historico/HistoricoAtividades";
+
 import {
   Users,
   ShieldCheck,
@@ -17,22 +25,18 @@ import {
   History,
 } from "lucide-react";
 
-import ContadorFuncionarios from "@/components/ui/contadores/ContadorUsuarios";
-import ContadorAtivo from "@/components/ui/contadores/ContadorAtivo";
-import Permissoes from "@/components/ui/Modal/permissoes/Permissoes";
-import ModalPermissao from "@/components/ui/Modal/permissoes/ModalPermicoes";
-import ModalEmpresa from "@/components/ui/Modal/empresa/ModalEmpresa";
-
 export default function Administracao() {
   const [modalAberto, setModalAberto] = useState(false);
   const [usuario, setUsuario] = useState(false);
   const [permissoes, setPermissoes] = useState(false);
   const [empresa, setEmpresa] = useState(false);
+  const [modalHistoricoAberto, setModalHistoricoAberto] = useState(false);
 
   const fecharModal = () => setModalAberto(false);
   const fecharUsuario = () => setUsuario(false);
   const fecharPermissoes = () => setPermissoes(false);
   const fecharEmpresa = () => setEmpresa(false);
+  const fecharHistorico = () => setModalHistoricoAberto(false);
 
   const estiloBotao =
     "group flex min-h-36 w-full items-center gap-4 rounded-2xl border border-white/[0.07] bg-[#11111f] p-5 text-left transition-all duration-300 hover:-translate-y-1 hover:border-blue-400/25 hover:bg-[#151526] hover:shadow-[0_10px_30px_rgba(37,99,235,0.06)] sm:p-6";
@@ -42,10 +46,18 @@ export default function Administracao() {
 
   return (
     <main className="relative h-[calc(100vh-4rem)] overflow-y-auto bg-[#0d0d19] text-white">
+      {/* MODAIS */}
       {modalAberto && <ModalPermissao onClose={fecharModal} />}
+
       {usuario && <ModalUsuario onClose={fecharUsuario} />}
+
       {permissoes && <Permissoes onClose={fecharPermissoes} />}
+
       {empresa && <ModalEmpresa onClose={fecharEmpresa} />}
+
+      {modalHistoricoAberto && (
+        <HistoricoAtividades onClose={fecharHistorico} />
+      )}
 
       <div className="mx-auto max-w-7xl px-6 py-4 sm:px-10 lg:px-12">
         <div className="relative mb-9">
@@ -67,6 +79,7 @@ export default function Administracao() {
           </div>
         </div>
 
+        {/* INDICADORES */}
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <div className="group relative min-h-32 overflow-hidden rounded-2xl border border-white/[0.07] bg-[#11111f] p-4 transition-all duration-300 hover:-translate-y-1 hover:border-blue-400/25 hover:shadow-[0_12px_35px_rgba(37,99,235,0.08)]">
             <div className="pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full bg-blue-500/[0.07] blur-3xl transition-all group-hover:bg-blue-500/[0.12]" />
@@ -115,6 +128,7 @@ export default function Administracao() {
           </div>
         </div>
 
+        {/* GERENCIAMENTO */}
         <section className="mt-10">
           <div className="mb-5">
             <h2 className="text-xl font-semibold text-white">Gerenciamento</h2>
@@ -213,7 +227,11 @@ export default function Administracao() {
               />
             </button>
 
-            <button type="button" className={estiloBotao}>
+            <button
+              type="button"
+              onClick={() => setModalHistoricoAberto(true)}
+              className={estiloBotao}
+            >
               <div className={estiloIcone}>
                 <History size={23} />
               </div>

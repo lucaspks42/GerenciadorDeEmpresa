@@ -1,9 +1,14 @@
 import { exigirAdministrador } from "@/lib/auth";
+import { registrarHistorico } from "@/lib/historico";
 import { db } from "@/src/prisma/db";
 import { param } from "@prisma/orm-postgres/relational-core";
 import { Temporal } from "@js-temporal/polyfill";
 
 const runtime = db.runtime();
+
+// ==========================================
+// FUNÇÃO AUXILIAR - CONVERTER DATA
+// ==========================================
 
 function converterData(valor: string | null | undefined) {
   if (!valor) return null;
@@ -14,6 +19,10 @@ function converterData(valor: string | null | undefined) {
     throw new Error("Data inválida");
   }
 }
+
+// ==========================================
+// PATCH - ATUALIZAR USUÁRIO
+// ==========================================
 
 export async function PATCH(
   request: Request,
@@ -55,7 +64,7 @@ export async function PATCH(
       status,
     } = dados;
 
-    // Verifica se o campo perfilAcessoId foi enviado.
+    // Verifica se perfilAcessoId foi enviado.
     const perfilAcessoFoiEnviado = Object.prototype.hasOwnProperty.call(
       dados,
       "perfilAcessoId",
@@ -84,7 +93,7 @@ export async function PATCH(
       );
     }
 
-    // Valida o perfil de usuário.
+    // Valida o perfil.
     if (
       perfil !== undefined &&
       perfil !== "ADMINISTRADOR" &&
@@ -113,16 +122,26 @@ export async function PATCH(
     const usuarioEncontradoPlano = db.raw.sql`
       SELECT
         "id",
+        "nome",
         "email",
         "perfil",
+        "perfilAcessoId",
+        "status",
+        "cargo",
+        "departamento",
         "administradorPrincipal"
       FROM "Usuario"
       WHERE "id" = ${usuarioId}
     `
       .returnsRow({
         id: db.sql.public.Usuario.columns.id,
+        nome: db.sql.public.Usuario.columns.nome,
         email: db.sql.public.Usuario.columns.email,
         perfil: db.sql.public.Usuario.columns.perfil,
+        perfilAcessoId: db.sql.public.Usuario.columns.perfilAcessoId,
+        status: db.sql.public.Usuario.columns.status,
+        cargo: db.sql.public.Usuario.columns.cargo,
+        departamento: db.sql.public.Usuario.columns.departamento,
         administradorPrincipal:
           db.sql.public.Usuario.columns.administradorPrincipal,
       })
@@ -312,17 +331,15 @@ export async function PATCH(
       codecId: db.sql.public.Usuario.columns.status.codecId,
     });
 
-    // Parâmetro do perfil de acesso.
     const perfilAcessoIdParametro = param(perfilAcessoId ?? null, {
       codecId: db.sql.public.Usuario.columns.perfilAcessoId.codecId,
     });
 
-    // Informa se o campo foi enviado na requisição.
     const perfilAcessoFoiEnviadoParametro = param(perfilAcessoFoiEnviado, {
       codecId: db.sql.public.Usuario.columns.status.codecId,
     });
 
-    // Atualiza os dados do usuário, incluindo o perfil de acesso.
+    // Atualiza os dados do usuário.
     const atualizarUsuarioPlano = db.raw.sql`
       UPDATE "Usuario"
       SET
@@ -361,28 +378,76 @@ export async function PATCH(
 
       RETURNING
         "id",
-        "perfilAcessoId"
+        "nome",
+        "email",
+        "perfil",
+        "perfilAcessoId",
+        "status",
+        "cargo",
+        "departamento"
     `
       .returnsRow({
         id: db.sql.public.Usuario.columns.id,
+        nome: db.sql.public.Usuario.columns.nome,
+        email: db.sql.public.Usuario.columns.email,
+        perfil: db.sql.public.Usuario.columns.perfil,
         perfilAcessoId: db.sql.public.Usuario.columns.perfilAcessoId,
+        status: db.sql.public.Usuario.columns.status,
+        cargo: db.sql.public.Usuario.columns.cargo,
+        departamento: db.sql.public.Usuario.columns.departamento,
       })
       .build();
 
-    const usuarioAtualizado = await runtime.query(atualizarUsuarioPlano);
+    const usuariosAtualizados = await runtime.query(atualizarUsuarioPlano);
 
-    if (!usuarioAtualizado[0]) {
+    const usuarioNovo = usuariosAtualizados[0];
+
+    if (!usuarioNovo) {
       return Response.json(
         { erro: "Não foi possível atualizar o usuário" },
         { status: 500 },
       );
     }
 
+    // Registra a edição no histórico.
+    await registrarHistorico({
+      usuario: {
+        id: usuarioLogado.usuarioId,
+        nome: usuarioLogado.nome,
+      },
+      request,
+      modulo: "USUARIOS",
+      acao: "EDICAO",
+      descricao: `Editou os dados do funcionário ${usuarioNovo.nome}`,
+      entidade: "Usuario",
+      entidadeId: String(usuarioNovo.id),
+
+      dadosAnteriores: {
+        nome: usuarioAtual.nome,
+        email: usuarioAtual.email,
+        perfil: usuarioAtual.perfil,
+        perfilAcessoId: usuarioAtual.perfilAcessoId,
+        status: usuarioAtual.status,
+        cargo: usuarioAtual.cargo,
+        departamento: usuarioAtual.departamento,
+      },
+
+      dadosNovos: {
+        nome: usuarioNovo.nome,
+        email: usuarioNovo.email,
+        perfil: usuarioNovo.perfil,
+        perfilAcessoId: usuarioNovo.perfilAcessoId,
+        status: usuarioNovo.status,
+        cargo: usuarioNovo.cargo,
+        departamento: usuarioNovo.departamento,
+      },
+    });
+
     return Response.json({
       mensagem: "Usuário atualizado com sucesso",
       usuario: {
-        id: usuarioAtualizado[0].id,
-        perfilAcessoId: usuarioAtualizado[0].perfilAcessoId,
+        id: usuarioNovo.id,
+        perfilAcessoId: usuarioNovo.perfilAcessoId,
       },
     });
   } catch (erro) {
@@ -401,6 +466,10 @@ export async function PATCH(
     );
   }
 }
+
+// ==========================================
+// DELETE - EXCLUIR USUÁRIO
+// ==========================================
 
 export async function DELETE(
   request: Request,
@@ -423,18 +492,28 @@ export async function DELETE(
       );
     }
 
-    // Busca o usuário que será excluído.
+    // Busca os dados do usuário antes da exclusão.
     const buscarUsuarioPlano = db.raw.sql`
       SELECT
         "id",
+        "nome",
         "email",
+        "perfil",
+        "cargo",
+        "departamento",
+        "status",
         "administradorPrincipal"
       FROM "Usuario"
       WHERE "id" = ${usuarioId}
     `
       .returnsRow({
         id: db.sql.public.Usuario.columns.id,
+        nome: db.sql.public.Usuario.columns.nome,
         email: db.sql.public.Usuario.columns.email,
+        perfil: db.sql.public.Usuario.columns.perfil,
+        cargo: db.sql.public.Usuario.columns.cargo,
+        departamento: db.sql.public.Usuario.columns.departamento,
+        status: db.sql.public.Usuario.columns.status,
         administradorPrincipal:
           db.sql.public.Usuario.columns.administradorPrincipal,
       })
@@ -474,7 +553,7 @@ export async function DELETE(
       );
     }
 
-    // Primeiro, exclui as sessões vinculadas ao usuário.
+    // Exclui as sessões vinculadas ao usuário.
     const excluirSessoesPlano = db.raw.sql`
       DELETE FROM "Sessao"
       WHERE "usuarioId" = ${usuarioId}
@@ -487,7 +566,7 @@ export async function DELETE(
 
     await runtime.query(excluirSessoesPlano);
 
-    // Depois, exclui o usuário.
+    // Exclui o usuário.
     const excluirUsuarioPlano = db.raw.sql`
       DELETE FROM "Usuario"
       WHERE "id" = ${usuarioId}
@@ -507,6 +586,29 @@ export async function DELETE(
         { status: 404 },
       );
     }
+
+    // Registra a exclusão no histórico.
+    await registrarHistorico({
+      usuario: {
+        id: usuarioLogado.usuarioId,
+        nome: usuarioLogado.nome,
+      },
+      request,
+      modulo: "USUARIOS",
+      acao: "EXCLUSAO",
+      descricao: `Excluiu o funcionário ${usuarioEncontrado.nome}`,
+      entidade: "Usuario",
+      entidadeId: String(usuarioExcluido[0].id),
+
+      dadosAnteriores: {
+        nome: usuarioEncontrado.nome,
+        email: usuarioEncontrado.email,
+        perfil: usuarioEncontrado.perfil,
+        cargo: usuarioEncontrado.cargo,
+        departamento: usuarioEncontrado.departamento,
+        status: usuarioEncontrado.status,
+      },
+    });
 
     return Response.json({
       mensagem: "Usuário excluído com sucesso.",

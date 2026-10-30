@@ -1,0 +1,236 @@
+[
+  {
+    "id": "table.HistoricoAtividade",
+    "label": "Create table \"HistoricoAtividade\"",
+    "summary": "Creates table \"HistoricoAtividade\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "HistoricoAtividade"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"HistoricoAtividade\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"HistoricoAtividade\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"HistoricoAtividade\"",
+        "sql": "CREATE TABLE \"public\".\"HistoricoAtividade\" (\n  \"acao\" character varying(50) NOT NULL,\n  \"criadoEm\" timestamptz DEFAULT (now()) NOT NULL,\n  \"dadosAnteriores\" json,\n  \"dadosNovos\" json,\n  \"descricao\" text NOT NULL,\n  \"entidade\" character varying(100),\n  \"entidadeId\" text,\n  \"id\" SERIAL NOT NULL,\n  \"ip\" character varying(50),\n  \"modulo\" character varying(100) NOT NULL,\n  \"status\" character varying(30) DEFAULT 'SUCESSO' NOT NULL,\n  \"userAgent\" text,\n  \"usuarioId\" int4,\n  \"usuarioNome\" character varying(150),\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"HistoricoAtividade\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"HistoricoAtividade\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.HistoricoAtividade.HistoricoAtividade_acao_idx_aaf04231",
+    "label": "Create index \"HistoricoAtividade_acao_idx_aaf04231\" on \"HistoricoAtividade\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "HistoricoAtividade_acao_idx_aaf04231",
+        "table": "HistoricoAtividade"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"HistoricoAtividade_acao_idx_aaf04231\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"HistoricoAtividade_acao_idx_aaf04231\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"HistoricoAtividade_acao_idx_aaf04231\"",
+        "sql": "CREATE INDEX \"HistoricoAtividade_acao_idx_aaf04231\" ON \"public\".\"HistoricoAtividade\" (\"acao\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"HistoricoAtividade_acao_idx_aaf04231\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"HistoricoAtividade_acao_idx_aaf04231\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.HistoricoAtividade.HistoricoAtividade_criadoEm_idx_f1f7cf71",
+    "label": "Create index \"HistoricoAtividade_criadoEm_idx_f1f7cf71\" on \"HistoricoAtividade\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "HistoricoAtividade_criadoEm_idx_f1f7cf71",
+        "table": "HistoricoAtividade"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"HistoricoAtividade_criadoEm_idx_f1f7cf71\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"HistoricoAtividade_criadoEm_idx_f1f7cf71\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"HistoricoAtividade_criadoEm_idx_f1f7cf71\"",
+        "sql": "CREATE INDEX \"HistoricoAtividade_criadoEm_idx_f1f7cf71\" ON \"public\".\"HistoricoAtividade\" (\"criadoEm\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"HistoricoAtividade_criadoEm_idx_f1f7cf71\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"HistoricoAtividade_criadoEm_idx_f1f7cf71\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.HistoricoAtividade.HistoricoAtividade_modulo_idx_4244472c",
+    "label": "Create index \"HistoricoAtividade_modulo_idx_4244472c\" on \"HistoricoAtividade\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "HistoricoAtividade_modulo_idx_4244472c",
+        "table": "HistoricoAtividade"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"HistoricoAtividade_modulo_idx_4244472c\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"HistoricoAtividade_modulo_idx_4244472c\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"HistoricoAtividade_modulo_idx_4244472c\"",
+        "sql": "CREATE INDEX \"HistoricoAtividade_modulo_idx_4244472c\" ON \"public\".\"HistoricoAtividade\" (\"modulo\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"HistoricoAtividade_modulo_idx_4244472c\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"HistoricoAtividade_modulo_idx_4244472c\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.HistoricoAtividade.HistoricoAtividade_status_idx_e98638ab",
+    "label": "Create index \"HistoricoAtividade_status_idx_e98638ab\" on \"HistoricoAtividade\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "HistoricoAtividade_status_idx_e98638ab",
+        "table": "HistoricoAtividade"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"HistoricoAtividade_status_idx_e98638ab\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"HistoricoAtividade_status_idx_e98638ab\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"HistoricoAtividade_status_idx_e98638ab\"",
+        "sql": "CREATE INDEX \"HistoricoAtividade_status_idx_e98638ab\" ON \"public\".\"HistoricoAtividade\" (\"status\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"HistoricoAtividade_status_idx_e98638ab\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"HistoricoAtividade_status_idx_e98638ab\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.HistoricoAtividade.HistoricoAtividade_usuarioId_idx_5f01c7d6",
+    "label": "Create index \"HistoricoAtividade_usuarioId_idx_5f01c7d6\" on \"HistoricoAtividade\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "HistoricoAtividade_usuarioId_idx_5f01c7d6",
+        "table": "HistoricoAtividade"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"HistoricoAtividade_usuarioId_idx_5f01c7d6\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"HistoricoAtividade_usuarioId_idx_5f01c7d6\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"HistoricoAtividade_usuarioId_idx_5f01c7d6\"",
+        "sql": "CREATE INDEX \"HistoricoAtividade_usuarioId_idx_5f01c7d6\" ON \"public\".\"HistoricoAtividade\" (\"usuarioId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"HistoricoAtividade_usuarioId_idx_5f01c7d6\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"HistoricoAtividade_usuarioId_idx_5f01c7d6\""
+        ]
+      }
+    ]
+  }
+]

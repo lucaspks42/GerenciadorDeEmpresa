@@ -1,9 +1,17 @@
 import { db } from "@/src/prisma/db";
+import { exigirAdministrador } from "@/lib/auth";
+import { registrarHistorico } from "@/lib/historico";
 
 const runtime = db.runtime();
 
 export async function POST(request: Request) {
   try {
+    const usuarioLogado = await exigirAdministrador();
+
+    if (!usuarioLogado) {
+      return Response.json({ erro: "Não autorizado" }, { status: 401 });
+    }
+
     const dados = await request.json();
 
     const {
@@ -73,6 +81,35 @@ export async function POST(request: Request) {
       .build();
 
     const [cliente] = await runtime.query(plano);
+
+    if (!cliente) {
+      return Response.json(
+        { erro: "Não foi possível cadastrar o cliente" },
+        { status: 500 },
+      );
+    }
+
+    await registrarHistorico({
+      usuario: {
+        id: usuarioLogado.usuarioId,
+        nome: usuarioLogado.nome,
+      },
+      request,
+      modulo: "CLIENTES",
+      acao: "CADASTRO",
+      descricao: `Cadastrou o cliente ${cliente.nome}`,
+      entidade: "Cliente",
+      entidadeId: String(cliente.id),
+      dadosNovos: {
+        nome: cliente.nome,
+        empresa: cliente.empresa,
+        email: cliente.email,
+        telefone: cliente.telefone,
+        valorProduto: cliente.valorProduto,
+        valorMensalidade: cliente.valorMensalidade,
+        diaVencimento: cliente.diaVencimento,
+      },
+    });
 
     return Response.json(cliente, { status: 201 });
   } catch (erro) {

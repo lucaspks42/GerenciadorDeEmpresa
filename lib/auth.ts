@@ -3,6 +3,10 @@ import { db } from "@/src/prisma/db";
 
 const runtime = db.runtime();
 
+// ==========================================
+// OBTER USUÁRIO LOGADO
+// ==========================================
+
 export async function obterSessao() {
   const cookieStore = await cookies();
   const token = cookieStore.get("sessao")?.value;
@@ -44,6 +48,10 @@ export async function obterSessao() {
   return sessoes[0] ?? null;
 }
 
+// ==========================================
+// EXIGIR ADMINISTRADOR
+// ==========================================
+
 export async function exigirAdministrador() {
   const usuario = await obterSessao();
 
@@ -52,6 +60,54 @@ export async function exigirAdministrador() {
   }
 
   if (usuario.perfil !== "ADMINISTRADOR") {
+    return null;
+  }
+
+  return usuario;
+}
+
+// ==========================================
+// VERIFICAR PERMISSÃO DO USUÁRIO
+// ==========================================
+
+export async function exigirPermissao(chave: string) {
+  const usuario = await obterSessao();
+
+  // Usuário não está autenticado
+  if (!usuario) {
+    return null;
+  }
+
+  // Administradores têm acesso a todas as permissões
+  if (usuario.perfil === "ADMINISTRADOR") {
+    return usuario;
+  }
+
+  // Verifica se o perfil do funcionário possui a permissão
+  const permissaoPlano = db.raw.sql`
+    SELECT
+      p."chave"
+    FROM "Usuario" u
+    JOIN "PerfilAcesso" pa
+      ON pa."id" = u."perfilAcessoId"
+    JOIN "PerfilPermissao" pp
+      ON pp."perfilAcessoId" = pa."id"
+    JOIN "Permissao" p
+      ON p."id" = pp."permissaoId"
+    WHERE u."id" = ${usuario.usuarioId}
+      AND pa."ativo" = true
+      AND p."chave" = ${chave}
+    LIMIT 1
+  `
+    .returnsRow({
+      chave: db.sql.public.Permissao.columns.chave,
+    })
+    .build();
+
+  const permissoes = await runtime.query(permissaoPlano);
+
+  // Não possui a permissão
+  if (permissoes.length === 0) {
     return null;
   }
 

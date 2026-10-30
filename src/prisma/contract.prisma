@@ -220,3 +220,143 @@ model Sessao {
 
   usuario   Usuario  @relation(fields: [usuarioId], references: [id])
 }
+
+model Empresa {
+  // ID fixo para manter apenas um cadastro principal da empresa.
+  id Int @id @default(1)
+
+  // IDENTIFICAÇÃO
+  razaoSocial          VarChar(200)?
+  nomeFantasia         VarChar(150)?
+  cnpj                 VarChar(18)? @unique
+  dataAbertura         DateTime?
+  inscricaoEstadual    VarChar(30)?
+  inscricaoMunicipal   VarChar(30)?
+  naturezaJuridica     VarChar(100)?
+  porteEmpresarial     VarChar(50)?
+  situacaoCadastral    VarChar(30)?
+  cnaePrincipal        VarChar(20)?
+
+  // ENDEREÇO
+  cep                  VarChar(9)?
+  pais                 VarChar(80)?
+  estado               VarChar(80)?
+  cidade               VarChar(100)?
+  bairro               VarChar(100)?
+  numero               VarChar(20)?
+  logradouro           VarChar(200)?
+  complemento           VarChar(150)?
+  pontoReferencia      VarChar(200)?
+  tipoEstabelecimento  VarChar(40)?
+
+  // CONTATO
+  telefonePrincipal    VarChar(20)?
+  telefoneSecundario  VarChar(20)?
+  whatsapp             VarChar(20)?
+  emailPrincipal       VarChar(150)?
+  emailFinanceiro      VarChar(150)?
+  emailComercial       VarChar(150)?
+  site                 VarChar(200)?
+  instagram            VarChar(200)?
+  facebook             VarChar(200)?
+  linkedin             VarChar(200)?
+
+  // DADOS FISCAIS
+  regimeTributario     VarChar(40)?
+  regimeApuracao       VarChar(30)?
+  crt                  VarChar(5)?
+  indicadorICMS        VarChar(5)?
+  responsavelContabil  VarChar(150)?
+  crcContador          VarChar(30)?
+  emailContabilidade   VarChar(150)?
+  tipoCertificado      VarChar(20)?
+  validadeCertificado  DateTime?
+
+  // DADOS FINANCEIROS
+  titularConta         VarChar(150)?
+  documentoTitular     VarChar(18)?
+  tipoPix              VarChar(30)?
+  chavePix              VarChar(200)?
+
+  // IDENTIDADE VISUAL
+  logoUrl              String?
+  corPrincipal         VarChar(7)?
+  corSecundaria        VarChar(7)?
+  corApoio             VarChar(7)?
+  slogan               VarChar(150)?
+  responsavelLegal     VarChar(150)?
+  cpfResponsavel       VarChar(14)?
+  responsavelFinanceiro VarChar(150)?
+  descricao            VarChar(1000)?
+
+  // CONTROLE
+  criadoEm             DateTime @default(now())
+  atualizadoEm         DateTime
+
+  contasBancarias      ContaBancariaEmpresa[]
+
+  @@map("Empresa")
+}
+
+// ==========================================
+// CONTAS BANCÁRIAS DA EMPRESA
+// ==========================================
+
+model ContaBancariaEmpresa {
+  id          Uuid @id @default(uuid())
+
+  empresaId   Int
+  banco       VarChar(100)
+  agencia     VarChar(30)?
+  conta       VarChar(40)?
+  tipo        VarChar(30)
+  principal   Boolean @default(false)
+
+  empresa     Empresa @relation(
+    fields: [empresaId],
+    references: [id],
+    onDelete: Cascade
+  )
+
+  criadoEm    DateTime @default(now())
+  atualizadoEm DateTime
+
+  @@index([empresaId])
+  @@map("ContaBancariaEmpresa")
+}
+
+// ==========================================
+// HISTÓRICO GERAL DE ATIVIDADES
+// ==========================================
+
+model HistoricoAtividade {
+  id              Int      @id @default(autoincrement())
+
+  usuarioId       Int?
+  usuarioNome     VarChar(150)?
+
+  modulo          VarChar(100)
+  acao            VarChar(50)
+  descricao       String
+
+  entidade        VarChar(100)?
+  entidadeId      String?
+
+  dadosAnteriores Json?
+  dadosNovos      Json?
+
+  ip              VarChar(50)?
+  userAgent       String?
+
+  status          VarChar(30) @default("SUCESSO")
+
+  criadoEm        DateTime @default(now())
+
+  @@index([usuarioId])
+  @@index([modulo])
+  @@index([acao])
+  @@index([criadoEm])
+  @@index([status])
+
+  @@map("HistoricoAtividade")
+}

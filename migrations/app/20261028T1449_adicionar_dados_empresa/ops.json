@@ -1,0 +1,203 @@
+[
+  {
+    "id": "table.ContaBancariaEmpresa",
+    "label": "Create table \"ContaBancariaEmpresa\"",
+    "summary": "Creates table \"ContaBancariaEmpresa\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "ContaBancariaEmpresa"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"ContaBancariaEmpresa\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ContaBancariaEmpresa\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"ContaBancariaEmpresa\"",
+        "sql": "CREATE TABLE \"public\".\"ContaBancariaEmpresa\" (\n  \"agencia\" character varying(30),\n  \"atualizadoEm\" timestamptz NOT NULL,\n  \"banco\" character varying(100) NOT NULL,\n  \"conta\" character varying(40),\n  \"criadoEm\" timestamptz DEFAULT (now()) NOT NULL,\n  \"empresaId\" int4 NOT NULL,\n  \"id\" uuid NOT NULL,\n  \"principal\" bool DEFAULT false NOT NULL,\n  \"tipo\" character varying(30) NOT NULL,\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"ContaBancariaEmpresa\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ContaBancariaEmpresa\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "table.Empresa",
+    "label": "Create table \"Empresa\"",
+    "summary": "Creates table \"Empresa\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "table",
+        "name": "Empresa"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure table \"Empresa\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Empresa\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create table \"Empresa\"",
+        "sql": "CREATE TABLE \"public\".\"Empresa\" (\n  \"atualizadoEm\" timestamptz NOT NULL,\n  \"bairro\" character varying(100),\n  \"cep\" character varying(9),\n  \"chavePix\" character varying(200),\n  \"cidade\" character varying(100),\n  \"cnaePrincipal\" character varying(20),\n  \"cnpj\" character varying(18),\n  \"complemento\" character varying(150),\n  \"corApoio\" character varying(7),\n  \"corPrincipal\" character varying(7),\n  \"corSecundaria\" character varying(7),\n  \"cpfResponsavel\" character varying(14),\n  \"crcContador\" character varying(30),\n  \"criadoEm\" timestamptz DEFAULT (now()) NOT NULL,\n  \"crt\" character varying(5),\n  \"dataAbertura\" timestamptz,\n  \"descricao\" character varying(1000),\n  \"documentoTitular\" character varying(18),\n  \"emailComercial\" character varying(150),\n  \"emailContabilidade\" character varying(150),\n  \"emailFinanceiro\" character varying(150),\n  \"emailPrincipal\" character varying(150),\n  \"estado\" character varying(80),\n  \"facebook\" character varying(200),\n  \"id\" int4 DEFAULT 1 NOT NULL,\n  \"indicadorICMS\" character varying(5),\n  \"inscricaoEstadual\" character varying(30),\n  \"inscricaoMunicipal\" character varying(30),\n  \"instagram\" character varying(200),\n  \"linkedin\" character varying(200),\n  \"logoUrl\" text,\n  \"logradouro\" character varying(200),\n  \"naturezaJuridica\" character varying(100),\n  \"nomeFantasia\" character varying(150),\n  \"numero\" character varying(20),\n  \"pais\" character varying(80),\n  \"pontoReferencia\" character varying(200),\n  \"porteEmpresarial\" character varying(50),\n  \"razaoSocial\" character varying(200),\n  \"regimeApuracao\" character varying(30),\n  \"regimeTributario\" character varying(40),\n  \"responsavelContabil\" character varying(150),\n  \"responsavelFinanceiro\" character varying(150),\n  \"responsavelLegal\" character varying(150),\n  \"site\" character varying(200),\n  \"situacaoCadastral\" character varying(30),\n  \"slogan\" character varying(150),\n  \"telefonePrincipal\" character varying(20),\n  \"telefoneSecundario\" character varying(20),\n  \"tipoCertificado\" character varying(20),\n  \"tipoEstabelecimento\" character varying(40),\n  \"tipoPix\" character varying(30),\n  \"titularConta\" character varying(150),\n  \"validadeCertificado\" timestamptz,\n  \"whatsapp\" character varying(20),\n  PRIMARY KEY (\"id\")\n)",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify table \"Empresa\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"Empresa\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "unique.Empresa.Empresa_cnpj_key",
+    "label": "Add unique constraint on \"Empresa\" (cnpj)",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "unique",
+        "name": "Empresa_cnpj_key",
+        "table": "Empresa"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure constraint \"Empresa_cnpj_key\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Empresa_cnpj_key",
+          "public",
+          "\"public\".\"Empresa\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add unique constraint \"Empresa_cnpj_key\"",
+        "sql": "ALTER TABLE \"public\".\"Empresa\" ADD CONSTRAINT \"Empresa_cnpj_key\" UNIQUE (\"cnpj\")"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify constraint \"Empresa_cnpj_key\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "Empresa_cnpj_key",
+          "public",
+          "\"public\".\"Empresa\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "index.ContaBancariaEmpresa.ContaBancariaEmpresa_empresaId_idx_2ace4994",
+    "label": "Create index \"ContaBancariaEmpresa_empresaId_idx_2ace4994\" on \"ContaBancariaEmpresa\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "index",
+        "name": "ContaBancariaEmpresa_empresaId_idx_2ace4994",
+        "table": "ContaBancariaEmpresa"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure index \"ContaBancariaEmpresa_empresaId_idx_2ace4994\" does not exist",
+        "sql": "SELECT (to_regclass($1)) IS NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ContaBancariaEmpresa_empresaId_idx_2ace4994\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "create index \"ContaBancariaEmpresa_empresaId_idx_2ace4994\"",
+        "sql": "CREATE INDEX \"ContaBancariaEmpresa_empresaId_idx_2ace4994\" ON \"public\".\"ContaBancariaEmpresa\" (\"empresaId\")",
+        "params": []
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify index \"ContaBancariaEmpresa_empresaId_idx_2ace4994\" exists",
+        "sql": "SELECT (to_regclass($1)) IS NOT NULL AS \"result\"",
+        "params": [
+          "\"public\".\"ContaBancariaEmpresa_empresaId_idx_2ace4994\""
+        ]
+      }
+    ]
+  },
+  {
+    "id": "foreignKey.ContaBancariaEmpresa.ContaBancariaEmpresa_empresaId_fkey",
+    "label": "Add foreign key \"ContaBancariaEmpresa_empresaId_fkey\" on \"ContaBancariaEmpresa\"",
+    "operationClass": "additive",
+    "target": {
+      "id": "postgres",
+      "details": {
+        "schema": "public",
+        "objectType": "foreignKey",
+        "name": "ContaBancariaEmpresa_empresaId_fkey",
+        "table": "ContaBancariaEmpresa"
+      }
+    },
+    "precheck": [
+      {
+        "description": "ensure FK \"ContaBancariaEmpresa_empresaId_fkey\" does not exist",
+        "sql": "SELECT NOT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "ContaBancariaEmpresa_empresaId_fkey",
+          "public",
+          "\"public\".\"ContaBancariaEmpresa\""
+        ]
+      }
+    ],
+    "execute": [
+      {
+        "description": "add FK \"ContaBancariaEmpresa_empresaId_fkey\"",
+        "sql": "ALTER TABLE \"public\".\"ContaBancariaEmpresa\"\nADD CONSTRAINT \"ContaBancariaEmpresa_empresaId_fkey\"\nFOREIGN KEY (\"empresaId\")\nREFERENCES \"public\".\"Empresa\" (\"id\")\nON DELETE CASCADE"
+      }
+    ],
+    "postcheck": [
+      {
+        "description": "verify FK \"ContaBancariaEmpresa_empresaId_fkey\" exists",
+        "sql": "SELECT EXISTS (SELECT 1 AS \"one\" FROM \"pg_constraint\" AS \"c\" INNER JOIN \"pg_namespace\" AS \"n\" ON \"n\".\"oid\" = \"c\".\"connamespace\" WHERE (\"c\".\"conname\" = $1 AND \"n\".\"nspname\" = $2 AND \"c\".\"conrelid\" = to_regclass($3))) AS \"result\"",
+        "params": [
+          "ContaBancariaEmpresa_empresaId_fkey",
+          "public",
+          "\"public\".\"ContaBancariaEmpresa\""
+        ]
+      }
+    ]
+  }
+]
